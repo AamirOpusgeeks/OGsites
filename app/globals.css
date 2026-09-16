@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'NeueMachina';
+  src: url('https://noomoagency.com/_nuxt/NeueMachina-Regular.e896c98c.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NeueRoman';
+  src: url('https://noomoagency.com/_nuxt/NeueHaasDisplayRoman.d8850e5c.ttf') format('truetype');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-machina: 'NeueMachina', sans-serif;
+  --font-neue: 'NeueRoman', sans-serif;
+}
+
+html, body {
+  background-color: #c9d2e7;
+  color: #181520;
+  font-family: 'NeueRoman', -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-machina {
+  font-family: 'NeueMachina', sans-serif;
+}
+
+.font-neue {
+  font-family: 'NeueRoman', sans-serif;
+}
+
+::selection {
+  background: #181520;
+  color: #c9d2e7;
+}
+
+/* Noomo Signature View Project Pill Button */
+.view-project-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #181520;
+  color: #ffffff;
+  border-radius: 100px;
+  font-family: 'NeueMachina', sans-serif;
+  font-size: 12px;
+  height: 44px;
+  padding: 0 28px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(24, 21, 32, 0.12);
+}
+
+.view-project-link:hover {
+  background-color: #ffffff;
+  color: #181520;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(24, 21, 32, 0.2);
+}
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(24, 21, 32, 0.3);
+  border-radius: 100px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-family: 'NeueRoman', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #181520;
+}
+
+/* Fixed Bottom Cases Overlay (Exact Noomo Agency Layout) */
+.cases-texts {
+  bottom: 0;
+  height: 28vh;
+  position: fixed;
+  right: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.cases-texts .item {
+  display: flex;
+  height: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+  opacity: 0;
+  padding: 0 50px 55px;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  transition: opacity 0.45s ease-in-out, transform 0.45s ease-out;
+  transform: translateY(20px);
+}
+
+.cases-texts .item.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.cases-texts .item .left {
+  display: flex;
+  flex: 0 0 380px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cases-texts .item .center {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.cases-texts .item .right {
+  display: flex;
+  flex: 0 0 420px;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-align: left;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(300%); opacity: 0; }
+}
+
+@keyframes laser-sweep {
+  0%, 100% { transform: translateY(0%); opacity: 0.4; }
+  50% { transform: translateY(180px); opacity: 0.9; }
+}
+
+@keyframes bar-dance {
+  0%, 100% { height: 20%; }
+  30% { height: 75%; }
+  60% { height: 45%; }
+  80% { height: 95%; }
+}
+
+@keyframes flow-ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scanline {
+  animation: scanline 2.8s ease-in-out infinite;
+}
+
+.animate-laser {
+  animation: laser-sweep 2.2s ease-in-out infinite;
+}
+
+.animate-ticker {
+  animation: flow-ticker 18s linear infinite;
+}
