@@ -20,6 +20,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
+import GlobalHeader from "@/components/GlobalHeader";
+import GlobalFooter from "@/components/GlobalFooter";
 import { useScrollReveal } from '@/components/ScrollReveal';
 import { useChat } from '@/components/providers/ChatProvider';
 
@@ -287,18 +289,7 @@ export default function WebDevelopmentPage() {
       <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
         {/* ================= TOP NAV BAR ================= */}
-        <div className="flex items-center justify-between pb-4 border-b border-black/10 reveal-item">
-          <a href="/" className="flex items-center group">
-            <OpusLogo variant="full" size={26} />
-          </a>
-          <a
-            href="/"
-            className="inline-flex items-center space-x-2 font-machina text-xs uppercase tracking-wider text-[#181520] px-4 py-2 rounded-full border border-black/15 bg-white/50 hover:bg-white transition-all shadow-xs"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Overview</span>
-          </a>
-        </div>
+        <GlobalHeader />
 
         {/* ================= 1. HERO SECTION ================= */}
         <div className="space-y-6 reveal-item max-w-4xl pt-2">
@@ -577,43 +568,9 @@ export default function WebDevelopmentPage() {
           </div>
         </div>
 
-        {/* ================= 6. TECH STACK PILLS ================= */}
-        <div className="border-t border-black/10 pt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 reveal-item">
-          <span className="font-machina text-xs uppercase tracking-widest text-black/50">
-            Enterprise Web Stack
-          </span>
-          <div className="flex flex-wrap gap-2.5">
-            {TECH_STACK.map((tech, i) => (
-              <span
-                key={i}
-                className="bg-[#181520] text-white px-4 py-1.5 rounded-full text-xs font-neue hover:scale-105 transition-transform shadow-xs"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* ================= 7. FINAL CTA & BACK LINK ================= */}
-        <div className="flex flex-col sm:flex-row justify-between items-center border-t border-black/10 pt-10 gap-6 reveal-item">
-          <a
-            href="/"
-            className="font-neue text-xs uppercase tracking-wider hover:opacity-60 transition-opacity"
-          >
-            ← Back to Overview
-          </a>
-          
-          <button
-            onClick={() => openChat('New Project: Enterprise Web & Cloud Development')}
-            className="bg-[#181520] text-white px-8 py-3.5 rounded-full flex items-center space-x-3 text-xs uppercase tracking-widest font-machina hover:scale-105 transition-transform shadow-xl cursor-pointer outline-none border-none active:scale-95"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Initiate Web Collaboration</span>
-            <ArrowUpRight className="w-4 h-4" />
-          </button>
-        </div>
-
       </div>
+
+      <GlobalFooter />
     </div>
   );
 }

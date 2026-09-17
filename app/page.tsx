@@ -120,24 +120,24 @@ export default function Page() {
     const pmrem = new THREE.PMREMGenerator(renderer);
     pmrem.compileEquirectangularShader();
     const envScene = new THREE.Scene();
-    envScene.background = new THREE.Color('#f5f7fc');
-    const envL1 = new THREE.DirectionalLight(0xffffff, 3.0);
-    envL1.position.set(5, 10, 5);
+    envScene.background = new THREE.Color('#ffffff');
+    const envL1 = new THREE.DirectionalLight(0xffffff, 4.5);
+    envL1.position.set(5, 12, 6);
     envScene.add(envL1);
-    const envL2 = new THREE.DirectionalLight(0xf0f4ff, 2.0);
-    envL2.position.set(-5, 5, -5);
+    const envL2 = new THREE.DirectionalLight(0xffffff, 3.5);
+    envL2.position.set(-5, 6, -5);
     envScene.add(envL2);
-    const envAmb = new THREE.AmbientLight(0xffffff, 2.0);
+    const envAmb = new THREE.AmbientLight(0xffffff, 3.0);
     envScene.add(envAmb);
     scene.environment = pmrem.fromScene(envScene).texture;
 
-    const amb = new THREE.AmbientLight(0xffffff, 2.0);
+    const amb = new THREE.AmbientLight(0xffffff, 3.0);
     scene.add(amb);
-    const key = new THREE.DirectionalLight(0xffffff, 3.0);
-    key.position.set(5, 8, 6);
+    const key = new THREE.DirectionalLight(0xffffff, 4.5);
+    key.position.set(5, 10, 7);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0xf0f4ff, 1.5);
-    rim.position.set(-6, -4, -3);
+    const rim = new THREE.DirectionalLight(0xffffff, 3.0);
+    rim.position.set(-6, -5, -4);
     scene.add(rim);
 
     // Dynamic UI Texture Helpers — Ultra Clean Light Theme Luxury
@@ -964,16 +964,22 @@ export default function Page() {
     heroOGGroup.add(ogInnerGroup);
 
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      roughness: 0.18,
-      transmission: 0.92,
-      thickness: 0.45,
-      ior: 1.52,
-      reflectivity: 0.85,
+      color: new THREE.Color(0xffffff),
+      emissive: new THREE.Color(0xffffff),
+      emissiveIntensity: 0.18,
+      roughness: 0.04,
+      transmission: 0.96,
+      thickness: 0.55,
+      ior: 1.333, // Real physical water refractive index
+      reflectivity: 1.0,
       transparent: true,
-      clearcoat: 1,
-      clearcoatRoughness: 0.08,
-      envMapIntensity: 1.4,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.01,
+      specularIntensity: 1.0,
+      specularColor: new THREE.Color(0xffffff),
+      envMapIntensity: 2.8,
+      attenuationColor: new THREE.Color(0xffffff),
+      attenuationDistance: 3.0,
     });
     const oGeo = new THREE.TorusGeometry(0.58, 0.16, 32, 64);
     const letterO = new THREE.Mesh(oGeo, glassMat);
@@ -1387,121 +1393,123 @@ export default function Page() {
           <OpusLogo variant="full" size={32} />
         </button>
 
-        {/* Center: Clean Monochrome Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-8 font-neue text-[13px] font-medium tracking-[0.02em] text-[#181520]">
-          {/* Home (Active) */}
-          <button
-            onClick={() => { setServicesOpen(false); scrollToSection('hero'); }}
-            className="text-[#181520] font-semibold hover:opacity-60 transition-opacity cursor-pointer bg-transparent border-none outline-none font-neue text-[13px]"
-          >
-            Home
-          </button>
-
-          {/* Services Dropdown */}
-          <div className="relative" ref={dropdownRef}>
+        {/* Right Side: Grouped Navigation Links & Get Started CTA */}
+        <div className="flex items-center space-x-6 sm:space-x-8 ml-auto">
+          <nav className="hidden lg:flex items-center space-x-8 font-neue text-[13px] font-medium tracking-[0.02em] text-[#181520]">
+            {/* Home (Active) */}
             <button
-              onClick={() => setServicesOpen(!servicesOpen)}
-              className="flex items-center space-x-1 hover:opacity-60 transition-opacity cursor-pointer bg-transparent border-none outline-none font-neue text-[13px] font-medium text-[#181520]"
+              onClick={() => { setServicesOpen(false); scrollToSection('hero'); }}
+              className="text-[#181520] font-semibold hover:opacity-60 transition-opacity cursor-pointer bg-transparent border-none outline-none font-neue text-[13px]"
             >
-              <span>Services</span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${servicesOpen ? 'rotate-180' : ''}`} />
+              Home
             </button>
 
-            {/* Frosted Dropdown Menu */}
-            {servicesOpen && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-[#f0efe9]/95 backdrop-blur-xl border border-black/10 rounded-2xl p-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex flex-col space-y-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                <a
-                  href="/services/app-development"
-                  className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
-                    <Smartphone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">App Development</div>
-                    <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">React Native & Native Mobile</div>
-                  </div>
-                </a>
+            {/* Services Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setServicesOpen(!servicesOpen)}
+                className="flex items-center space-x-1 hover:opacity-60 transition-opacity cursor-pointer bg-transparent border-none outline-none font-neue text-[13px] font-medium text-[#181520]"
+              >
+                <span>Services</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${servicesOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-                <a
-                  href="/services/web-development"
-                  className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
-                    <Globe className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">Web Development</div>
-                    <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">Scalable Web Apps & Cloud</div>
-                  </div>
-                </a>
+              {/* Frosted Dropdown Menu */}
+              {servicesOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-[#f0efe9]/95 backdrop-blur-xl border border-black/10 rounded-2xl p-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex flex-col space-y-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <a
+                    href="/services/app-development"
+                    className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
+                      <Smartphone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">App Development</div>
+                      <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">React Native & Native Mobile</div>
+                    </div>
+                  </a>
 
-                <a
-                  href="/services/ui-ux-design"
-                  className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
-                    <Palette className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">UI/UX Design</div>
-                    <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">Design Systems & Prototypes</div>
-                  </div>
-                </a>
-              </div>
-            )}
+                  <a
+                    href="/services/web-development"
+                    className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">Web Development</div>
+                      <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">Scalable Web Apps & Cloud</div>
+                    </div>
+                  </a>
+
+                  <a
+                    href="/services/ui-ux-design"
+                    className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
+                      <Palette className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">UI/UX Design</div>
+                      <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">Design Systems & Prototypes</div>
+                    </div>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Portfolio Showcase Route */}
+            <a
+              href="/portfolio"
+              className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
+            >
+              Portfolio
+            </a>
+
+            {/* Blogs */}
+            <a
+              href="/blogs"
+              className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
+            >
+              Blogs
+            </a>
+
+            {/* About */}
+            <a
+              href="/about"
+              className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
+            >
+              About
+            </a>
+
+            {/* Contact Us */}
+            <a
+              href="/contact-us"
+              className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
+            >
+              Contact Us
+            </a>
+
+            {/* FAQs */}
+            <a
+              href="/faqs"
+              className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
+            >
+              FAQs
+            </a>
+          </nav>
+
+          {/* Right: Get Started White Pill Button -> Triggers AI Chat Architect */}
+          <div className="relative flex items-center">
+            <button
+              onClick={toggleChat}
+              className="bg-white text-[#181520] hover:bg-[#181520] hover:text-white px-6 py-2.5 rounded-full font-neue text-[13px] font-medium tracking-[0.02em] shadow-sm hover:shadow-md transition-all duration-300 flex items-center space-x-2 border border-black/5 active:scale-95 cursor-pointer outline-none"
+            >
+              <span>Get Started</span>
+              <Sparkles className="w-3.5 h-3.5" />
+            </button>
           </div>
-
-          {/* Portfolio Showcase Route */}
-          <a
-            href="/portfolio"
-            className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
-          >
-            Portfolio
-          </a>
-
-          {/* Blogs */}
-          <a
-            href="/blogs"
-            className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
-          >
-            Blogs
-          </a>
-
-          {/* About */}
-          <a
-            href="/about"
-            className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
-          >
-            About
-          </a>
-
-          {/* Contact Us */}
-          <button
-            onClick={() => { setServicesOpen(false); scrollToSection('connect'); }}
-            className="hover:opacity-60 transition-opacity cursor-pointer bg-transparent border-none outline-none font-neue text-[13px] font-medium text-[#181520]"
-          >
-            Contact Us
-          </button>
-
-          {/* FAQs */}
-          <button
-            onClick={() => openChat('Frequently Asked Questions')}
-            className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520] cursor-pointer bg-transparent border-none outline-none"
-          >
-            FAQs
-          </button>
-        </nav>
-
-        {/* Right: Get Started White Pill Button -> Triggers AI Chat Architect */}
-        <div className="relative flex items-center">
-          <button
-            onClick={toggleChat}
-            className="bg-white text-[#181520] hover:bg-[#181520] hover:text-white px-6 py-2.5 rounded-full font-neue text-[13px] font-medium tracking-[0.02em] shadow-sm hover:shadow-md transition-all duration-300 flex items-center space-x-2 border border-black/5 active:scale-95 cursor-pointer outline-none"
-          >
-            <span>Get Started</span>
-            <Sparkles className="w-3.5 h-3.5" />
-          </button>
         </div>
       </header>
 

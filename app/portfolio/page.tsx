@@ -4,6 +4,8 @@ import { useState, useRef, MouseEvent, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ArrowUpRight, ArrowLeft } from 'lucide-react';
 import OpusLogo from "@/components/OpusLogo";
+import GlobalHeader from "@/components/GlobalHeader";
+import GlobalFooter from "@/components/GlobalFooter";
 import ProjectMediaScreen from "@/components/ProjectMediaScreen";
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -13,8 +15,6 @@ import { useChat } from '@/components/providers/ChatProvider';
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
-
-
 
 interface Project {
   id: string;
@@ -35,11 +35,12 @@ interface Project {
 const CATEGORIES = [
   { id: 'all', label: 'All Works' },
   { id: 'app', label: 'Mobile Architecture' },
-  { id: 'web', label: 'Cloud Systems' },
-  { id: 'uiux', label: 'Design Systems' },
+  { id: 'web', label: 'Website & Cloud' },
+  { id: 'uiux', label: 'UI/UX Design' },
 ];
 
 const PROJECTS: Project[] = [
+  // 1. Mobile Architecture
   {
     id: 'fintech',
     number: '01',
@@ -55,12 +56,70 @@ const PROJECTS: Project[] = [
     screenLabel: 'iOS & Android Native Core',
   },
   {
-    id: 'cloud-saas',
+    id: 'mind-nourishment',
     number: '02',
+    title: 'Mind Nourishment Health',
+    client: 'Mind Nourishment Inc',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2026',
+    metric: '4.9★ App Store Rating',
+    desc: 'Mental wellness ecosystem featuring continuous HRV biofeedback tracking, spatial soundscapes, and encrypted offline-first journaling.',
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=85',
+    tags: ['React Native', 'HealthKit', 'Spatial Audio', 'WatermelonDB'],
+    screenLabel: 'Wellness & Biofeedback App',
+  },
+  {
+    id: 'lecavalier',
+    number: '03',
+    title: 'Le Cavalier Wine Vault',
+    client: 'Le Cavalier Cellars',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2026',
+    metric: '+185% Transaction Volume',
+    desc: 'Luxury wine asset verification, private barrel auctioning, and instant biometric checkout tailored for ultra-high-net-worth collectors.',
+    image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=85',
+    tags: ['SwiftUI', 'Kotlin Compose', 'Biometrics', 'Stripe Terminal'],
+    screenLabel: 'Luxury Asset Vault App',
+  },
+  {
+    id: 'wevents',
+    number: '04',
+    title: 'W VIP Event Hospitality',
+    client: 'W Events Group',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2025',
+    metric: '100k Peak Concurrent QPS',
+    desc: 'Dynamic interactive 3D venue map, NFC proximity pass entry, and synchronized crowd telemetry for premier global festivals.',
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Flutter', 'WebSocket Sync', 'NFC PassKit', '3D Maps'],
+    screenLabel: 'VIP Hospitality & Ticketing',
+  },
+
+  // 2. Website & Cloud Systems
+  {
+    id: 'vstream',
+    number: '05',
+    title: 'V-Stream Aviation Charter',
+    client: 'V-Stream Private Jet',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2026',
+    metric: '< 0.3s First Paint',
+    desc: 'Next-generation private jet charter platform offering real-time fleet availability, empty-leg flight matching, and custom bespoke itineraries.',
+    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Next.js 15', 'Tailwind CSS', 'Flight API', 'Edge Cache'],
+    screenLabel: 'Private Aviation Platform',
+  },
+  {
+    id: 'cloud-saas',
+    number: '06',
     title: 'Nexus Cloud Intelligence',
     client: 'Nexus Data Corp',
     category: 'web',
-    categoryLabel: 'Enterprise Cloud',
+    categoryLabel: 'Website & Cloud',
     year: '2026',
     metric: '45k+ Req/Sec Ingestion',
     desc: 'Multi-tenant cloud infrastructure and telemetry dashboard delivering real-time metric streams with distributed edge caching and sub-10ms queries.',
@@ -69,12 +128,70 @@ const PROJECTS: Project[] = [
     screenLabel: 'Cloud Platform Architecture',
   },
   {
+    id: 'kelstech',
+    number: '07',
+    title: 'Kelstech Home Services',
+    client: 'Kelstech Group',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2025',
+    metric: '+92% Lead Conversion',
+    desc: 'Modern on-demand home maintenance portal with instant technician dispatch, transparent quote estimation, and automated scheduling.',
+    image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Headless CMS', 'Next.js ISR', 'Dispatch Engine', 'PostgreSQL'],
+    screenLabel: 'Field Services Portal',
+  },
+  {
+    id: 'restaurant-techs',
+    number: '08',
+    title: 'Restaurant Techs Cloud & POS',
+    client: 'Restaurant Techs Inc',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2025',
+    metric: '99.999% Offline Uptime',
+    desc: 'Enterprise multi-location restaurant cloud management platform with real-time kitchen mesh ordering and live table telemetry.',
+    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=85',
+    tags: ['React 19', 'GraphQL Subscriptions', 'Microservices', 'Docker'],
+    screenLabel: 'Kitchen Telemetry & POS',
+  },
+  {
+    id: 'us-maxim',
+    number: '09',
+    title: 'US Maxim Luxury Commerce',
+    client: 'US Maxim Brand',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2025',
+    metric: '+64% Cart Conversion',
+    desc: 'Headless luxury e-commerce platform with dynamic inventory allocation, personalized recommendation algorithms, and sub-second checkout.',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Shopify Plus', 'Next.js Commerce', 'Stripe API', 'Vercel Edge'],
+    screenLabel: 'Headless Luxury Storefront',
+  },
+
+  // 3. UI/UX Design Systems
+  {
+    id: 'crypto',
+    number: '10',
+    title: 'Zenith Trading Terminal',
+    client: 'Zenith Protocol',
+    category: 'uiux',
+    categoryLabel: 'UI/UX Design',
+    year: '2026',
+    metric: '68% Conversion Boost',
+    desc: 'Next-generation institutional trading interface prioritizing high-contrast order books, transaction state clarity, and ultra-dark glass ergonomics.',
+    image: 'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Dark Mode Ergonomics', 'Order Book UX', 'Tactile States', 'Component Library'],
+    screenLabel: 'Web3 Terminal UX',
+  },
+  {
     id: 'ecosystem',
-    number: '03',
+    number: '11',
     title: 'Aura AI Design System',
     client: 'Aura Intelligence',
     category: 'uiux',
-    categoryLabel: 'Design Systems',
+    categoryLabel: 'UI/UX Design',
     year: '2025',
     metric: '45% Faster Dev Velocity',
     desc: 'Spatial interface system and component framework crafted for AI copilot tools, emphasizing tactile micro-interactions and accessible typography.',
@@ -83,52 +200,38 @@ const PROJECTS: Project[] = [
     screenLabel: 'Unified Spatial Guidelines',
   },
   {
-    id: 'logistics',
-    number: '04',
-    title: 'HyperShip Dispatch Suite',
-    client: 'HyperShip Global',
-    category: 'app',
-    categoryLabel: 'Mobile Architecture',
-    year: '2025',
-    metric: 'Zero Battery Drain GPS',
-    desc: 'Mission-critical native mobile app for last-mile fleet operations featuring background geolocation, instant barcode decoding, and offline route sync.',
-    image: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Background Geolocation', 'Offline SQLite', 'Native iOS/Android', 'Fastlane'],
-    screenLabel: 'Driver Dispatch UI',
-  },
-  {
-    id: 'venture',
-    number: '05',
-    title: 'VenturePulse Portal',
-    client: 'VenturePulse Partners',
-    category: 'web',
-    categoryLabel: 'Enterprise Cloud',
-    year: '2025',
-    metric: '$2.4B+ Assets Tracked',
-    desc: 'Bespoke private equity analytics engine offering real-time cap-table modeling, live capital call feeds, and multi-signature authorization pipelines.',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1600&q=85',
-    tags: ['TypeScript', 'GraphQL Subscriptions', 'Micro-Frontends', 'AWS Edge'],
-    screenLabel: 'Cap-Table Analytics UI',
-  },
-  {
-    id: 'crypto',
-    number: '06',
-    title: 'Zenith Trading Terminal',
-    client: 'Zenith Protocol',
+    id: 'smart-living',
+    number: '12',
+    title: 'SmartLiving IoT Interface',
+    client: 'SmartLiving Labs',
     category: 'uiux',
-    categoryLabel: 'Design Systems',
-    year: '2024',
-    metric: '68% Conversion Boost',
-    desc: 'Next-generation institutional trading interface prioritizing high-contrast order books, transaction state clarity, and ultra-dark glass ergonomics.',
-    image: 'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Dark Mode Ergonomics', 'Order Book UX', 'Tactile States', 'Component Library'],
-    screenLabel: 'Web3 Terminal UX',
+    categoryLabel: 'UI/UX Design',
+    year: '2025',
+    metric: 'Zero Latency Controls',
+    desc: 'Minimalist spatial smart-home control dashboard built with high-fidelity tactile toggles, spatial zone layouts, and energy telemetry.',
+    image: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Spatial Dashboard', 'Tactile Toggles', 'IoT Ergonomics', 'Dark Glass'],
+    screenLabel: 'Smart Home Spatial UX',
+  },
+  {
+    id: 'voyage',
+    number: '13',
+    title: 'Voyage Spatial Travel UX',
+    client: 'Voyage Global',
+    category: 'uiux',
+    categoryLabel: 'UI/UX Design',
+    year: '2025',
+    metric: '+78% Booking Completion',
+    desc: 'Frictionless travel exploration and spatial booking interface designed with immersive destination previews and interactive itinerary flows.',
+    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Interactive Maps', 'Frictionless Checkout', 'Motion Choreography', 'Design System'],
+    screenLabel: 'Spatial Itinerary Experience',
   },
 ];
 
 const STUDIO_METRICS = [
-  { label: 'Production Apps Deployed', value: '65+', sub: 'iOS, Android & Cloud' },
-  { label: 'Global Active Endpoints', value: '500K+', sub: 'Sub-second real-time sync' },
+  { label: 'Production Releases', value: '540+', sub: 'iOS, Android & Cloud' },
+  { label: 'Global Active Endpoints', value: '12M+', sub: 'Sub-second real-time sync' },
   { label: 'Infrastructure Uptime', value: '99.99%', sub: 'Enterprise tier SLA' },
   { label: 'Capital Volume Secured', value: '$2.4B+', sub: 'Zero-trust native encryption' },
 ];
@@ -143,7 +246,7 @@ function InteractiveCard({
   onHoverState?: (hovered: boolean) => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState('perspective(1200px) rotateX(0deg) rotateY(0deg)');
+  const [transform, setTransform] = useState('perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -158,8 +261,8 @@ function InteractiveCard({
     const rotateX = ((y - centerY) / centerY) * -4;
     const rotateY = ((x - centerX) / centerX) * 4;
 
-    setTransform(`perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.008, 1.008, 1.008)`);
-    setGlare({ x: (x / rect.width) * 100, y: (y / rect.height) * 100, opacity: 0.12 });
+    setTransform(`perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.012, 1.012, 1.012)`);
+    setGlare({ x: (x / rect.width) * 100, y: (y / rect.height) * 100, opacity: 0.14 });
   };
 
   const handleMouseLeave = () => {
@@ -178,7 +281,7 @@ function InteractiveCard({
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      style={{ transform, transformStyle: 'preserve-3d', transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+      style={{ transform, transformStyle: 'preserve-3d', transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}
       className={`relative will-change-transform ${className}`}
     >
       <div
@@ -198,122 +301,79 @@ function PortfolioContent() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [isHoveringCard, setIsHoveringCard] = useState(false);
-
   const containerRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const { lenis } = useLenis();
   const { openChat } = useChat();
 
-
-  // Mouse tracking for custom magnetic cursor
   useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
+    const handleGlobalMouseMove = (e: globalThis.MouseEvent) => {
       setCursorPos({ x: e.clientX, y: e.clientY });
     };
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    return () => window.removeEventListener('pointermove', handlePointerMove);
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
   }, []);
 
-  // Butter-Smooth Lenis & GSAP ScrollTrigger Integration
-  useEffect(() => {
-    const triggers: ScrollTrigger[] = [];
-
-
-    // 1. Kinetic Parallax Image Windows on Scroll
-    const parallaxImages = document.querySelectorAll('.parallax-img-target');
-
-    parallaxImages.forEach((img) => {
-      const parent = img.parentElement;
-      if (!parent) return;
-
-      const st = ScrollTrigger.create({
-        trigger: parent,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 0.6,
-        onUpdate: (self) => {
-          const yOffset = (self.progress - 0.5) * 48;
-          gsap.set(img, { y: yOffset, scale: 1.08 });
-        },
-      });
-      triggers.push(st);
-    });
-
-    // 2. Velocity-Driven Kinetic Marquee
-    if (marqueeRef.current) {
-      let currentX = 0;
-      const marqueeInner = marqueeRef.current;
-      
-      const marqueeST = ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        onUpdate: (self) => {
-          const velocity = self.getVelocity() / 300;
-          currentX -= 1.2 + Math.min(Math.max(velocity, -15), 15);
-          gsap.set(marqueeInner, { x: currentX % (marqueeInner.scrollWidth / 2) });
-        }
-      });
-      triggers.push(marqueeST);
-    }
-
-    // 3. Staggered Entrance Animations
-    const animatedCards = document.querySelectorAll('.scroll-reveal-card');
-    animatedCards.forEach((card) => {
-      const st = ScrollTrigger.create({
-        trigger: card,
-        start: 'top 85%',
-        onEnter: () => {
-          gsap.fromTo(
-            card,
-            { y: 36, opacity: 0, scale: 0.98 },
-            { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'power3.out' }
-          );
-        },
-        once: true,
-      });
-      triggers.push(st);
-    });
-
-    // Refresh ScrollTrigger calculations
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
-
-    return () => {
-      triggers.forEach((t) => t.kill());
-    };
-  }, [activeFilter, lenis]);
-
-
-  const filteredProjects = activeFilter === 'all'
-    ? PROJECTS
+  // Filter logic
+  const filteredProjects = activeFilter === 'all' 
+    ? PROJECTS 
     : PROJECTS.filter((p) => p.category === activeFilter);
 
-  // If a project is targeted via query param, reorder to put it first if in 'all' view
-  const displayProjects = [...filteredProjects];
-  if (requestedProject && activeFilter === 'all') {
-    const targetIdx = displayProjects.findIndex((p) => p.id === requestedProject);
-    if (targetIdx > 0) {
-      const [targetItem] = displayProjects.splice(targetIdx, 1);
-      displayProjects.unshift(targetItem);
-    }
-  }
+  const featuredProject = requestedProject 
+    ? PROJECTS.find(p => p.id === requestedProject) || filteredProjects[0] 
+    : filteredProjects[0];
 
-  const featuredProject = displayProjects[0];
-  const gridProjects = displayProjects.slice(1);
+  const gridProjects = filteredProjects.filter(p => p.id !== featuredProject?.id);
+
+  // Scroll animations
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const ctx = gsap.context(() => {
+      // Reveal cards smoothly on scroll
+      gsap.utils.toArray<HTMLElement>('.scroll-reveal-card').forEach((card) => {
+        gsap.from(card, {
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
+          },
+        });
+      });
+
+      // Kinetic Marquee velocity
+      if (marqueeRef.current && lenis) {
+        lenis.on('scroll', (e: { velocity: number }) => {
+          const vel = Math.abs(e.velocity || 0);
+          gsap.to(marqueeRef.current, {
+            x: `-=${1.2 + vel * 0.4}`,
+            ease: 'none',
+            modifiers: {
+              x: gsap.utils.unitize((x) => parseFloat(x) % 800),
+            },
+          });
+        });
+      }
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [lenis, activeFilter]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-28 px-6 md:px-14 overflow-hidden font-sans selection:bg-[#181520] selection:text-[#c9d2e7]"
+      className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans select-none"
     >
-      {/* Baked Lighting Background */}
+      {/* Baked Studio Backdrop */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img
           src="/backgrounds/background_min.png"
-          alt="background"
-          className="w-full h-full object-cover opacity-90"
+          alt="Studio Background"
+          className="w-full h-full object-cover"
         />
       </div>
 
@@ -337,21 +397,10 @@ function PortfolioContent() {
 
       <div className="relative z-10 max-w-7xl mx-auto flex flex-col">
         
-        {/* ================= TOP NAVIGATION (CLEAN, MINIMAL GAP) ================= */}
-        <div className="flex items-center justify-between pb-4 border-b border-black/10">
-          <a href="/" className="flex items-center group">
-            <OpusLogo variant="full" size={26} />
-          </a>
-          <a
-            href="/"
-            className="inline-flex items-center space-x-2 font-machina text-xs uppercase tracking-wider text-[#181520] px-4 py-2 rounded-full border border-black/15 bg-white/50 hover:bg-white transition-all shadow-xs"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Overview</span>
-          </a>
-        </div>
+        {/* ================= TOP NAVIGATION ================= */}
+        <GlobalHeader />
 
-        {/* ================= 1. MONUMENTAL EDITORIAL HEADER (TIGHT GAP UNDER LOGO) ================= */}
+        {/* ================= 1. MONUMENTAL EDITORIAL HEADER ================= */}
         <div className="mt-6 md:mt-8 flex flex-col space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-end">
             <div className="lg:col-span-8">
@@ -378,14 +427,14 @@ function PortfolioContent() {
                 <button
                   key={cat.id}
                   onClick={() => setActiveFilter(cat.id)}
-                  className={`px-5 py-2.5 rounded-full text-xs uppercase font-neue tracking-wider transition-all duration-200 cursor-pointer flex items-center space-x-2 ${
+                  className={`px-5 py-2.5 rounded-full text-xs font-machina uppercase tracking-widest transition-all duration-300 flex items-center space-x-2 cursor-pointer border ${
                     activeFilter === cat.id
-                      ? 'bg-[#181520] text-white shadow-md'
-                      : 'bg-white/50 hover:bg-white text-[#181520]/80 border border-black/10'
+                      ? 'bg-[#181520] text-white border-[#181520] shadow-md scale-105'
+                      : 'bg-white/50 hover:bg-white text-[#181520] border-black/10 hover:border-black/30'
                   }`}
                 >
                   <span>{cat.label}</span>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full ${
                     activeFilter === cat.id ? 'bg-white/20 text-white' : 'bg-black/5 text-black/60'
                   }`}>
                     {count}
@@ -396,18 +445,18 @@ function PortfolioContent() {
           </div>
         </div>
 
-        {/* ================= 2. FEATURED SHOWCASE CARD ================= */}
+        {/* ================= 2. MASTER SHOWPIECE CARD ================= */}
         {featuredProject && (
-          <div className="mt-10 md:mt-14 scroll-reveal-card">
-            <InteractiveCard 
+          <div className="mt-12 mb-10 scroll-reveal-card">
+            <InteractiveCard
               onHoverState={setIsHoveringCard}
-              className="bg-[#f2f1ec]/85 backdrop-blur-xl border border-white/70 rounded-[28px] p-6 md:p-10 shadow-[0_20px_45px_rgba(0,0,0,0.06)] group"
+              className="bg-[#f2f1ec]/85 backdrop-blur-2xl border border-white/80 rounded-[32px] p-6 md:p-12 shadow-[0_25px_60px_rgba(0,0,0,0.06)] group"
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
                 
-                {/* Visual Showcase Screen with Parallax Window */}
-                <div className="lg:col-span-7 relative aspect-[16/10] rounded-2xl overflow-hidden bg-[#121118] border border-black/10 shadow-inner">
-                  <div className="parallax-img-target absolute inset-0 w-full h-[115%] -top-[7%]">
+                {/* Visual Showcase Viewport */}
+                <div className="lg:col-span-7">
+                  <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-[#0c0d14] border border-black/10 shadow-2xl">
                     <ProjectMediaScreen
                       id={featuredProject.id}
                       title={featuredProject.title}
@@ -421,6 +470,9 @@ function PortfolioContent() {
                 {/* Editorial Details */}
                 <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
                   <div>
+                    <span className="font-mono text-xs uppercase tracking-wider text-black/50 block mb-2">
+                      Featured • {featuredProject.categoryLabel}
+                    </span>
                     <h2 className="font-machina text-3xl md:text-4xl font-bold uppercase text-[#181520] tracking-tight mb-4 leading-tight">
                       {featuredProject.title}
                     </h2>
@@ -460,7 +512,7 @@ function PortfolioContent() {
         )}
 
         {/* ================= 3. KINETIC VELOCITY SCROLL MARQUEE ================= */}
-        <div className="relative w-screen -ml-6 md:-ml-14 my-14 md:my-20 py-4 overflow-hidden border-y border-black/10 bg-white/20 backdrop-blur-xs select-none">
+        <div className="relative w-screen -ml-6 md:-ml-14 my-10 md:my-14 py-4 overflow-hidden border-y border-black/10 bg-white/20 backdrop-blur-xs select-none">
           <div 
             ref={marqueeRef}
             className="flex whitespace-nowrap text-xs font-mono uppercase tracking-[0.25em] text-[#181520]/75 will-change-transform"
@@ -478,7 +530,7 @@ function PortfolioContent() {
           </div>
         </div>
 
-        {/* ================= 4. EDITORIAL GRID (WORLD CLASS CARDS) ================= */}
+        {/* ================= 4. EDITORIAL GRID (WORLD CLASS 3D TILT CARDS) ================= */}
         {gridProjects.length > 0 && (
           <div className="mb-20 md:mb-28">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
@@ -568,30 +620,8 @@ function PortfolioContent() {
           </div>
         </div>
 
-        {/* ================= 6. EDITORIAL LEADERSHIP RETROSPECTIVE ================= */}
-        <div className="scroll-reveal-card my-10 bg-[#ebe8e1]/60 border border-black/10 rounded-[28px] p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div className="space-y-3 max-w-2xl">
-            <blockquote className="font-machina text-xl md:text-2xl uppercase tracking-tight text-[#181520] leading-snug">
-              “Opusgeeks re-engineered our native mobile architecture from the ground up. Order execution speeds improved by 68%, and transaction fail rates dropped to near zero.”
-            </blockquote>
-            <div className="font-neue text-xs uppercase tracking-wider text-black/60 pt-1">
-              Marcus Vance — VP of Engineering, FinEdge Global
-            </div>
-          </div>
-          <div className="hidden md:block w-px h-24 bg-black/10" />
-          <div className="space-y-1">
-            <div className="font-machina text-lg uppercase text-[#181520]">
-              SOC2 & ISO Compliant
-            </div>
-            <div className="font-neue text-xs text-black/60">
-              Enterprise security audited native builds
-            </div>
-          </div>
-        </div>
-
-        {/* ================= 7. MONOLITH BOTTOM CTA ================= */}
+        {/* ================= 6. MONOLITH BOTTOM CTA ================= */}
         <div className="scroll-reveal-card my-10 relative bg-[#181520] text-white rounded-[32px] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl overflow-hidden">
-          {/* Subtle Ambient Radial Glow */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 space-y-4 text-center md:text-left max-w-xl">
@@ -617,8 +647,9 @@ function PortfolioContent() {
           </div>
         </div>
 
-
       </div>
+
+      <GlobalFooter />
     </div>
   );
 }
