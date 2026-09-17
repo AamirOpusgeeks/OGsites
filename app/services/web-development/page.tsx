@@ -349,13 +349,10 @@ export default function WebDevelopmentPage() {
                   className="group bg-[#f0efe9]/80 hover:bg-white backdrop-blur-xl border border-white/80 hover:border-black/20 rounded-3xl p-6 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.09)] transition-colors duration-300 cursor-pointer"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-5">
+                    <div className="mb-5">
                       <div className="w-11 h-11 rounded-2xl bg-[#181520] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
                         <Icon className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-machina uppercase tracking-wider text-black/50 bg-black/[0.04] px-2.5 py-1 rounded-full border border-black/5">
-                        {svc.tag}
-                      </span>
                     </div>
 
                     <h3 className="font-machina text-base font-bold uppercase text-[#181520] mb-2 leading-snug group-hover:text-black transition-colors">
