@@ -105,11 +105,18 @@ function MonochromeTiltCard({ children, className = '' }: { children: React.Reac
 }
 
 import OpusLogo from "@/components/OpusLogo";
+import { useScrollReveal } from "@/components/ScrollReveal";
+import { useChat } from "@/components/providers/ChatProvider";
 
 export default function AboutPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(containerRef);
+  const { openChat } = useChat();
+
+
   return (
-    <div className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-32 pb-24 px-6 md:px-14 overflow-hidden font-sans">
-      {/* Baked Lighting Backdrop */}
+    <div ref={containerRef} className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
+      {/* Baked Studio Backdrop Image */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img
           src="/backgrounds/background_min.png"
@@ -118,23 +125,23 @@ export default function AboutPage() {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-24">
+      <div className="relative z-10 max-w-6xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
-        {/* Top Navbar / Navigation */}
-        <div className="flex items-center justify-between pb-6 border-b border-black/10">
+        {/* Top Navbar Header */}
+        <div className="flex items-center justify-between pb-4 border-b border-black/10 reveal-item">
           <a href="/" className="flex items-center group">
-            <OpusLogo variant="full" size={28} />
+            <OpusLogo variant="full" size={26} />
           </a>
           <a
             href="/"
-            className="font-neue text-xs uppercase tracking-wider text-[#181520] hover:opacity-60 transition-opacity"
+            className="inline-flex items-center space-x-2 font-machina text-xs uppercase tracking-wider text-[#181520] px-4 py-2 rounded-full border border-black/15 bg-white/50 hover:bg-white transition-all shadow-xs"
           >
             ← Back to Overview
           </a>
         </div>
 
         {/* ================= 1. MONOCHROME HERO ================= */}
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-6 reveal-item">
           <div className="flex items-center space-x-3">
             <span className="inline-block border border-black/30 rounded-full px-4 py-1 text-xs uppercase font-neue">
               About Opusgeeks
@@ -154,7 +161,7 @@ export default function AboutPage() {
         </div>
 
         {/* ================= 2. MISSION & MANIFESTO (BLACK & WHITE GLASS) ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch reveal-group">
           <MonochromeTiltCard className="md:col-span-7 bg-[#f0efe9]/80 backdrop-blur-xl border border-white/80 rounded-3xl p-8 md:p-12 shadow-[0_15px_35px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-8">
             <div className="space-y-4">
               <span className="font-machina text-xs uppercase tracking-widest text-black/50">Our Thesis</span>
@@ -205,7 +212,7 @@ export default function AboutPage() {
 
         {/* ================= 3. FOUR CORE VALUES ================= */}
         <div className="space-y-8">
-          <div className="flex items-center justify-between pb-4 border-b border-black/10">
+          <div className="flex items-center justify-between pb-4 border-b border-black/10 reveal-item">
             <h2 className="font-machina text-2xl md:text-3xl font-bold uppercase tracking-tight">
               Operational Principles
             </h2>
@@ -214,7 +221,7 @@ export default function AboutPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 reveal-group">
             {VALUES.map((val) => {
               const Icon = val.icon;
               return (
@@ -247,7 +254,7 @@ export default function AboutPage() {
 
         {/* ================= 4. EVOLUTION ROADMAP ================= */}
         <div className="space-y-8">
-          <div className="flex items-center justify-between pb-4 border-b border-black/10">
+          <div className="flex items-center justify-between pb-4 border-b border-black/10 reveal-item">
             <h2 className="font-machina text-2xl md:text-3xl font-bold uppercase tracking-tight">
               Trajectory & Milestones
             </h2>
@@ -256,11 +263,11 @@ export default function AboutPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 reveal-group">
             {MILESTONES.map((m) => (
               <div
                 key={m.year}
-                className="bg-[#f0efe9]/60 backdrop-blur-md border border-white/60 rounded-2xl p-6 flex flex-col justify-between space-y-4"
+                className="bg-[#f0efe9]/60 backdrop-blur-md border border-white/60 rounded-2xl p-6 flex flex-col justify-between space-y-4 hover:translate-y-[-4px] transition-transform duration-300"
               >
                 <div className="font-machina text-3xl font-bold text-[#181520]">
                   {m.year}
@@ -280,7 +287,7 @@ export default function AboutPage() {
 
         {/* ================= 5. THE COLLECTIVE (MONOCHROME PORTRAITS) ================= */}
         <div className="space-y-8">
-          <div className="flex items-center justify-between pb-4 border-b border-black/10">
+          <div className="flex items-center justify-between pb-4 border-b border-black/10 reveal-item">
             <h2 className="font-machina text-2xl md:text-3xl font-bold uppercase tracking-tight">
               Engineering Disciplines
             </h2>
@@ -289,7 +296,7 @@ export default function AboutPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 reveal-group">
             {TEAM.map((member, i) => (
               <MonochromeTiltCard
                 key={i}
@@ -326,7 +333,7 @@ export default function AboutPage() {
         </div>
 
         {/* ================= 6. MONOCHROME CTA ================= */}
-        <div className="bg-[#181520] text-white rounded-3xl p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+        <div className="bg-[#181520] text-white rounded-3xl p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl reveal-item">
           <div className="space-y-3 text-center md:text-left">
             <h2 className="font-machina text-3xl md:text-4xl font-bold uppercase">
               Partner with dedicated engineers.
@@ -336,16 +343,16 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <a
-            href="https://opusgeeks.com/contact"
-            target="_blank"
-            rel="noreferrer"
-            className="bg-white text-[#181520] hover:bg-[#c9d2e7] px-8 py-4 rounded-full font-machina text-xs uppercase tracking-widest transition-all duration-300 flex items-center space-x-3 whitespace-nowrap shadow-lg active:scale-95 cursor-pointer"
+          <button
+            onClick={() => openChat('Executive Direct Dialogue')}
+            className="bg-white text-[#181520] hover:bg-[#c9d2e7] px-8 py-4 rounded-full font-machina text-xs uppercase tracking-widest transition-all duration-300 flex items-center space-x-3 whitespace-nowrap shadow-lg active:scale-95 cursor-pointer outline-none border-none"
           >
             <span>Initiate Direct Dialogue</span>
             <ArrowUpRight className="w-4 h-4" />
-          </a>
+          </button>
         </div>
+
+
 
       </div>
     </div>

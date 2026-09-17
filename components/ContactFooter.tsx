@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useChat } from "@/components/providers/ChatProvider";
 import {
   ArrowUpRight,
   Sparkles,
@@ -19,6 +20,7 @@ const SERVICE_OPTIONS = [
 ];
 
 export default function ContactFooter() {
+  const { openChat } = useChat();
   const [selectedBudget, setSelectedBudget] = useState(BUDGET_OPTIONS[1]);
   const [selectedServices, setSelectedServices] = useState<string[]>([
     SERVICE_OPTIONS[0],
@@ -36,6 +38,7 @@ export default function ContactFooter() {
     e.preventDefault();
     if (!email) return;
     setSubmitted(true);
+    openChat(`Project Collaboration Brief - Services: [${selectedServices.join(', ')}], Budget: ${selectedBudget}, Contact: ${email}`);
     setTimeout(() => {
       setSubmitted(false);
       setEmail("");

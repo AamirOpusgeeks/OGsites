@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useEffect, useState, createContext, useContext } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface LenisContextType {
   lenis: Lenis | null;
@@ -21,18 +24,21 @@ export default function SmoothScrollProvider({
   children: React.ReactNode;
 }) {
   const [lenis, setLenis] = useState<Lenis | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
-    // 1. Configure Lenis smooth inertia scrolling
+    // 1. Configure single global Lenis smooth inertia scrolling
     const lenisInstance = new Lenis({
-      duration: 1.2,
+      duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.4,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
       autoRaf: false, // We drive RAF with GSAP's ticker
     });
 
     setLenis(lenisInstance);
+    // Expose on window for easy access if needed
+    (window as unknown as { lenis?: Lenis }).lenis = lenisInstance;
 
     // 2. Hook Lenis scroll events into GSAP ScrollTrigger
     lenisInstance.on("scroll", ScrollTrigger.update);
@@ -54,8 +60,20 @@ export default function SmoothScrollProvider({
       gsap.ticker.remove(tickerCallback);
       lenisInstance.destroy();
       setLenis(null);
+      delete (window as unknown as { lenis?: Lenis }).lenis;
     };
   }, []);
+
+  // Handle route changes: scroll to top and refresh ScrollTrigger
+  useEffect(() => {
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+      const timer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, lenis]);
 
   return (
     <LenisContext.Provider value={{ lenis }}>
@@ -63,3 +81,4 @@ export default function SmoothScrollProvider({
     </LenisContext.Provider>
   );
 }
+

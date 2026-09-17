@@ -7,11 +7,14 @@ import OpusLogo from "@/components/OpusLogo";
 import ProjectMediaScreen from "@/components/ProjectMediaScreen";
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
+import { useLenis } from '@/components/providers/SmoothScroll';
+import { useChat } from '@/components/providers/ChatProvider';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+
 
 interface Project {
   id: string;
@@ -193,13 +196,14 @@ function PortfolioContent() {
   const searchParams = useSearchParams();
   const requestedProject = searchParams.get('project');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [isHoveringCard, setIsHoveringCard] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
-  const lenisRef = useRef<Lenis | null>(null);
+  const { lenis } = useLenis();
+  const { openChat } = useChat();
+
 
   // Mouse tracking for custom magnetic cursor
   useEffect(() => {
@@ -212,28 +216,11 @@ function PortfolioContent() {
 
   // Butter-Smooth Lenis & GSAP ScrollTrigger Integration
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.0,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      touchMultiplier: 1.4,
-    });
-    lenisRef.current = lenis;
+    const triggers: ScrollTrigger[] = [];
 
-    lenis.on('scroll', (e: { progress: number }) => {
-      ScrollTrigger.update();
-      setScrollProgress(Math.round(e.progress * 100));
-    });
-
-    const rafHandler = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(rafHandler);
-    gsap.ticker.lagSmoothing(0);
 
     // 1. Kinetic Parallax Image Windows on Scroll
     const parallaxImages = document.querySelectorAll('.parallax-img-target');
-    const triggers: ScrollTrigger[] = [];
 
     parallaxImages.forEach((img) => {
       const parent = img.parentElement;
@@ -288,12 +275,16 @@ function PortfolioContent() {
       triggers.push(st);
     });
 
+    // Refresh ScrollTrigger calculations
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
     return () => {
       triggers.forEach((t) => t.kill());
-      gsap.ticker.remove(rafHandler);
-      lenis.destroy();
     };
-  }, [activeFilter]);
+  }, [activeFilter, lenis]);
+
 
   const filteredProjects = activeFilter === 'all'
     ? PROJECTS
@@ -344,33 +335,6 @@ function PortfolioContent() {
         </div>
       </div>
 
-      {/* Dynamic Glassmorphic Floating Scroll HUD Pill */}
-      <div 
-        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-500 pointer-events-auto ${
-          scrollProgress > 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'
-        }`}
-      >
-        <div className="bg-[#181520]/80 backdrop-blur-xl text-white px-5 py-2.5 rounded-full border border-white/20 shadow-2xl flex items-center space-x-5 text-xs font-mono">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="uppercase tracking-widest text-white/90">Opusgeeks</span>
-          </div>
-          <div className="h-3 w-px bg-white/20" />
-          <div className="text-white/70 tracking-wider">
-            {scrollProgress}%
-          </div>
-          <div className="h-3 w-px bg-white/20" />
-          <button 
-            onClick={() => {
-              if (lenisRef.current) lenisRef.current.scrollTo(0, { duration: 1 });
-            }}
-            className="text-white hover:text-white/70 uppercase tracking-widest cursor-pointer transition-colors"
-          >
-            ↑ Top
-          </button>
-        </div>
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto flex flex-col">
         
         {/* ================= TOP NAVIGATION (CLEAN, MINIMAL GAP) ================= */}
@@ -383,7 +347,7 @@ function PortfolioContent() {
             className="inline-flex items-center space-x-2 font-machina text-xs uppercase tracking-wider text-[#181520] px-4 py-2 rounded-full border border-black/15 bg-white/50 hover:bg-white transition-all shadow-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Overview</span>
+            <span>Overview</span>
           </a>
         </div>
 
@@ -479,15 +443,13 @@ function PortfolioContent() {
 
                   {/* High-End Action Row */}
                   <div className="pt-6 border-t border-black/10 flex items-center justify-end">
-                    <a
-                      href="https://opusgeeks.com/contact"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="bg-[#181520] text-white px-7 py-3 rounded-full flex items-center space-x-3 text-xs uppercase tracking-widest font-machina hover:bg-black transition-all shadow-md group-hover:scale-105 cursor-pointer"
+                    <button
+                      onClick={() => openChat(`Architecture Exploration: ${featuredProject.title}`)}
+                      className="bg-[#181520] text-white px-7 py-3 rounded-full flex items-center space-x-3 text-xs uppercase tracking-widest font-machina hover:bg-black transition-all shadow-md group-hover:scale-105 cursor-pointer outline-none border-none"
                     >
                       <span>Explore Architecture</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
-                    </a>
+                    </button>
                   </div>
 
                 </div>
@@ -571,17 +533,15 @@ function PortfolioContent() {
 
                   {/* Clean Bottom Action Bar */}
                   <div className="pt-4 border-t border-black/10 flex items-center justify-end">
-                    <a
-                      href="https://opusgeeks.com/contact"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center space-x-2 text-xs uppercase tracking-widest font-machina text-[#181520] hover:text-black transition-colors group/link cursor-pointer"
+                    <button
+                      onClick={() => openChat(`Case Study: ${project.title}`)}
+                      className="inline-flex items-center space-x-2 text-xs uppercase tracking-widest font-machina text-[#181520] hover:text-black transition-colors group/link cursor-pointer bg-transparent border-none outline-none"
                     >
                       <span>Case Study</span>
                       <div className="w-8 h-8 rounded-full border border-black/20 flex items-center justify-center group-hover/link:bg-[#181520] group-hover/link:text-white transition-all">
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </div>
-                    </a>
+                    </button>
                   </div>
                 </InteractiveCard>
               ))}
@@ -647,17 +607,16 @@ function PortfolioContent() {
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4">
-            <a
-              href="https://opusgeeks.com/contact"
-              target="_blank"
-              rel="noreferrer"
-              className="bg-white text-[#181520] hover:bg-[#c9d2e7] px-8 py-4 rounded-full font-machina text-xs uppercase tracking-widest transition-all duration-300 flex items-center space-x-3 shadow-lg active:scale-95 cursor-pointer whitespace-nowrap"
+            <button
+              onClick={() => openChat('Architecture Review Request')}
+              className="bg-white text-[#181520] hover:bg-[#c9d2e7] px-8 py-4 rounded-full font-machina text-xs uppercase tracking-widest transition-all duration-300 flex items-center space-x-3 shadow-lg active:scale-95 cursor-pointer whitespace-nowrap outline-none border-none"
             >
               <span>Schedule Architecture Review</span>
               <ArrowUpRight className="w-4 h-4" />
-            </a>
+            </button>
           </div>
         </div>
+
 
       </div>
     </div>

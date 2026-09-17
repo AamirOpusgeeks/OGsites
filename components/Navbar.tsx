@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Sparkles, Menu, X } from "lucide-react";
+import { useChat } from "@/components/providers/ChatProvider";
 
 const NAV_LINKS = [
   { name: "Selected Work", href: "#work" },
@@ -11,6 +12,7 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const { openChat } = useChat();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -70,14 +72,14 @@ export default function Navbar() {
 
           {/* CTA & Mobile Menu */}
           <div className="flex items-center gap-3">
-            <a
-              href="#contact"
-              className="relative group inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs uppercase font-semibold tracking-wider text-[#eae8e3] bg-[#161616] hover:bg-[#2a2a2a] transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+            <button
+              onClick={() => openChat("Project Discovery & Collaboration")}
+              className="relative group inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs uppercase font-semibold tracking-wider text-[#eae8e3] bg-[#161616] hover:bg-[#2a2a2a] transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#eae8e3]" />
               <span>Let&apos;s Talk</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-[#eae8e3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </a>
+            </button>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -105,13 +107,15 @@ export default function Navbar() {
                 <span className="text-xs font-mono text-[#6a6864]">0{idx + 1}</span>
               </a>
             ))}
-            <a
-              href="#contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="mt-6 w-full text-center py-4 rounded-full bg-[#161616] text-[#eae8e3] font-semibold text-sm tracking-wider uppercase"
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                openChat("Project Discovery & Collaboration");
+              }}
+              className="mt-6 w-full text-center py-4 rounded-full bg-[#161616] text-[#eae8e3] font-semibold text-sm tracking-wider uppercase cursor-pointer"
             >
               Start a Project
-            </a>
+            </button>
           </nav>
         </div>
       )}

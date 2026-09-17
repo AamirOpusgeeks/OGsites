@@ -146,10 +146,18 @@ function InteractiveTiltCard({ children, className = '' }: { children: React.Rea
 }
 
 import OpusLogo from "@/components/OpusLogo";
+import { useScrollReveal } from "@/components/ScrollReveal";
+import { useChat } from "@/components/providers/ChatProvider";
 
 export default function BlogsPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  useScrollReveal(containerRef);
+  const { openChat } = useChat();
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+
 
   const filteredBlogs = BLOGS.filter((b) => {
     const matchesCategory = activeCategory === 'All' || b.category === activeCategory;
@@ -159,7 +167,7 @@ export default function BlogsPage() {
   });
 
   return (
-    <div className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-32 pb-24 px-6 md:px-14 overflow-hidden font-sans">
+    <div ref={containerRef} className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
       {/* Baked Studio Backdrop Image */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img
@@ -169,29 +177,26 @@ export default function BlogsPage() {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-20">
+      <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
         {/* Top Navbar / Navigation */}
-        <div className="flex items-center justify-between pb-6 border-b border-black/10">
+        <div className="flex items-center justify-between pb-4 border-b border-black/10 reveal-item">
           <a href="/" className="flex items-center group">
-            <OpusLogo variant="full" size={28} />
+            <OpusLogo variant="full" size={26} />
           </a>
           <a
             href="/"
-            className="font-neue text-xs uppercase tracking-wider text-[#181520] hover:opacity-60 transition-opacity"
+            className="inline-flex items-center space-x-2 font-machina text-xs uppercase tracking-wider text-[#181520] px-4 py-2 rounded-full border border-black/15 bg-white/50 hover:bg-white transition-all shadow-xs"
           >
             ← Back to Overview
           </a>
         </div>
 
         {/* ================= 1. PAGE HEADER ================= */}
-        <div className="flex flex-col space-y-6">
-          <div className="flex items-center space-x-3">
+        <div className="flex flex-col space-y-6 reveal-item">
+          <div>
             <span className="inline-block border border-black/30 rounded-full px-4 py-1 text-xs uppercase font-neue">
               Engineering Journals
-            </span>
-            <span className="text-xs font-neue text-black/50 tracking-wider uppercase">
-              • Technical Insights & Architecture
             </span>
           </div>
 
@@ -239,64 +244,64 @@ export default function BlogsPage() {
 
         {/* ================= 2. FEATURED HERO POST ================= */}
         {activeCategory === 'All' && searchQuery === '' && (
-          <InteractiveTiltCard className="bg-[#f0efe9]/80 backdrop-blur-xl border border-white/80 rounded-3xl p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.06)] overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
-                <div className="flex items-center space-x-3">
-                  <span className="bg-[#181520] text-white px-3.5 py-1 rounded-full text-[11px] uppercase tracking-wider font-neue">
-                    Featured Deep-Dive
-                  </span>
-                  <span className="text-xs font-neue text-black/50">
-                    {FEATURED_BLOG.category}
-                  </span>
+          <div className="reveal-item">
+            <InteractiveTiltCard className="bg-[#f0efe9]/80 backdrop-blur-xl border border-white/80 rounded-3xl p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.06)] overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
+                  <div className="flex items-center space-x-3">
+                    <span className="bg-[#181520] text-white px-3.5 py-1 rounded-full text-[11px] uppercase tracking-wider font-neue">
+                      Featured Deep-Dive
+                    </span>
+                    <span className="text-xs font-neue text-black/50">
+                      {FEATURED_BLOG.category}
+                    </span>
+                  </div>
+
+                  <h2 className="font-machina text-2xl md:text-4xl font-bold uppercase text-[#181520] leading-tight">
+                    {FEATURED_BLOG.title}
+                  </h2>
+
+                  <p className="font-neue text-sm md:text-base text-[#231b35]/85 leading-relaxed">
+                    {FEATURED_BLOG.excerpt}
+                  </p>
+
+                  <div className="flex items-center space-x-6 pt-4 text-xs font-neue text-black/60 border-t border-black/10">
+                    <span className="flex items-center space-x-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{FEATURED_BLOG.date}</span>
+                    </span>
+                    <span className="flex items-center space-x-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{FEATURED_BLOG.readTime}</span>
+                    </span>
+                    <span className="hidden sm:inline-block">By {FEATURED_BLOG.author}</span>
+                  </div>
+
+                  <div>
+                    <button
+                      onClick={() => openChat(`Technical Deep-Dive: ${FEATURED_BLOG.title}`)}
+                      className="inline-flex items-center space-x-3 bg-[#181520] text-white px-7 py-3 rounded-full text-xs font-machina uppercase tracking-widest hover:scale-105 transition-transform cursor-pointer shadow-lg active:scale-95"
+                    >
+                      <span>Read Full Paper</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
-                <h2 className="font-machina text-2xl md:text-4xl font-bold uppercase text-[#181520] leading-tight">
-                  {FEATURED_BLOG.title}
-                </h2>
-
-                <p className="font-neue text-sm md:text-base text-[#231b35]/85 leading-relaxed">
-                  {FEATURED_BLOG.excerpt}
-                </p>
-
-                <div className="flex items-center space-x-6 pt-4 text-xs font-neue text-black/60 border-t border-black/10">
-                  <span className="flex items-center space-x-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{FEATURED_BLOG.date}</span>
-                  </span>
-                  <span className="flex items-center space-x-1.5">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{FEATURED_BLOG.readTime}</span>
-                  </span>
-                  <span className="hidden sm:inline-block">By {FEATURED_BLOG.author}</span>
-                </div>
-
-                <div>
-                  <a
-                    href="https://opusgeeks.com/blogs"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center space-x-3 bg-[#181520] text-white px-7 py-3 rounded-full text-xs font-machina uppercase tracking-widest hover:scale-105 transition-transform cursor-pointer"
-                  >
-                    <span>Read Full Paper</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </a>
+                <div className="lg:col-span-5 h-72 lg:h-96 rounded-2xl overflow-hidden shadow-inner border border-black/10">
+                  <img
+                    src={FEATURED_BLOG.image}
+                    alt={FEATURED_BLOG.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
                 </div>
               </div>
-
-              <div className="lg:col-span-5 h-72 lg:h-96 rounded-2xl overflow-hidden shadow-inner border border-black/10">
-                <img
-                  src={FEATURED_BLOG.image}
-                  alt={FEATURED_BLOG.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-              </div>
-            </div>
-          </InteractiveTiltCard>
+            </InteractiveTiltCard>
+          </div>
         )}
 
         {/* ================= 3. REGULAR BLOGS GRID ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal-group">
           {filteredBlogs.map((blog) => (
             <InteractiveTiltCard
               key={blog.id}
@@ -358,21 +363,20 @@ export default function BlogsPage() {
                 <span className="text-[11px] font-neue text-black/50">
                   {blog.author}
                 </span>
-                <a
-                  href="https://opusgeeks.com/blogs"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-[#181520] text-white p-2.5 rounded-full hover:scale-110 transition-transform cursor-pointer"
+                <button
+                  onClick={() => openChat(`Technical Article: ${blog.title}`)}
+                  className="bg-[#181520] text-white p-2.5 rounded-full hover:scale-110 transition-transform cursor-pointer active:scale-95"
+                  title="Discuss with AI Architect"
                 >
                   <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
+                </button>
               </div>
             </InteractiveTiltCard>
           ))}
         </div>
 
         {/* ================= 4. NEWSLETTER / TECH DIGEST SUBSCRIPTION ================= */}
-        <div className="bg-[#181520] text-white rounded-3xl p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl mt-8">
+        <div className="bg-[#181520] text-white rounded-3xl p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl mt-8 reveal-item">
           <div className="space-y-3 text-center md:text-left">
             <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-white">
               <Sparkles className="w-4 h-4 text-white" />
@@ -386,10 +390,18 @@ export default function BlogsPage() {
             </p>
           </div>
 
-          <form onSubmit={(e) => e.preventDefault()} className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              openChat(newsletterEmail ? `Newsletter Subscription for ${newsletterEmail}` : 'Engineering Dispatch & Newsletter Subscription');
+            }} 
+            className="w-full md:w-auto flex flex-col sm:flex-row gap-3"
+          >
             <input
               type="email"
               placeholder="Enter corporate email..."
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
               className="bg-white/10 border border-white/20 rounded-full px-6 py-3.5 text-xs font-neue text-white placeholder-white/40 outline-none focus:border-white transition-colors w-full sm:w-72"
             />
             <button
@@ -406,3 +418,4 @@ export default function BlogsPage() {
     </div>
   );
 }
+

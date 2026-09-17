@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
 import { ArrowUpRight, ChevronDown, Smartphone, Globe, Palette, Sparkles } from 'lucide-react';
-import AIChatArchitect from '@/components/AIChatArchitect';
 import OpusLogo from '@/components/OpusLogo';
+import { useLenis } from '@/components/providers/SmoothScroll';
+import { useChat } from '@/components/providers/ChatProvider';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,24 +15,26 @@ const OPUS_SECTIONS = [
   {
     id: 'fintech',
     title: 'FINTECH',
-    tag: 'Mobile Architecture',
-    category: 'React Native / High-Frequency Sync',
+    tag: '',
+    category: '',
     client: 'Apex Global Financial App',
     desc: 'Sub-second WebSocket order execution pipelines, biometric zero-trust encryption, and bulletproof native state management engineered for scale.',
   },
+
   {
     id: 'cloud-saas',
     title: 'CLOUD SAAS',
-    tag: 'Enterprise Web',
-    category: 'Next.js Cloud / Distributed APIs',
+    tag: '',
+    category: '',
     client: 'Nexus Cloud Intelligence Platform',
     desc: 'Scalable multi-tenant analytics dashboard and distributed cloud architecture handling 45k+ req/sec with edge caching and zero-downtime rollouts.',
   },
+
   {
     id: 'ecosystem',
     title: 'ECOSYSTEM',
-    tag: 'Unified Multi-Platform',
-    category: 'Multi-Device / AI-Powered Sync',
+    tag: '',
+    category: '',
     client: 'Synapse Enterprise Ecosystem',
     desc: 'Unified enterprise infrastructure seamlessly synchronized across native iOS, Android, and responsive web platforms with real-time state replication.',
   },
@@ -44,12 +46,13 @@ export default function Page() {
   const heroRef = useRef<HTMLDivElement>(null);
   const sectionsRef = useRef<(HTMLDivElement | null)[]>([]);
   const headerRef = useRef<HTMLElement>(null);
-  const lenisRef = useRef<Lenis | null>(null);
+  const { lenis } = useLenis();
+  const { isChatOpen, openChat, toggleChat } = useChat();
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const [servicesOpen, setServicesOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const isChatOpenRef = useRef(isChatOpen);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
 
   // Sync isChatOpenRef and keep header visible when chat opens
   useEffect(() => {
@@ -58,6 +61,7 @@ export default function Page() {
       gsap.to(headerRef.current, { yPercent: 0, duration: 0.25, ease: 'power2.out' });
     }
   }, [isChatOpen]);
+
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -73,7 +77,6 @@ export default function Page() {
   // Programmatic Scroll Function to exact timeline stages
   const scrollToSection = (target: 'hero' | 'engineering' | 'ecosystem' | 'enterprise' | 'connect') => {
     const st = scrollTriggerRef.current;
-    const lenis = lenisRef.current;
     if (!st || !lenis) return;
 
     const start = st.start;
@@ -97,27 +100,10 @@ export default function Page() {
   };
 
   useEffect(() => {
-    // 1. Lenis Smooth Scrolling (Precision calibrated for 120Hz/60Hz macOS trackpad & mouse wheel)
-    const lenis = new Lenis({
-      duration: 0.9,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
-    });
-    lenisRef.current = lenis;
-    lenis.on('scroll', ScrollTrigger.update);
-    const updateTicker = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(updateTicker);
-    gsap.ticker.lagSmoothing(0);
-
-    // 2. Three.js Scene Setup
+    // Three.js Scene Setup
     const container = canvasContainerRef.current;
     if (!container) return;
+
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -1368,8 +1354,6 @@ export default function Page() {
 
     return () => {
       ctx.revert();
-      gsap.ticker.remove(updateTicker);
-      lenis.destroy();
       window.removeEventListener('mousemove', onPointerMove);
       window.removeEventListener('resize', onResize);
       cancelAnimationFrame(animId);
@@ -1378,6 +1362,7 @@ export default function Page() {
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
     };
   }, []);
+
 
   return (
     <main className="relative w-full bg-[#c9d2e7] text-[#181520] font-sans overflow-hidden antialiased">
@@ -1500,30 +1485,26 @@ export default function Page() {
           </button>
 
           {/* FAQs */}
-          <a
-            href="https://opusgeeks.com/#faqs"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520]"
+          <button
+            onClick={() => openChat('Frequently Asked Questions')}
+            className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520] cursor-pointer bg-transparent border-none outline-none"
           >
             FAQs
-          </a>
+          </button>
         </nav>
 
-        {/* Right: Get Started White Pill Button -> Triggers Dropdown AI Chat directly beneath button */}
+        {/* Right: Get Started White Pill Button -> Triggers AI Chat Architect */}
         <div className="relative flex items-center">
           <button
-            onClick={() => setIsChatOpen((prev) => !prev)}
+            onClick={toggleChat}
             className="bg-white text-[#181520] hover:bg-[#181520] hover:text-white px-6 py-2.5 rounded-full font-neue text-[13px] font-medium tracking-[0.02em] shadow-sm hover:shadow-md transition-all duration-300 flex items-center space-x-2 border border-black/5 active:scale-95 cursor-pointer outline-none"
           >
             <span>Get Started</span>
             <Sparkles className="w-3.5 h-3.5" />
           </button>
-
-          {/* Floating Light Tinted Frosted Glass AI Architect Chat Dropdown Directly Under Button */}
-          <AIChatArchitect isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         </div>
       </header>
+
 
       {/* Pinned Stage */}
       <div ref={pinContainerRef} className="relative w-full h-screen overflow-hidden">
@@ -1532,18 +1513,8 @@ export default function Page() {
           ref={heroRef}
           className="absolute inset-0 w-full h-full pt-24 pb-8 px-8 md:px-16 flex flex-col justify-between z-20 pointer-events-none will-change-transform origin-center"
         >
-          {/* Top Row: Minimal Agency Badge + Agency Narrative */}
-          <div className="flex items-start justify-between pt-2 pointer-events-auto">
-            <div className="hidden sm:flex items-center space-x-2 border border-black/15 bg-black/[0.03] backdrop-blur-md rounded-full px-3.5 py-1 text-[#181520]">
-              <span className="font-neue text-[11px] font-medium tracking-[0.04em] uppercase">
-                Enterprise Architecture &amp; 3D Web
-              </span>
-            </div>
-
-            <p className="font-neue max-w-[340px] text-[13px] md:text-[14px] leading-[140%] text-[#181520]/80 text-right">
-              We craft high-performance digital products and scalable systems. Partnering with forward-thinking enterprises to turn complex technology into intuitive human experiences.
-            </p>
-          </div>
+          {/* Top Row: Clean spacing for header separation */}
+          <div className="pt-2 pointer-events-none" />
 
           {/* Center: Monumental Headline (Signature Agency Spread) */}
           <div className="my-auto py-2 uppercase font-machina text-[#181520] flex flex-col leading-[0.88] tracking-[-0.035em] select-none text-left">
@@ -1555,17 +1526,10 @@ export default function Page() {
             <div className="text-[8.2vw] whitespace-nowrap">DIGITAL FUTURE</div>
           </div>
 
-          {/* Bottom Row: Capabilities Tags + Scroll Indicator + Supporting Copy */}
+          {/* Bottom Row: Clean Scroll Indicator + High-Converting US Enterprise Sales Narrative */}
           <div className="flex items-end justify-between pb-2 pointer-events-auto">
-            {/* Left: Engineering Pillars */}
-            <div className="hidden md:flex flex-col space-y-1 text-left">
-              <span className="font-machina text-[10px] font-bold uppercase tracking-widest text-[#181520]/60">
-                Core Capabilities
-              </span>
-              <span className="font-neue text-[12px] text-[#181520] tracking-wide">
-                React Native • Next.js Cloud • WebGL 3D
-              </span>
-            </div>
+            {/* Left: Spacer to balance layout */}
+            <div className="hidden md:block w-32" />
 
             {/* Center: Scroll Down Indicator */}
             <div className="hidden lg:flex flex-col items-center space-y-1.5 opacity-70 hover:opacity-100 transition-opacity">
@@ -1575,9 +1539,9 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Right: Sub-headline */}
-            <p className="font-neue max-w-[260px] text-[13px] md:text-[14px] leading-[130%] text-[#181520]/80 text-right">
-              Enterprise-grade mobile engineering, custom software solutions, and next-gen architectures.
+            {/* Right: High-Converting Enterprise Value Proposition */}
+            <p className="font-neue max-w-[340px] text-[13px] md:text-[14px] leading-[145%] text-[#181520]/85 text-right font-normal">
+              We architect mission-critical mobile platforms and scalable cloud ecosystems for high-growth enterprises that demand flawless performance, rapid time-to-market, and relentless scale.
             </p>
           </div>
         </div>
@@ -1597,13 +1561,18 @@ export default function Page() {
 
             <div className="mt-auto w-full flex items-end justify-between pb-6 pointer-events-auto z-30">
               <div className="flex flex-col space-y-2">
-                <span className="inline-block border border-black/40 rounded-full px-4 py-1 text-xs uppercase font-neue w-max">
-                  {item.tag}
-                </span>
-                <span className="text-sm font-neue text-[#181520]">
-                  {item.category}
-                </span>
+                {item.tag && (
+                  <span className="inline-block border border-black/40 rounded-full px-4 py-1 text-xs uppercase font-neue w-max">
+                    {item.tag}
+                  </span>
+                )}
+                {item.category && (
+                  <span className="text-sm font-neue text-[#181520]">
+                    {item.category}
+                  </span>
+                )}
               </div>
+
 
               <a
                 href={`/portfolio?project=${item.id}`}

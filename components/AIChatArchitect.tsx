@@ -19,9 +19,10 @@ interface Message {
 interface AIChatArchitectProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTopic?: string;
 }
 
-export default function AIChatArchitect({ isOpen, onClose }: AIChatArchitectProps) {
+export default function AIChatArchitect({ isOpen, onClose, initialTopic }: AIChatArchitectProps) {
   const [step, setStep] = useState(0);
   const [userInput, setUserInput] = useState('');
   const [answers, setAnswers] = useState({
@@ -37,7 +38,9 @@ export default function AIChatArchitect({ isOpen, onClose }: AIChatArchitectProp
       id: '1',
       sender: 'concierge',
       stepTag: '01 // SYSTEM SCOPE',
-      text: 'Welcome to Opus Studio. Let’s formulate your technical blueprint and velocity tier.\n\nSelect your primary architectural requirement:',
+      text: initialTopic
+        ? `Welcome to Opus Studio. Let’s formulate your technical blueprint for ${initialTopic}.\n\nSelect your primary architectural requirement:`
+        : 'Welcome to Opus Studio. Let’s formulate your technical blueprint and velocity tier.\n\nSelect your primary architectural requirement:',
       options: [
         {
           title: 'Custom Mobile Application',
@@ -58,6 +61,39 @@ export default function AIChatArchitect({ isOpen, onClose }: AIChatArchitectProp
       ],
     },
   ]);
+
+  // Update initial message if initialTopic changes
+  useEffect(() => {
+    if (initialTopic) {
+      setMessages([
+        {
+          id: Date.now().toString(),
+          sender: 'concierge',
+          stepTag: '01 // SYSTEM SCOPE',
+          text: `Welcome to Opus Studio. Let’s explore your architectural requirements for "${initialTopic}".\n\nSelect your primary requirement:`,
+          options: [
+            {
+              title: 'Custom Mobile Application',
+              subtitle: 'React Native • Native iOS/Android • 60 FPS Engine',
+            },
+            {
+              title: 'Cloud SaaS & Web Platform',
+              subtitle: 'Next.js App Engine • High-Throughput Edge • Microservices',
+            },
+            {
+              title: 'Enterprise Architecture & Modernization',
+              subtitle: 'Legacy Refactor • Distributed DB • Zero Trust Security',
+            },
+            {
+              title: '3D Interactive & Spatial Web',
+              subtitle: 'Three.js / WebGL • Immersive Storytelling • Shaders',
+            },
+          ],
+        },
+      ]);
+      setStep(0);
+    }
+  }, [initialTopic]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -138,7 +174,7 @@ export default function AIChatArchitect({ isOpen, onClose }: AIChatArchitectProp
               },
               {
                 title: '$100k+ Enterprise Tier',
-                subtitle: 'Full-scale custom engineering & SLAs',
+                subtitle: 'Full custom systems • Dedicated senior engineering pod',
               },
             ],
           },
@@ -207,61 +243,69 @@ export default function AIChatArchitect({ isOpen, onClose }: AIChatArchitectProp
   if (!isOpen) return null;
 
   return (
-    /* Dropdown anchored directly below the Get Started button in top-right with generous width & height */
-    <div
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
-      onTouchMove={(e) => e.stopPropagation()}
-      className="absolute top-full right-0 mt-3 w-[94vw] sm:w-[460px] h-[590px] max-h-[82vh] bg-[#fbfbfd]/95 backdrop-blur-3xl border border-black/[0.08] rounded-[28px] shadow-[0_30px_90px_rgba(0,0,0,0.15),0_0_1px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden text-[#181520] font-sans z-50 origin-top-right animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 pointer-events-auto select-auto"
-    >
-      
-      {/* Luxury Minimalist Header (Fixed top) */}
-      <div className="flex-shrink-0 px-5 py-4 border-b border-black/[0.06] bg-white/80 backdrop-blur-xl select-none">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-[#181520] animate-pulse"></span>
-            <span className="font-machina text-[11px] font-bold uppercase tracking-[0.15em] text-[#181520]">
-              Studio Concierge
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            <span className="font-neue text-[11px] font-medium text-black/50">
-              {step < 4 ? `Step 0${step + 1} / 04` : 'Complete'}
-            </span>
-
-            {/* Close Button */}
-            <button
-              onClick={onClose}
-              className="w-7 h-7 rounded-full bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[#181520]/70 hover:text-[#181520] transition-colors cursor-pointer"
-              title="Close"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* 4-Step Progress Line */}
-        <div className="grid grid-cols-4 gap-1.5 w-full">
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className={`h-[2px] rounded-full transition-all duration-300 ${
-                i <= step ? 'bg-[#181520]' : 'bg-black/[0.08]'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Messages Scrollable Area (flex-1 min-h-0 with generous bottom padding so last question is never cut) */}
+    <div className="fixed inset-0 z-[9999] pointer-events-auto flex items-end sm:items-center justify-center sm:justify-end p-3 sm:p-8">
+      {/* Backdrop */}
       <div
-        ref={scrollContainerRef}
+        onClick={onClose}
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-300"
+      />
+
+      {/* Luxury Floating Chat Window */}
+      <div
         data-lenis-prevent="true"
         onWheel={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
-        className="flex-1 min-h-0 overflow-y-auto p-4 md:p-5 space-y-4 text-[13px] leading-relaxed scrollbar-thin scrollbar-thumb-black/20 pb-6 overscroll-contain"
+        className="relative w-full sm:w-[460px] h-[600px] max-h-[86vh] bg-[#fbfbfd]/98 backdrop-blur-3xl border border-black/[0.08] rounded-[28px] shadow-[0_30px_90px_rgba(0,0,0,0.25),0_0_1px_rgba(0,0,0,0.1)] flex flex-col overflow-hidden text-[#181520] font-sans z-50 animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-300 pointer-events-auto select-auto"
       >
+        
+        {/* Luxury Minimalist Header (Fixed top) */}
+        <div className="flex-shrink-0 px-5 py-4 border-b border-black/[0.06] bg-white/80 backdrop-blur-xl select-none">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-[#181520] animate-pulse"></span>
+              <span className="font-machina text-[11px] font-bold uppercase tracking-[0.15em] text-[#181520]">
+                Studio Concierge
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <span className="font-neue text-[11px] font-medium text-black/50">
+                {step < 4 ? `Step 0${step + 1} / 04` : 'Complete'}
+              </span>
+
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="w-7 h-7 rounded-full bg-black/[0.04] hover:bg-black/[0.08] flex items-center justify-center text-[#181520]/70 hover:text-[#181520] transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 4-Step Progress Line */}
+          <div className="grid grid-cols-4 gap-1.5 w-full">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={`h-[2px] rounded-full transition-all duration-300 ${
+                  i <= step ? 'bg-[#181520]' : 'bg-black/[0.08]'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Messages Scrollable Area (flex-1 min-h-0 with generous bottom padding so last question is never cut) */}
+        <div
+          ref={scrollContainerRef}
+          data-lenis-prevent="true"
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          className="flex-1 min-h-0 overflow-y-auto p-4 md:p-5 space-y-4 text-[13px] leading-relaxed scrollbar-thin scrollbar-thumb-black/20 pb-6 overscroll-contain"
+        >
+
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -359,6 +403,7 @@ export default function AIChatArchitect({ isOpen, onClose }: AIChatArchitectProp
           <CornerDownLeft className="w-3.5 h-3.5" />
         </button>
       </form>
+      </div>
     </div>
   );
 }
