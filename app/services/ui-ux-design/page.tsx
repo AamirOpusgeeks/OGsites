@@ -28,48 +28,56 @@ const DESIGN_SERVICES = [
   {
     icon: Monitor,
     title: 'Flagship Web Design',
+    tag: 'Web & Spatial',
     desc: 'Award-winning digital storefronts and marketing interfaces engineered with fluid typography and kinetic layouts.',
     metrics: 'Spatial Layouts • Responsive Grid',
   },
   {
     icon: Smartphone,
     title: 'Mobile App UX/UI',
+    tag: 'iOS & Android',
     desc: 'Native iOS and Android ergonomics built strictly adhering to Apple HIG and Google Material 3 guidelines.',
     metrics: 'iOS HIG • Material 3 • Haptics',
   },
   {
     icon: Layers,
     title: 'Enterprise Design Systems',
+    tag: 'Tokens / Atomic',
     desc: 'Unified multi-platform token architectures connecting Figma component libraries directly to production codebases.',
     metrics: 'Figma Tokens • Storybook • Atomic',
   },
   {
     icon: Palette,
     title: 'Brand Identity & Motion',
+    tag: 'Branding / Motion',
     desc: 'Distinctive brand identities, kinetic logos, custom typefaces, and interactive brand guidelines that leave lasting impressions.',
     metrics: 'Brand Systems • Motion Guides',
   },
   {
     icon: Boxes,
     title: '3D & WebGL Experiences',
+    tag: 'Three.js / Shaders',
     desc: 'Tactile 3D viewports, particle systems, and interactive spatial shaders that elevate brand engagement.',
     metrics: 'Three.js • Spline • Realtime GL',
   },
   {
     icon: Compass,
     title: 'Conversion UX & CRO',
+    tag: 'Funnels / Retention',
     desc: 'Frictionless onboarding funnels and user flow optimizations proven to maximize customer retention and checkout conversion.',
     metrics: 'User Journeys • Friction Audits',
   },
   {
     icon: Activity,
     title: 'Interactive Prototyping',
+    tag: 'Framer / Micro-UX',
     desc: 'High-fidelity clickable prototypes and micro-animations designed to validate user experience before engineering sprints.',
     metrics: 'Framer • Micro-Interactions',
   },
   {
     icon: Eye,
     title: 'Accessibility & Dark Mode',
+    tag: 'WCAG 2.2 AAA',
     desc: 'High-contrast ergonomic interfaces engineered for zero eye fatigue and certified WCAG 2.2 AAA accessibility.',
     metrics: 'WCAG 2.2 AAA • Dark Ergonomics',
   },
@@ -143,23 +151,35 @@ const METRICS = [
 const CASE_STUDIES = [
   {
     title: 'Zenith Institutional Terminal',
+    category: 'Fintech & Web3 Interface',
+    tag: 'Design Systems & Tokens',
     desc: 'High-contrast Web3 institutional trading interface engineered for zero eye fatigue and instant order book clarity.',
     image: 'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1200&q=80',
+    stats: ['0% Cognitive Fatigue', '3.8x Interaction Speed'],
   },
   {
     title: 'Aura Luxury Commerce',
+    category: 'Luxury Editorial Commerce',
+    tag: 'Spatial UI & 3D Previews',
     desc: 'Tactile editorial commerce storefront featuring 3D product previews and instant 1-click spatial checkout.',
     image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
+    stats: ['+72% Session Duration', '99.4% Checkout Ease'],
   },
   {
     title: 'Mind Nourishment Health',
+    category: 'Digital Wellness & Biofeedback',
+    tag: 'Tactile Micro-Interactions',
     desc: 'Calming bio-feedback interfaces, spatial soundscapes, and intuitive mental wellness tracking.',
     image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80',
+    stats: ['4.9★ Accessibility Rating', '2.4M Happy Users'],
   },
   {
     title: 'FinEdge Global Banking',
+    category: 'Enterprise Mobile Banking',
+    tag: 'Zero-Friction Flows',
     desc: 'High-frequency mobile banking UX engineered with clear financial hierarchies and biometric authorization states.',
     image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80',
+    stats: ['42% Faster Onboarding', 'AAA WCAG Certified'],
   },
 ];
 
@@ -244,7 +264,7 @@ export default function UIUXDesignPage() {
   const selectedTab = DESIGN_TABS.find(t => t.id === activeTabId) || DESIGN_TABS[0];
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
+    <div ref={containerRef} className="relative min-h-screen text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
       {/* Studio Background Layer */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img
@@ -254,7 +274,7 @@ export default function UIUXDesignPage() {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
+      <div className="relative z-20 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
         {/* ================= TOP NAV BAR ================= */}
         <GlobalHeader />
@@ -305,13 +325,16 @@ export default function UIUXDesignPage() {
                 <InteractiveTiltCard
                   key={idx}
                   onClick={() => openChat(`Design Capability Discovery: ${svc.title}`)}
-                  className="group bg-[#f0efe9]/80 hover:bg-white backdrop-blur-xl border border-white/80 hover:border-black/20 rounded-3xl p-6 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.09)] transition-colors duration-300 cursor-pointer"
+                  className="group bg-[#f2f1ec]/85 hover:bg-white/95 backdrop-blur-2xl border border-black/[0.08] hover:border-black/25 rounded-3xl p-6 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_22px_45px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                 >
                   <div>
-                    <div className="mb-5">
-                      <div className="w-11 h-11 rounded-2xl bg-[#181520] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                    <div className="mb-5 flex items-center justify-between">
+                      <div className="w-11 h-11 rounded-2xl bg-[#181520] text-[#c9d2e7] flex items-center justify-center group-hover:scale-110 group-hover:bg-black transition-all shadow-md">
                         <Icon className="w-5 h-5" />
                       </div>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-black/60 bg-black/[0.04] border border-black/10 px-2.5 py-1 rounded-full">
+                        {svc.tag}
+                      </span>
                     </div>
 
                     <h3 className="font-machina text-base font-bold uppercase text-[#181520] mb-2 leading-snug group-hover:text-black transition-colors">
@@ -323,7 +346,10 @@ export default function UIUXDesignPage() {
                   </div>
 
                   <div className="pt-3 border-t border-black/10 flex items-center justify-between text-[11px] font-mono text-black/50">
-                    <span>{svc.metrics}</span>
+                    <span className="flex items-center space-x-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80" />
+                      <span>{svc.metrics}</span>
+                    </span>
                     <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-[#181520]" />
                   </div>
                 </InteractiveTiltCard>
@@ -488,11 +514,11 @@ export default function UIUXDesignPage() {
             {CASE_STUDIES.map((study, idx) => (
               <InteractiveTiltCard
                 key={idx}
-                className="group bg-[#f0efe9]/80 backdrop-blur-xl border border-white/80 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.1)] transition-colors duration-500 flex flex-col justify-between"
+                className="group bg-[#f2f1ec]/85 hover:bg-white/95 backdrop-blur-2xl border border-black/[0.08] hover:border-black/25 rounded-3xl overflow-hidden shadow-[0_12px_35px_rgba(0,0,0,0.04)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-500 flex flex-col justify-between"
               >
                 <div>
                   {/* Visual Header */}
-                  <div className="relative h-60 w-full overflow-hidden bg-slate-900">
+                  <div className="relative h-64 w-full overflow-hidden bg-slate-900">
                     <img
                       src={study.image}
                       alt={study.title}
@@ -500,7 +526,17 @@ export default function UIUXDesignPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                    {/* Floating Badges */}
+                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 pointer-events-none">
+                      <span className="bg-black/60 backdrop-blur-md text-white border border-white/20 px-3 py-1 rounded-full text-[10px] font-machina uppercase tracking-wider shadow-sm">
+                        {study.category}
+                      </span>
+                      <span className="bg-white/90 backdrop-blur-md text-[#181520] border border-black/10 px-3 py-1 rounded-full text-[10px] font-mono font-medium shadow-sm">
+                        {study.tag}
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-4 left-5 right-5 text-white">
                       <h3 className="font-machina text-xl md:text-2xl font-bold uppercase tracking-wide">
                         {study.title}
                       </h3>
@@ -508,24 +544,42 @@ export default function UIUXDesignPage() {
                   </div>
 
                   {/* Body Content */}
-                  <div className="p-6">
+                  <div className="p-6 md:p-7 space-y-4">
                     <p className="font-neue text-xs md:text-sm leading-relaxed text-[#231b35]/80">
                       {study.desc}
                     </p>
+
+                    {/* Verified Metrics Chips */}
+                    {study.stats && study.stats.length > 0 && (
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        {study.stats.map((st, sIdx) => (
+                          <div
+                            key={sIdx}
+                            className="bg-black/[0.03] border border-black/[0.08] rounded-xl px-3 py-2 text-center flex items-center justify-center space-x-1.5"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span className="font-mono text-[11px] font-semibold text-[#181520] truncate">
+                              {st}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Footer Action */}
-                <div className="p-6 pt-0 border-t border-black/5 mt-2 flex items-center justify-between">
-                  <span className="text-xs font-neue text-black/50">
-                    Interface & Experience Design
+                <div className="p-6 md:p-7 pt-4 border-t border-black/10 flex items-center justify-between">
+                  <span className="text-xs font-neue text-black/50 flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
+                    <span>Interface & Experience Design</span>
                   </span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       openChat(`Case Study Breakdown: ${study.title}`);
                     }}
-                    className="bg-[#181520] text-white px-5 py-2 rounded-full text-xs font-machina uppercase tracking-widest hover:scale-105 transition-transform flex items-center space-x-2 cursor-pointer shadow-sm active:scale-95"
+                    className="bg-[#181520] text-white px-5 py-2.5 rounded-full text-xs font-machina uppercase tracking-widest hover:bg-black hover:scale-105 transition-all flex items-center space-x-2 cursor-pointer shadow-sm active:scale-95"
                   >
                     <span>Inspect Blueprint</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />

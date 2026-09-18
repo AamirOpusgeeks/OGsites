@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sparkles, ArrowUpRight, Menu, X, ChevronDown } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
@@ -15,6 +15,16 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
   const { openChat, toggleChat } = useChat();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [servicesDropdown, setServicesDropdown] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const NAV_ITEMS = [
     { label: 'Home', href: '/' },
@@ -37,16 +47,23 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
 
   return (
     <>
-      <header className={`w-full flex items-center justify-between pb-4 border-b border-black/10 reveal-item ${className}`}>
-        {/* Left Corner: Brand Logo */}
-        <div className="flex items-center">
-          <a href="/" className="flex items-center group">
-            <OpusLogo variant="full" size={28} />
-          </a>
-        </div>
+      <header 
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          scrolled
+            ? 'bg-[#c9d2e7]/75 backdrop-blur-xl border-b border-black/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.03)] py-3.5'
+            : 'bg-[#c9d2e7]/40 backdrop-blur-md border-b border-black/[0.05] py-4 md:py-5'
+        } ${className}`}
+      >
+        <div className="max-w-7xl mx-auto px-6 md:px-14 flex items-center justify-between">
+          {/* Left Corner: Brand Logo */}
+          <div className="flex items-center">
+            <a href="/" className="flex items-center group">
+              <OpusLogo variant="full" size={28} />
+            </a>
+          </div>
 
-        {/* Right Corner: Navigation Menu & Action Buttons */}
-        <div className="flex items-center space-x-6 sm:space-x-8">
+          {/* Right Corner: Navigation Menu & Action Buttons */}
+          <div className="flex items-center space-x-6 sm:space-x-8">
           
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center space-x-7">
@@ -130,9 +147,12 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
-
         </div>
-      </header>
+      </div>
+    </header>
+
+      {/* Spacing reservation for fixed header */}
+      <div className="w-full h-16 md:h-20 pointer-events-none" aria-hidden="true" />
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (

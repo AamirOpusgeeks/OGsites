@@ -3,7 +3,6 @@
 import React from 'react';
 import { ArrowUp } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
-import OG3DBackground from '@/components/OG3DBackground';
 import { useChat } from '@/components/providers/ChatProvider';
 
 interface GlobalFooterProps {
@@ -18,15 +17,11 @@ export default function GlobalFooter({ className = '' }: GlobalFooterProps) {
   };
 
   return (
-    <footer className={`w-full mt-24 pt-20 pb-14 border-t border-black/15 text-[#181520] relative overflow-hidden font-sans ${className}`}>
-      
-      {/* LARGE 3D ANIMATED OG MONOGRAM BACKGROUND (Hero Section Style) */}
-      <OG3DBackground className="opacity-95" />
-
+    <footer className={`w-full mt-24 pt-20 pb-14 border-t border-black/15 text-[#181520] relative z-20 overflow-hidden font-sans ${className}`}>
       <div className="max-w-7xl mx-auto px-6 md:px-14 relative z-10 space-y-20">
         
         {/* ================= EDITORIAL TYPOGRAPHY COLUMNS (Matching Noomo Reference) ================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 reveal-item">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           
           {/* Column 1: Navigation Links (4 Cols) */}
           <div className="lg:col-span-4 space-y-3">
@@ -35,30 +30,25 @@ export default function GlobalFooter({ className = '' }: GlobalFooterProps) {
             </h4>
             <ul className="space-y-2.5 font-neue text-sm text-[#181520]">
               <li>
-                <a href="/portfolio" className="hover:opacity-60 transition-opacity">Work</a>
-              </li>
-              <li>
-                <a href="/about" className="hover:opacity-60 transition-opacity">Our story</a>
+                <a href="/" className="hover:opacity-60 transition-opacity">Home</a>
               </li>
               <li>
                 <a href="/services/web-development" className="hover:opacity-60 transition-opacity">Services</a>
               </li>
               <li>
-                <a href="/blogs" className="hover:opacity-60 transition-opacity">Insights</a>
+                <a href="/portfolio" className="hover:opacity-60 transition-opacity">Portfolio</a>
               </li>
               <li>
-                <a href="/contact-us" className="hover:opacity-60 transition-opacity">Connect</a>
+                <a href="/blogs" className="hover:opacity-60 transition-opacity">Blogs</a>
+              </li>
+              <li>
+                <a href="/about" className="hover:opacity-60 transition-opacity">About</a>
+              </li>
+              <li>
+                <a href="/contact-us" className="hover:opacity-60 transition-opacity">Contact Us</a>
               </li>
               <li>
                 <a href="/faqs" className="hover:opacity-60 transition-opacity">FAQs</a>
-              </li>
-              <li>
-                <button 
-                  onClick={() => openChat('Request Privacy Policy & Terms of Service')}
-                  className="hover:opacity-60 transition-opacity text-left bg-transparent border-none outline-none cursor-pointer"
-                >
-                  Privacy policy
-                </button>
               </li>
             </ul>
           </div>
@@ -121,7 +111,7 @@ export default function GlobalFooter({ className = '' }: GlobalFooterProps) {
         </div>
 
         {/* ================= BOTTOM BRAND ROW: LOGO ON LEFT + SCROLL TO TOP ON RIGHT ================= */}
-        <div className="pt-10 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-6 reveal-item">
+        <div className="pt-10 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-6">
           
           {/* Left Corner: Brand Signature */}
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6">

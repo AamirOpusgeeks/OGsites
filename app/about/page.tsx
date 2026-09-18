@@ -30,6 +30,12 @@ import GlobalFooter from "@/components/GlobalFooter";
 import { useScrollReveal } from "@/components/ScrollReveal";
 import { useChat } from "@/components/providers/ChatProvider";
 import Industries3DCore from "@/components/Industries3DCore";
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // 3 Core Tenets (Vision, Values, Mission)
 const CORE_TENETS = [
@@ -54,6 +60,7 @@ const CORE_TENETS = [
 const SECTORS = [
   {
     id: 1,
+    shortTitle: 'Energy & Grid',
     title: 'Energy & Utilities',
     icon: Zap,
     angle: 0, // 0 deg (Right)
@@ -64,6 +71,7 @@ const SECTORS = [
   },
   {
     id: 2,
+    shortTitle: 'EdTech',
     title: 'Education & EdTech',
     icon: GraduationCap,
     angle: 36,
@@ -74,6 +82,7 @@ const SECTORS = [
   },
   {
     id: 3,
+    shortTitle: 'Fintech',
     title: 'Finance & Banking',
     icon: Landmark,
     angle: 72,
@@ -84,6 +93,7 @@ const SECTORS = [
   },
   {
     id: 4,
+    shortTitle: 'Real Estate',
     title: 'Construction & Real Estate',
     icon: Hammer,
     angle: 108,
@@ -94,6 +104,7 @@ const SECTORS = [
   },
   {
     id: 5,
+    shortTitle: 'Industry 4.0',
     title: 'Manufacturing & Supply',
     icon: Factory,
     angle: 144,
@@ -104,6 +115,7 @@ const SECTORS = [
   },
   {
     id: 6,
+    shortTitle: 'Resources',
     title: 'Oil & Natural Resources',
     icon: Flame,
     angle: 180, // 180 deg (Left)
@@ -114,6 +126,7 @@ const SECTORS = [
   },
   {
     id: 7,
+    shortTitle: 'Healthcare',
     title: 'Healthcare & MedTech',
     icon: HeartPulse,
     angle: 216,
@@ -124,26 +137,29 @@ const SECTORS = [
   },
   {
     id: 8,
+    shortTitle: 'Enterprise',
     title: 'Professional Services',
     icon: Briefcase,
     angle: 252,
-    badge: 'Enterprise SaaS',
-    headline: 'Multi-Tenant Cloud & Workflow Orchestration',
-    desc: 'Multi-tenant cloud architectures, cap-table modeling engines, and automated subscription billing for global firms.',
-    specs: ['Modular Micro-Frontends', 'Role-Based Access Control', 'Multi-Currency Billing'],
+    badge: 'Enterprise ERP',
+    headline: 'High-Velocity Practice Management',
+    desc: 'Automated billing microservices, global multi-currency invoicing engines, and real-time resource allocations.',
+    specs: ['Real-Time Audit Trail', 'Multi-Entity Consolidated Ledger', 'Single Sign-On (SAML/Okta)'],
   },
   {
     id: 9,
+    shortTitle: 'Telecom',
     title: 'Telecom & Media',
     icon: Radio,
     angle: 288,
-    badge: 'Global CDN',
-    headline: 'Ultra-High Throughput Media Distribution',
-    desc: 'High-throughput content delivery networks, live broadcast telemetry, and customer self-service billing portals.',
-    specs: ['Sub-20ms Global Edge', 'Adaptive Bitrate Engines', '10M+ Concurrent Sockets'],
+    badge: '5G Core & CDN',
+    headline: 'Ultra-Low Latency Streaming Fabrics',
+    desc: 'Adaptive bitrate video encoders, real-time subscriber billing engines, and global edge caching nodes.',
+    specs: ['Sub-50ms Global Latency', 'Multi-CDN Failover', 'Dynamic BGP Routing'],
   },
   {
     id: 10,
+    shortTitle: 'GovTech',
     title: 'Governmental Sector',
     icon: Building2,
     angle: 324,
@@ -219,15 +235,86 @@ function InteractiveTiltCard({
 
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const orbitalSectionRef = useRef<HTMLDivElement>(null);
+  const centerOrbRef = useRef<HTMLDivElement>(null);
+  const nodesRef = useRef<(HTMLDivElement | null)[]>([]);
+
   useScrollReveal(containerRef);
   const { openChat } = useChat();
   const [activeSectorId, setActiveSectorId] = useState(3); // Default Finance & Banking
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // 1. Center OPUSGEEKS Core Reveal
+      if (centerOrbRef.current) {
+        gsap.fromTo(
+          centerOrbRef.current,
+          { scale: 0.3, opacity: 0, filter: 'blur(10px)' },
+          {
+            scale: 1,
+            opacity: 1,
+            filter: 'blur(0px)',
+            duration: 0.85,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: orbitalSectionRef.current,
+              start: 'top 78%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      }
+
+      // 2. All 10 Satellite Badges burst outward from dead center (x: 0, y: 0) to their radial orbit!
+      const nodes = nodesRef.current;
+      if (nodes && nodes.length > 0) {
+        nodes.forEach((node, index) => {
+          if (!node) return;
+          const angleRad = ((index * (360 / SECTORS.length)) - 90) * (Math.PI / 180);
+          const isLg = window.innerWidth >= 1024;
+          const distance = isLg ? 230 : 185;
+          const targetX = Math.cos(angleRad) * distance;
+          const targetY = Math.sin(angleRad) * distance;
+
+          gsap.fromTo(
+            node,
+            {
+              x: 0,
+              y: 0,
+              xPercent: -50,
+              yPercent: -50,
+              scale: 0.05,
+              opacity: 0,
+            },
+            {
+              x: targetX,
+              y: targetY,
+              xPercent: -50,
+              yPercent: -50,
+              scale: 1,
+              opacity: 1,
+              duration: 1.0,
+              delay: 0.1 + index * 0.045,
+              ease: 'back.out(1.8)',
+              scrollTrigger: {
+                trigger: orbitalSectionRef.current,
+                start: 'top 78%',
+                toggleActions: 'play none none reverse',
+              },
+            }
+          );
+        });
+      }
+    }, orbitalSectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   const activeSector = SECTORS.find(s => s.id === activeSectorId) || SECTORS[2];
   const ActiveIcon = activeSector.icon;
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
+    <div ref={containerRef} className="relative min-h-screen text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
       {/* Baked Studio Backdrop Image */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img
@@ -237,7 +324,7 @@ export default function AboutPage() {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
+      <div className="relative z-20 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
         {/* ================= TOP NAVBAR ================= */}
         <GlobalHeader />
@@ -349,8 +436,8 @@ export default function AboutPage() {
                   </div>
 
                   <div className="pt-4 border-t border-black/10 flex items-center justify-between text-xs font-machina uppercase tracking-wider text-black/50">
-                    <span>Opus Standard</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-[#181520]" />
+                    <span>Pillar // 0{idx + 1}</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </div>
                 </InteractiveTiltCard>
               );
@@ -359,136 +446,160 @@ export default function AboutPage() {
         </div>
 
         {/* ================= 4. ROYAL SOVEREIGN CIRCULAR SECTORS MATRIX ================= */}
-        <div className="space-y-8 reveal-item">
+        <div ref={orbitalSectionRef} className="space-y-4 reveal-item">
           {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center space-x-2 px-5 py-1.5 rounded-full bg-black/[0.05] border border-black/10 text-xs font-machina uppercase tracking-widest text-[#181520] shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-[#181520]" />
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-black/[0.05] border border-black/10 text-[11px] font-machina uppercase tracking-widest text-[#181520] shadow-sm">
+              <Sparkles className="w-3 h-3 text-[#181520]" />
               <span>Industries</span>
             </div>
-            <h2 className="font-machina text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-[#181520]">
+            <h2 className="font-machina text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#181520]">
               Opus Geeks Serves Several Sectors
             </h2>
-            <p className="font-neue text-xs sm:text-sm md:text-base leading-relaxed text-[#231b35]/80">
-              Opus Geeks caters to various sectors, including technology, finance, healthcare, and more. Our customized solutions are customized to meet the specific needs of each industry; ensuring businesses can succeed in the digital world. With our expertise in understanding industry challenges and trends, we&apos;re here to help you achieve success, nevertheless of your sector.
+            <p className="font-neue text-xs sm:text-sm leading-relaxed text-[#231b35]/80">
+              Customized digital architectures engineered for high-concurrency protocols and enterprise domains.
             </p>
           </div>
 
-          {/* Royal Circular Stage Container */}
-          <div className="bg-[#f0efe9]/95 backdrop-blur-3xl border-2 border-white rounded-[44px] p-6 sm:p-10 md:p-14 shadow-[0_40px_100px_rgba(24,21,32,0.08)] relative overflow-hidden">
+          {/* Compact Royal Circular Stage Container */}
+          <div className="bg-[#f0efe9]/95 backdrop-blur-3xl border-2 border-white rounded-[36px] p-5 sm:p-7 shadow-[0_25px_70px_rgba(24,21,32,0.07)] relative overflow-hidden max-w-5xl mx-auto">
             
-            {/* Ambient Celestial Glow & Platinum Lens Flare */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] sm:w-[900px] h-[700px] sm:h-[900px] bg-[#c9d2e7]/50 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-white/70 rounded-full blur-3xl pointer-events-none" />
+            {/* Ambient Celestial Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] sm:w-[650px] h-[520px] sm:h-[650px] bg-[#c9d2e7]/40 rounded-full blur-3xl pointer-events-none" />
 
             {/* Desktop & Tablet: TRUE 360° ROYAL ASTROLABE RADAR MATRIX */}
-            <div className="hidden md:flex relative w-full h-[700px] lg:h-[780px] items-center justify-center">
+            <div className="hidden md:flex relative w-full h-[500px] lg:h-[540px] items-center justify-center">
               
               {/* Concentric Astrolabe Rings & Tick Tracks */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] lg:w-[420px] h-[340px] lg:h-[420px] rounded-full border border-black/15 bg-[#c9d2e7]/25 shadow-[0_0_90px_rgba(24,21,32,0.08)] pointer-events-none" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] lg:w-[600px] h-[500px] lg:h-[600px] rounded-full border border-dashed border-black/20 animate-[spin_200s_linear_infinite] pointer-events-none" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[660px] lg:w-[740px] h-[660px] lg:h-[740px] rounded-full border border-black/10 pointer-events-none" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] lg:w-[760px] h-[680px] lg:h-[760px] rounded-full border border-dashed border-black/[0.08] animate-[spin_260s_linear_infinite_reverse] pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[270px] lg:w-[310px] h-[270px] lg:h-[310px] rounded-full border border-black/15 bg-[#c9d2e7]/20 shadow-[0_0_60px_rgba(24,21,32,0.06)] pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[390px] lg:w-[440px] h-[390px] lg:h-[440px] rounded-full border border-dashed border-black/15 animate-[spin_200s_linear_infinite] pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] lg:w-[540px] h-[480px] lg:h-[540px] rounded-full border border-black/10 pointer-events-none" />
 
               {/* Sweeping Horology Radar Beam */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] lg:w-[760px] h-[680px] lg:h-[760px] rounded-full pointer-events-none overflow-hidden animate-[spin_28s_linear_infinite]">
-                <div className="w-1/2 h-1/2 bg-gradient-to-br from-[#181520]/[0.06] via-transparent to-transparent origin-bottom-right rounded-tl-full" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] lg:w-[540px] h-[480px] lg:h-[540px] rounded-full pointer-events-none overflow-hidden animate-[spin_28s_linear_infinite]">
+                <div className="w-1/2 h-1/2 bg-gradient-to-br from-[#181520]/[0.05] via-transparent to-transparent origin-bottom-right rounded-tl-full" />
               </div>
 
-              {/* Dynamic Laser Connection Constellation Beam */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {/* Dynamic Laser Connection Constellation Beam (Pixel-Perfect Alignment) */}
+              <svg 
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 w-[600px] h-[600px]" 
+                viewBox="-300 -300 600 600"
+              >
                 {(() => {
                   const activeIdx = SECTORS.findIndex(s => s.id === activeSectorId);
                   const angleRad = ((activeIdx * (360 / SECTORS.length)) - 90) * (Math.PI / 180);
-                  const targetX = 50 + 41 * Math.cos(angleRad);
-                  const targetY = 50 + 41 * Math.sin(angleRad);
+                  const isLg = typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
+                  const distance = isLg ? 230 : 185;
+                  const orbRadius = isLg ? 82 : 70;
+                  
+                  // Start from outer rim of OPUSGEEKS orb
+                  const startX = Math.cos(angleRad) * orbRadius;
+                  const startY = Math.sin(angleRad) * orbRadius;
+                  
+                  // Connect directly to the badge node
+                  const endX = Math.cos(angleRad) * (distance - 14);
+                  const endY = Math.sin(angleRad) * (distance - 14);
+
                   return (
-                    <g>
+                    <g key={activeSectorId} className="transition-all duration-300">
+                      {/* Ambient Glow Beam */}
                       <line
-                        x1="50"
-                        y1="50"
-                        x2={targetX}
-                        y2={targetY}
+                        x1={startX}
+                        y1={startY}
+                        x2={endX}
+                        y2={endY}
                         stroke="#181520"
-                        strokeWidth="0.5"
-                        strokeDasharray="2 1"
-                        strokeOpacity="0.75"
+                        strokeWidth="3"
+                        strokeOpacity="0.08"
+                        strokeLinecap="round"
                       />
+                      {/* Laser Dashed Line */}
+                      <line
+                        x1={startX}
+                        y1={startY}
+                        x2={endX}
+                        y2={endY}
+                        stroke="#181520"
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        strokeOpacity="0.75"
+                        strokeLinecap="round"
+                        className="animate-pulse"
+                      />
+                      {/* Pulsing Target Dot at Badge Contact */}
                       <circle
-                        cx={targetX}
-                        cy={targetY}
-                        r="1.2"
+                        cx={endX}
+                        cy={endY}
+                        r="2.5"
                         fill="#181520"
                       />
                       <circle
-                        cx={targetX}
-                        cy={targetY}
-                        r="2.2"
+                        cx={endX}
+                        cy={endY}
+                        r="5.5"
                         fill="none"
-                        stroke="#c9d2e7"
-                        strokeWidth="0.3"
+                        stroke="#181520"
+                        strokeWidth="0.8"
+                        strokeOpacity="0.3"
                       />
                     </g>
                   );
                 })()}
               </svg>
 
-              {/* ================= DEAD CENTER: ONLY ANIMATED OPUSGEEKS ================= */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center">
+              {/* ================= DEAD CENTER: ANIMATED OPUSGEEKS CORE ================= */}
+              <div 
+                ref={centerOrbRef}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center"
+              >
                 <div 
                   onClick={() => openChat('Enterprise Multi-Sector Architecture Consultation')}
-                  className="w-56 h-56 lg:w-68 lg:h-68 rounded-full bg-[#181520] text-white shadow-[0_25px_70px_rgba(24,21,32,0.4)] border-2 border-white/30 flex items-center justify-center relative cursor-pointer group hover:scale-105 transition-all duration-500 hover:shadow-[0_0_90px_rgba(24,21,32,0.7)] p-4 select-none backdrop-blur-2xl ring-8 ring-[#181520]/10"
+                  className="w-36 h-36 lg:w-42 lg:h-42 rounded-full bg-[#181520] text-white shadow-[0_15px_50px_rgba(24,21,32,0.4)] border-2 border-white/30 flex items-center justify-center relative cursor-pointer group hover:scale-105 transition-all duration-300 hover:shadow-[0_0_70px_rgba(24,21,32,0.65)] p-2.5 select-none backdrop-blur-2xl ring-4 ring-[#181520]/10"
                 >
                   {/* Outer Bezel Astrolabe Micro-Ticks */}
-                  <div className="absolute inset-2.5 rounded-full border border-dashed border-white/20 animate-[spin_100s_linear_infinite_reverse] pointer-events-none" />
+                  <div className="absolute inset-1.5 rounded-full border border-dashed border-white/20 animate-[spin_100s_linear_infinite_reverse] pointer-events-none" />
 
                   {/* Embedded Interactive 3D WebGL Canvas */}
-                  <div className="absolute inset-0 rounded-full overflow-hidden opacity-45 group-hover:opacity-80 transition-opacity duration-500">
+                  <div className="absolute inset-0 rounded-full overflow-hidden opacity-45 group-hover:opacity-80 transition-opacity duration-300">
                     <Industries3DCore
                       activeSectorAngle={activeSector.angle}
                       className="w-full h-full"
                     />
                   </div>
                   
-                  {/* ONLY Prominent Animated Opusgeeks Branding */}
+                  {/* Prominent Animated Opusgeeks Branding */}
                   <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none animate-pulse">
-                    <OpusLogo dark={true} className="text-3xl lg:text-4xl font-extrabold uppercase tracking-widest text-white drop-shadow-2xl" />
+                    <OpusLogo dark={true} className="text-xl lg:text-2xl font-extrabold uppercase tracking-widest text-white drop-shadow-2xl" />
                   </div>
                 </div>
               </div>
 
-              {/* ================= 10 ROYAL SIGNET SATELLITE NODES ================= */}
+              {/* ================= 10 ROYAL SIGNET SATELLITE NODES (GSAP Center-Burst) ================= */}
               {SECTORS.map((sector, index) => {
                 const isSelected = sector.id === activeSectorId;
                 const SIcon = sector.icon;
 
-                // Trigonometric distribution around 360 degrees
-                const angleRad = ((index * (360 / SECTORS.length)) - 90) * (Math.PI / 180);
-                const rPercent = 41; // 41% radius
-                const xPercent = 50 + rPercent * Math.cos(angleRad);
-                const yPercent = 50 + rPercent * Math.sin(angleRad);
-
                 return (
                   <div
                     key={sector.id}
+                    ref={(el) => { nodesRef.current[index] = el; }}
                     style={{
-                      left: `${xPercent}%`,
-                      top: `${yPercent}%`,
-                      transform: 'translate(-50%, -50%)',
+                      left: '50%',
+                      top: '50%',
                     }}
-                    className="absolute z-30"
+                    className="absolute z-30 will-change-transform"
                   >
                     <button
                       onClick={() => setActiveSectorId(sector.id)}
                       onMouseEnter={() => setActiveSectorId(sector.id)}
-                      className={`group flex items-center gap-2.5 px-4 py-2.5 rounded-full border transition-all duration-300 cursor-pointer shadow-md select-none ${
+                      className={`group flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer shadow-md select-none ${
                         isSelected
-                          ? 'bg-[#181520] text-white border-[#181520] scale-125 shadow-[0_20px_50px_rgba(24,21,32,0.4)] z-40 ring-4 ring-[#c9d2e7]/60'
-                          : 'bg-white/95 hover:bg-[#181520] text-[#181520] hover:text-white border-black/10 hover:border-[#181520] hover:scale-105 backdrop-blur-2xl hover:shadow-xl'
+                          ? 'bg-[#181520] text-white border-[#181520] shadow-[0_10px_30px_rgba(24,21,32,0.4)] z-40 ring-2 ring-[#c9d2e7]/70 scale-110'
+                          : 'bg-white/95 hover:bg-[#181520] text-[#181520] hover:text-white border-black/10 hover:border-[#181520] hover:scale-105 backdrop-blur-2xl hover:shadow-lg'
                       }`}
                     >
-                      {/* Royal Numeral Disc */}
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center font-machina font-extrabold text-[10px] border transition-colors ${
+                      {/* Numeral Disc */}
+                      <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center font-machina font-extrabold text-[9px] border transition-colors ${
                         isSelected
                           ? 'bg-white text-[#181520] border-white shadow-sm'
                           : 'bg-[#181520] text-white border-black/20 group-hover:bg-white group-hover:text-[#181520]'
@@ -497,13 +608,13 @@ export default function AboutPage() {
                       </div>
 
                       {/* Icon */}
-                      <SIcon className={`w-4 h-4 transition-transform duration-300 group-hover:scale-110 ${
+                      <SIcon className={`w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110 ${
                         isSelected ? 'text-[#c9d2e7]' : 'text-[#181520] group-hover:text-[#c9d2e7]'
                       }`} />
 
                       {/* Sector Title Label */}
-                      <span className="font-machina text-xs font-bold uppercase tracking-wider whitespace-nowrap pr-1">
-                        {sector.title}
+                      <span className="font-machina text-[11px] font-bold uppercase tracking-wider whitespace-nowrap pr-0.5">
+                        {sector.shortTitle}
                       </span>
                     </button>
                   </div>
@@ -513,21 +624,21 @@ export default function AboutPage() {
             </div>
 
             {/* Mobile Responsive View (< md) */}
-            <div className="md:hidden space-y-4 relative z-10">
+            <div className="md:hidden space-y-3 relative z-10">
               {/* Central Opusgeeks Mobile */}
-              <div className="flex justify-center mb-6">
+              <div className="flex justify-center mb-4">
                 <div 
                   onClick={() => openChat('Enterprise Multi-Sector Architecture Consultation')}
-                  className="w-44 h-44 rounded-full bg-[#181520] text-white shadow-2xl border-2 border-white/25 flex items-center justify-center p-4 relative cursor-pointer active:scale-95 transition-transform"
+                  className="w-28 h-28 rounded-full bg-[#181520] text-white shadow-xl border-2 border-white/30 flex items-center justify-center p-2 relative cursor-pointer active:scale-95 transition-transform"
                 >
                   <div className="relative z-10 animate-pulse">
-                    <OpusLogo dark={true} className="text-2xl font-extrabold uppercase tracking-widest text-white" />
+                    <OpusLogo dark={true} className="text-lg font-extrabold uppercase tracking-widest text-white" />
                   </div>
                 </div>
               </div>
 
               {/* Mobile Sector Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {SECTORS.map((sec) => {
                   const SIcon = sec.icon;
                   const isSelected = sec.id === activeSectorId;
@@ -535,73 +646,56 @@ export default function AboutPage() {
                     <button
                       key={sec.id}
                       onClick={() => setActiveSectorId(sec.id)}
-                      className={`w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 text-left cursor-pointer ${
+                      className={`w-full flex items-center justify-between p-2.5 rounded-xl border transition-all text-left cursor-pointer ${
                         isSelected
-                          ? 'bg-[#181520] text-white border-[#181520] shadow-xl ring-2 ring-[#c9d2e7]/50'
+                          ? 'bg-[#181520] text-white border-[#181520] shadow-md ring-2 ring-[#c9d2e7]/50'
                           : 'bg-white/90 hover:bg-[#181520] text-[#181520] hover:text-white border-black/10'
                       }`}
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center font-machina font-bold text-xs ${
+                      <div className="flex items-center space-x-2.5">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center font-machina font-bold text-[9px] ${
                           isSelected ? 'bg-white/20 text-white' : 'bg-[#181520] text-white'
                         }`}>
                           {sec.id < 10 ? `0${sec.id}` : sec.id}
                         </div>
-                        <span className="font-machina text-xs font-bold uppercase tracking-wider">
+                        <span className="font-machina text-[11px] font-bold uppercase tracking-wider">
                           {sec.title}
                         </span>
                       </div>
-                      <SIcon className={`w-4 h-4 ${isSelected ? 'text-[#c9d2e7]' : 'text-[#181520]'}`} />
+                      <SIcon className={`w-3.5 h-3.5 ${isSelected ? 'text-[#c9d2e7]' : 'text-[#181520]'}`} />
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* ================= ROYAL SOVEREIGN ARCHITECTURE VAULT (BOTTOM CONSOLE) ================= */}
-            <div className="mt-8 pt-6 border-t border-black/10 relative z-10">
-              <div className="bg-[#181520] text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20 flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative overflow-hidden">
+            {/* ================= COMPACT SOVEREIGN PROTOCOL BAR ================= */}
+            <div className="mt-4 pt-3.5 border-t border-black/10 relative z-10">
+              <div className="bg-[#181520] text-white rounded-2xl p-4 sm:p-5 shadow-xl border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 relative overflow-hidden">
                 
-                {/* Ambient Platinum Flare */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-[#c9d2e7]/15 rounded-full blur-3xl pointer-events-none" />
-
                 {/* Domain Info */}
-                <div className="space-y-3 relative z-10">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="bg-white/10 text-[#c9d2e7] border border-white/20 px-4 py-1 rounded-full font-machina text-[10px] uppercase tracking-wider font-bold">
-                      Protocol // {activeSector.id < 10 ? `0${activeSector.id}` : activeSector.id} • {activeSector.badge}
+                <div className="space-y-1 relative z-10">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="bg-white/10 text-[#c9d2e7] border border-white/20 px-2.5 py-0.5 rounded-full font-machina text-[9px] uppercase tracking-wider font-bold">
+                      Protocol // 0{activeSector.id} • {activeSector.badge}
                     </span>
-                    <span className="text-[11px] font-mono text-white/50 uppercase tracking-widest hidden sm:inline">
-                      Audited Architecture
+                    <span className="font-machina text-sm sm:text-base font-bold uppercase text-white tracking-tight">
+                      {activeSector.title}
                     </span>
                   </div>
 
-                  <h3 className="font-machina text-xl sm:text-2xl font-bold uppercase text-white tracking-tight">
-                    {activeSector.title}
-                  </h3>
-
-                  <p className="font-neue text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
+                  <p className="font-neue text-xs text-white/75 max-w-xl line-clamp-1 leading-normal">
                     {activeSector.desc}
                   </p>
-                  
-                  {/* Architecture Guarantees Checklist */}
-                  <div className="flex flex-wrap items-center gap-3 pt-1">
-                    {activeSector.specs.map((sp, idx) => (
-                      <span key={idx} className="inline-flex items-center space-x-1.5 text-xs font-neue text-[#c9d2e7] bg-white/[0.06] px-3.5 py-1 rounded-full border border-white/15">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#c9d2e7] shrink-0" />
-                        <span>{sp}</span>
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Consultation Trigger Button */}
                 <button
                   onClick={() => openChat(`Enterprise Architecture Blueprint Consultation for ${activeSector.title}`)}
-                  className="shrink-0 bg-white text-[#181520] hover:bg-[#c9d2e7] py-4 px-8 rounded-full font-machina text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center space-x-2 shadow-xl active:scale-95 cursor-pointer font-bold relative z-10 group"
+                  className="shrink-0 bg-white text-[#181520] hover:bg-[#c9d2e7] py-2.5 px-5 rounded-full font-machina text-[11px] uppercase tracking-widest transition-all duration-200 flex items-center justify-center space-x-1.5 shadow-md active:scale-95 cursor-pointer font-bold relative z-10 group"
                 >
-                  <span>Commission {activeSector.title} Blueprint</span>
-                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <span>Commission Blueprint</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </button>
 
               </div>

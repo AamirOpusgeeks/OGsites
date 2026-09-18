@@ -206,7 +206,7 @@ export default function BlogsPage() {
   });
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
+    <div ref={containerRef} className="relative min-h-screen text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
       {/* Baked Studio Backdrop Image */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img
@@ -216,7 +216,7 @@ export default function BlogsPage() {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
+      <div className="relative z-20 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
         {/* ================= TOP NAVBAR ================= */}
         <GlobalHeader />
@@ -342,7 +342,7 @@ export default function BlogsPage() {
               <InteractiveTiltCard
                 key={blog.id}
                 onClick={() => openChat(`Technical Article: ${blog.title}`)}
-                className="bg-[#f0efe9]/75 backdrop-blur-xl border border-white/70 rounded-3xl p-6 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.09)] transition-all duration-300 cursor-pointer group"
+                className="bg-[#f2f1ec]/85 hover:bg-white/95 backdrop-blur-2xl border border-black/[0.08] hover:border-black/25 rounded-3xl p-6 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_22px_45px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-400 cursor-pointer group"
               >
                 <div>
                   {/* Image Cover */}
@@ -352,22 +352,22 @@ export default function BlogsPage() {
                       alt={blog.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
-                    <div className="absolute top-3 left-3">
-                      <span className="bg-black/60 backdrop-blur-md text-white border border-white/20 px-3 py-0.5 rounded-full text-[10px] font-neue uppercase tracking-wider">
+                    <div className="absolute top-3.5 left-3.5">
+                      <span className="bg-[#181520]/80 backdrop-blur-md text-white border border-white/20 px-3 py-1 rounded-full text-[10px] font-machina uppercase tracking-wider shadow-sm">
                         {blog.category}
                       </span>
                     </div>
                   </div>
 
                   {/* Meta info */}
-                  <div className="flex items-center space-x-4 text-[11px] font-neue text-black/50 mb-3">
-                    <span className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3" />
+                  <div className="flex items-center space-x-3 text-[11px] font-neue text-black/60 mb-3">
+                    <span className="flex items-center space-x-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-black/40" />
                       <span>{blog.date}</span>
                     </span>
                     <span>•</span>
-                    <span className="flex items-center space-x-1">
-                      <Clock className="w-3 h-3" />
+                    <span className="flex items-center space-x-1.5">
+                      <Clock className="w-3.5 h-3.5 text-black/40" />
                       <span>{blog.readTime}</span>
                     </span>
                   </div>
@@ -398,18 +398,12 @@ export default function BlogsPage() {
                 {/* Action */}
                 <div className="pt-4 border-t border-black/10 flex items-center justify-between">
                   <span className="text-[11px] font-neue text-black/50">
-                    {blog.author}
+                    By {blog.author}
                   </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openChat(`Technical Article: ${blog.title}`);
-                    }}
-                    className="bg-[#181520] text-white p-2.5 rounded-full hover:scale-110 transition-transform cursor-pointer active:scale-95"
-                    title="Discuss with AI Architect"
-                  >
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="bg-[#181520] text-white px-3.5 py-1.5 rounded-full text-[11px] font-machina uppercase tracking-wider group-hover:bg-black group-hover:scale-105 transition-all flex items-center space-x-1.5 shadow-sm">
+                    <span>Read</span>
+                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
                 </div>
               </InteractiveTiltCard>
             ))}

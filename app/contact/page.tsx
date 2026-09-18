@@ -119,17 +119,17 @@ export default function ContactPage() {
   };
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
+    <div ref={containerRef} className="relative min-h-screen text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans">
       {/* Studio Background Image */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img
           src="/backgrounds/background_min.png"
           alt="background"
-          className="w-full h-full object-cover opacity-90"
+          className="w-full h-full object-cover"
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
+      <div className="relative z-20 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
         {/* ================= TOP NAVBAR ================= */}
         <GlobalHeader />

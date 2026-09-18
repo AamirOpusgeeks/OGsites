@@ -1383,7 +1383,7 @@ export default function Page() {
       {/* Interactive Navbar Header */}
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 md:px-12 py-6 transition-transform duration-300"
+        className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 md:px-12 py-5 bg-[#c9d2e7]/35 backdrop-blur-md border-b border-black/[0.04] transition-all duration-300"
       >
         {/* Left: Logo Button */}
         <button

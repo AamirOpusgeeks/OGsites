@@ -366,7 +366,7 @@ function PortfolioContent() {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen bg-[#c9d2e7] text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans select-none"
+      className="relative min-h-screen text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans select-none"
     >
       {/* Baked Studio Backdrop */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -395,7 +395,7 @@ function PortfolioContent() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col">
+      <div className="relative z-20 max-w-7xl mx-auto flex flex-col">
         
         {/* ================= TOP NAVIGATION ================= */}
         <GlobalHeader />
