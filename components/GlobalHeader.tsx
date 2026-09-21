@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Sparkles, ArrowUpRight, Menu, X, ChevronDown } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
 import { useChat } from '@/components/providers/ChatProvider';
+import ServicesDropdown from '@/components/ServicesDropdown';
 
 interface GlobalHeaderProps {
   className?: string;
@@ -14,7 +15,7 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
   const pathname = usePathname();
   const { openChat, toggleChat } = useChat();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [servicesDropdown, setServicesDropdown] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(true);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -68,43 +69,16 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center space-x-7">
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href || (item.isDropdown && pathname.startsWith('/services'));
-
               if (item.isDropdown) {
                 return (
-                  <div 
+                  <ServicesDropdown
                     key={item.label}
-                    className="relative group py-2"
-                    onMouseEnter={() => setServicesDropdown(true)}
-                    onMouseLeave={() => setServicesDropdown(false)}
-                  >
-                    <a
-                      href={item.href}
-                      className={`font-neue text-[13px] font-medium transition-all flex items-center space-x-1 cursor-pointer ${
-                        isActive ? 'text-[#181520] font-bold border-b-2 border-[#181520] pb-0.5' : 'text-[#181520]/75 hover:text-[#181520]'
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform" />
-                    </a>
-
-                    {/* Dropdown Menu */}
-                    {servicesDropdown && (
-                      <div className="absolute top-full left-0 w-48 bg-white/95 backdrop-blur-2xl border border-black/10 rounded-2xl p-2 shadow-2xl z-50 animate-fadeIn">
-                        {item.subItems?.map((sub) => (
-                          <a
-                            key={sub.label}
-                            href={sub.href}
-                            className="block px-4 py-2.5 rounded-xl font-neue text-xs text-[#181520] hover:bg-black/5 transition-colors"
-                          >
-                            {sub.label}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                    buttonClassName="font-neue text-[13px] font-medium"
+                  />
                 );
               }
+
+              const isActive = pathname === item.href;
 
               return (
                 <a
@@ -167,17 +141,49 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             </button>
           </div>
 
-          <div className="flex flex-col space-y-5 my-auto">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="font-machina text-2xl font-black uppercase text-[#181520] hover:translate-x-2 transition-transform"
-              >
-                {item.label}
-              </a>
-            ))}
+          <div className="flex flex-col space-y-4 my-auto overflow-y-auto pr-1">
+            {NAV_ITEMS.map((item) => {
+              if (item.isDropdown) {
+                return (
+                  <div key={item.label} className="flex flex-col space-y-2 py-1">
+                    <button
+                      type="button"
+                      onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                      className="font-machina text-2xl font-black uppercase text-[#181520] flex items-center justify-between text-left cursor-pointer bg-transparent border-none p-0"
+                    >
+                      <span>{item.label}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {mobileServicesOpen && (
+                      <div className="flex flex-col space-y-2 pl-3 border-l-2 border-black/15 my-1">
+                        {item.subItems?.map((sub) => (
+                          <a
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="font-machina text-sm font-bold uppercase tracking-wider text-[#181520]/80 hover:text-black py-1 flex items-center justify-between"
+                          >
+                            <span>{sub.label}</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-machina text-2xl font-black uppercase text-[#181520] hover:translate-x-2 transition-transform"
+                >
+                  {item.label}
+                </a>
+              );
+            })}
           </div>
 
           <div className="pt-6 border-t border-black/10 flex flex-col space-y-3">

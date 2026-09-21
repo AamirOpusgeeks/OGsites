@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
-import { ArrowUpRight, ChevronDown, Smartphone, Globe, Palette, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
+import ServicesDropdown from '@/components/ServicesDropdown';
 import { useLenis } from '@/components/providers/SmoothScroll';
 import { useChat } from '@/components/providers/ChatProvider';
 
@@ -49,9 +50,7 @@ export default function Page() {
   const { lenis } = useLenis();
   const { isChatOpen, openChat, toggleChat } = useChat();
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
-  const [servicesOpen, setServicesOpen] = useState(false);
   const isChatOpenRef = useRef(isChatOpen);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
 
   // Sync isChatOpenRef and keep header visible when chat opens
@@ -61,18 +60,6 @@ export default function Page() {
       gsap.to(headerRef.current, { yPercent: 0, duration: 0.25, ease: 'power2.out' });
     }
   }, [isChatOpen]);
-
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setServicesOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // Programmatic Scroll Function to exact timeline stages
   const scrollToSection = (target: 'hero' | 'engineering' | 'ecosystem' | 'enterprise' | 'connect') => {
@@ -1387,7 +1374,7 @@ export default function Page() {
       >
         {/* Left: Logo Button */}
         <button
-          onClick={() => { setServicesOpen(false); scrollToSection('hero'); }}
+          onClick={() => scrollToSection('hero')}
           className="cursor-pointer group bg-transparent border-none p-0 outline-none flex items-center"
         >
           <OpusLogo variant="full" size={32} />
@@ -1398,66 +1385,14 @@ export default function Page() {
           <nav className="hidden lg:flex items-center space-x-8 font-neue text-[13px] font-medium tracking-[0.02em] text-[#181520]">
             {/* Home (Active) */}
             <button
-              onClick={() => { setServicesOpen(false); scrollToSection('hero'); }}
+              onClick={() => scrollToSection('hero')}
               className="text-[#181520] font-semibold hover:opacity-60 transition-opacity cursor-pointer bg-transparent border-none outline-none font-neue text-[13px]"
             >
               Home
             </button>
 
             {/* Services Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setServicesOpen(!servicesOpen)}
-                className="flex items-center space-x-1 hover:opacity-60 transition-opacity cursor-pointer bg-transparent border-none outline-none font-neue text-[13px] font-medium text-[#181520]"
-              >
-                <span>Services</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${servicesOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Frosted Dropdown Menu */}
-              {servicesOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-[#f0efe9]/95 backdrop-blur-xl border border-black/10 rounded-2xl p-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex flex-col space-y-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <a
-                    href="/services/app-development"
-                    className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
-                      <Smartphone className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">App Development</div>
-                      <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">React Native & Native Mobile</div>
-                    </div>
-                  </a>
-
-                  <a
-                    href="/services/web-development"
-                    className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
-                      <Globe className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">Web Development</div>
-                      <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">Scalable Web Apps & Cloud</div>
-                    </div>
-                  </a>
-
-                  <a
-                    href="/services/ui-ux-design"
-                    className="flex items-center space-x-3.5 p-3 rounded-xl hover:bg-black/[0.05] transition-colors group text-left"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-black/[0.06] flex items-center justify-center group-hover:bg-[#181520] group-hover:text-white transition-colors">
-                      <Palette className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-machina text-xs font-bold uppercase tracking-wider text-[#181520]">UI/UX Design</div>
-                      <div className="font-neue text-[11px] text-[#181520]/60 normal-case tracking-normal">Design Systems & Prototypes</div>
-                    </div>
-                  </a>
-                </div>
-              )}
-            </div>
+            <ServicesDropdown />
 
             {/* Portfolio Showcase Route */}
             <a
