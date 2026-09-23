@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 interface OG3DBackgroundProps {
   className?: string;
@@ -101,18 +102,41 @@ export default function OG3DBackground({ className = '' }: OG3DBackgroundProps) 
     letterO.position.set(-0.62, 0.06, 0);
     ogInnerGroup.add(letterO);
 
-    // Letter 'G'
-    const gGeo = new THREE.TorusGeometry(0.58, 0.16, 32, 64, Math.PI * 1.6);
-    const letterG = new THREE.Mesh(gGeo, glassMat);
-    letterG.position.set(0.62, 0.06, 0);
-    letterG.rotation.set(0, 0, Math.PI * 0.25);
-    ogInnerGroup.add(letterG);
+    // "G" letter: seamless solid glass tube with rounded caps matching "O" in proportion and thickness
+    const gRadius = 0.58;
+    const gBarY = -0.04;
+    const gStartRad = (50 * Math.PI) / 180;
+    const gPoints = [
+      new THREE.Vector3(gRadius * Math.cos(gStartRad), gRadius * Math.sin(gStartRad), 0),
+      new THREE.Vector3(gRadius * Math.cos((75 * Math.PI) / 180), gRadius * Math.sin((75 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((110 * Math.PI) / 180), gRadius * Math.sin((110 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((150 * Math.PI) / 180), gRadius * Math.sin((150 * Math.PI) / 180), 0),
+      new THREE.Vector3(-gRadius, 0, 0),
+      new THREE.Vector3(gRadius * Math.cos((215 * Math.PI) / 180), gRadius * Math.sin((215 * Math.PI) / 180), 0),
+      new THREE.Vector3(0, -gRadius, 0),
+      new THREE.Vector3(gRadius * Math.cos((305 * Math.PI) / 180), gRadius * Math.sin((305 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((335 * Math.PI) / 180), gRadius * Math.sin((335 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius, gBarY - 0.1, 0),
+      new THREE.Vector3(gRadius - 0.03, gBarY, 0),
+      new THREE.Vector3(0.35, gBarY, 0),
+      new THREE.Vector3(0.12, gBarY, 0),
+    ];
 
-    // Crossbar
-    const gBarGeo = new THREE.BoxGeometry(0.58, 0.16, 0.16);
-    const gBar = new THREE.Mesh(gBarGeo, glassMat);
-    gBar.position.set(0.62, -0.1, 0.16);
-    ogInnerGroup.add(gBar);
+    const gCurve = new THREE.CatmullRomCurve3(gPoints, false, 'centripetal');
+    const gTubeGeo = new THREE.TubeGeometry(gCurve, 128, 0.16, 24, false);
+
+    // Polished hemispherical caps at the two terminals for a luxury jewelry-grade finish
+    const cap1 = new THREE.SphereGeometry(0.16, 24, 16);
+    cap1.translate(gPoints[0].x, gPoints[0].y, gPoints[0].z);
+
+    const cap2 = new THREE.SphereGeometry(0.16, 24, 16);
+    const lastPt = gPoints[gPoints.length - 1];
+    cap2.translate(lastPt.x, lastPt.y, lastPt.z);
+
+    const mergedGGeo = mergeGeometries([gTubeGeo, cap1, cap2]);
+    const letterG = new THREE.Mesh(mergedGGeo, glassMat);
+    letterG.position.set(0.62, 0.06, 0);
+    ogInnerGroup.add(letterG);
 
     // Soft Studio Drop Shadow Texture (Clean Monochrome)
     const createDropShadowTexture = () => {
@@ -178,7 +202,7 @@ export default function OG3DBackground({ className = '' }: OG3DBackgroundProps) 
       targetRotZ = normX * -0.15;
     };
 
-    window.addEventListener('mousemove', handleWindowMouseMove);
+    window.addEventListener('mousemove', handleWindowMouseMove, { passive: true });
 
     const handleResize = () => {
       if (!container) return;
@@ -190,15 +214,16 @@ export default function OG3DBackground({ className = '' }: OG3DBackgroundProps) 
       updateScale();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
 
     // 7. Exact Animation Loop from Hero Section
     let animId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      if (document.hidden) return;
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Continuous Organic Floating & Breathing (Exact Hero Section formula)
       ogInnerGroup.position.y = Math.sin(elapsedTime * 1.6) * 0.06;
@@ -226,8 +251,10 @@ export default function OG3DBackground({ className = '' }: OG3DBackgroundProps) 
       renderer.dispose();
       pmrem.dispose();
       oGeo.dispose();
-      gGeo.dispose();
-      gBarGeo.dispose();
+      gTubeGeo.dispose();
+      cap1.dispose();
+      cap2.dispose();
+      mergedGGeo.dispose();
       glassMat.dispose();
       shadowPlaneGeo.dispose();
       shadowPlaneMat.dispose();

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { useLenis } from '@/components/providers/SmoothScroll';
 
 interface Subpage3DBackgroundProps {
@@ -74,17 +75,24 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
     rim.position.set(-6, -5, -4);
     scene.add(rim);
 
-    // 4. Pure Solid Brilliant White 3D Material (Matching Hero Section Image 1 Exactly)
+    // 4. Pure Solid Brilliant White 3D Material (Matching Hero Section Exactly)
     const glassMat = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color(0xffffff),
-      roughness: 0.1,
-      metalness: 0.05,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.02,
+      emissive: new THREE.Color(0xffffff),
+      emissiveIntensity: 0.18,
+      roughness: 0.04,
+      transmission: 0.96,
+      thickness: 0.55,
+      ior: 1.333, // Real physical water refractive index
       reflectivity: 1.0,
-      specularIntensity: 1.2,
+      transparent: true,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.01,
+      specularIntensity: 1.0,
       specularColor: new THREE.Color(0xffffff),
       envMapIntensity: 2.8,
+      attenuationColor: new THREE.Color(0xffffff),
+      attenuationDistance: 3.0,
     });
 
     // 5. Hero OG Monogram Mesh Group (Matching Hero Section Exactly)
@@ -100,18 +108,41 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
     letterO.position.set(-0.62, 0.06, 0);
     ogInnerGroup.add(letterO);
 
-    // Letter 'G' (Torus Arc)
-    const gGeo = new THREE.TorusGeometry(0.58, 0.16, 32, 64, Math.PI * 1.6);
-    const letterG = new THREE.Mesh(gGeo, glassMat);
-    letterG.position.set(0.62, 0.06, 0);
-    letterG.rotation.set(0, 0, Math.PI * 0.25);
-    ogInnerGroup.add(letterG);
+    // "G" letter: seamless solid glass tube with rounded caps matching "O" in proportion and thickness
+    const gRadius = 0.58;
+    const gBarY = -0.04;
+    const gStartRad = (50 * Math.PI) / 180;
+    const gPoints = [
+      new THREE.Vector3(gRadius * Math.cos(gStartRad), gRadius * Math.sin(gStartRad), 0),
+      new THREE.Vector3(gRadius * Math.cos((75 * Math.PI) / 180), gRadius * Math.sin((75 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((110 * Math.PI) / 180), gRadius * Math.sin((110 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((150 * Math.PI) / 180), gRadius * Math.sin((150 * Math.PI) / 180), 0),
+      new THREE.Vector3(-gRadius, 0, 0),
+      new THREE.Vector3(gRadius * Math.cos((215 * Math.PI) / 180), gRadius * Math.sin((215 * Math.PI) / 180), 0),
+      new THREE.Vector3(0, -gRadius, 0),
+      new THREE.Vector3(gRadius * Math.cos((305 * Math.PI) / 180), gRadius * Math.sin((305 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((335 * Math.PI) / 180), gRadius * Math.sin((335 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius, gBarY - 0.1, 0),
+      new THREE.Vector3(gRadius - 0.03, gBarY, 0),
+      new THREE.Vector3(0.35, gBarY, 0),
+      new THREE.Vector3(0.12, gBarY, 0),
+    ];
 
-    // Crossbar
-    const gBarGeo = new THREE.BoxGeometry(0.58, 0.16, 0.16);
-    const gBar = new THREE.Mesh(gBarGeo, glassMat);
-    gBar.position.set(0.62, -0.1, 0.16);
-    ogInnerGroup.add(gBar);
+    const gCurve = new THREE.CatmullRomCurve3(gPoints, false, 'centripetal');
+    const gTubeGeo = new THREE.TubeGeometry(gCurve, 128, 0.16, 24, false);
+
+    // Polished hemispherical caps at the two terminals for a luxury jewelry-grade finish
+    const cap1 = new THREE.SphereGeometry(0.16, 24, 16);
+    cap1.translate(gPoints[0].x, gPoints[0].y, gPoints[0].z);
+
+    const cap2 = new THREE.SphereGeometry(0.16, 24, 16);
+    const lastPt = gPoints[gPoints.length - 1];
+    cap2.translate(lastPt.x, lastPt.y, lastPt.z);
+
+    const mergedGGeo = mergeGeometries([gTubeGeo, cap1, cap2]);
+    const letterG = new THREE.Mesh(mergedGGeo, glassMat);
+    letterG.position.set(0.62, 0.06, 0);
+    ogInnerGroup.add(letterG);
 
     // Soft Ground Drop Shadow Plane (Matching Hero Section Exactly)
     const createDropShadowTexture = () => {
@@ -151,8 +182,13 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
 
     const updateLayout = () => {
       const w = window.innerWidth;
-      if (w < 768) {
-        baseScale = 1.1;
+      if (w < 480) {
+        baseScale = 0.95;
+        basePosX = 0;
+        startY = 0.16;
+        scrollDeltaY = 1.2;
+      } else if (w < 768) {
+        baseScale = 1.15;
         basePosX = 0;
         startY = 0.18;
         scrollDeltaY = 1.3;
@@ -193,7 +229,7 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
       mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // Listen to Lenis smooth scroll progress or fallback to native scroll
     const updateScrollProgress = () => {
@@ -220,24 +256,25 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       updateLayout();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
 
     // Render immediately one frame synchronously
     renderer.render(scene, camera);
 
     // 7. Render & Scroll-Reactive Physics Loop (Exact Hero Physics)
     let animId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
       if (document.hidden) return;
 
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Real-time scroll sampling guarantee
       const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -271,7 +308,7 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
 
       // Subtle dynamic letter breathing (Matching Hero Section Exactly)
       letterO.rotation.z = Math.sin(elapsedTime * 0.9) * 0.04;
-      letterG.rotation.z = Math.PI * 0.25 + Math.cos(elapsedTime * 0.9) * 0.04;
+      letterG.rotation.z = Math.cos(elapsedTime * 0.9) * 0.04;
 
       renderer.render(scene, camera);
     };
@@ -289,8 +326,10 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
       renderer.dispose();
       pmrem.dispose();
       oGeo.dispose();
-      gGeo.dispose();
-      gBarGeo.dispose();
+      gTubeGeo.dispose();
+      cap1.dispose();
+      cap2.dispose();
+      mergedGGeo.dispose();
       glassMat.dispose();
       shadowPlaneGeo.dispose();
       shadowPlaneMat.dispose();

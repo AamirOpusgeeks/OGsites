@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Sparkles, Menu, X } from "lucide-react";
 import { useChat } from "@/components/providers/ChatProvider";
+import OpusLogo from "@/components/OpusLogo";
 
 const NAV_LINKS = [
   { name: "Selected Work", href: "#work" },
@@ -37,18 +38,11 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Brand Logo & Status */}
           <a
-            href="#"
+            href="/"
             className="group flex items-center gap-3.5 focus:outline-none"
-            aria-label="Noomo Agency"
+            aria-label="Opusgeeks"
           >
-            <div className="flex items-center gap-2">
-              <span className="font-['Syne'] font-extrabold text-2xl tracking-[-0.04em] text-[#161616] group-hover:opacity-80 transition-opacity">
-                NOOMO
-              </span>
-              <span className="text-[10px] uppercase font-mono tracking-widest px-1.5 py-0.5 rounded border border-[rgba(22,22,22,0.12)] text-[#6a6864] bg-white/40">
-                LABS
-              </span>
-            </div>
+            <OpusLogo variant="full" size={28} />
 
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-[rgba(22,22,22,0.04)] border border-[rgba(22,22,22,0.08)] text-[#161616] text-xs font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-[#161616] animate-ping" />

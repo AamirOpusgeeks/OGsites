@@ -143,15 +143,16 @@ export default function Industries3DCore({
       targetRotationX.current = -y * 0.48;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // Animation Loop
     let animId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      if (document.hidden) return;
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Continuous Fluid 3D Celestial Rotation
       coreMesh.rotation.x = elapsedTime * 0.28;

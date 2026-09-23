@@ -22,10 +22,30 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false);
+      }
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   const NAV_ITEMS = [
     { label: 'Home', href: '/' },

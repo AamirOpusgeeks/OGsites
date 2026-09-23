@@ -88,7 +88,7 @@ export default function ThreeScene() {
       scrollProgress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
     };
 
-    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('scroll', onScroll, { passive: true });
 
     // Resize
@@ -97,15 +97,16 @@ export default function ThreeScene() {
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onResize, { passive: true });
 
     // Animation Loop
     let animationFrameId: number;
-    const clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      if (document.hidden) return;
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Mouse Parallax Lerp
       camera.position.x += (mouseX * 0.9 - camera.position.x) * 0.05;

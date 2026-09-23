@@ -111,6 +111,22 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
+    // Fire and forget to Edge API for logging & lead ingestion
+    try {
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          domain: formData.domain,
+          budget: formData.budget,
+          message: formData.description,
+        }),
+      }).catch(() => {});
+    } catch {}
+
     const summary = `Executive Commission Brief:\n- Partner: ${formData.name}\n- Work Email: ${formData.email}\n- Direct Line: ${formData.phone || 'Direct'}\n- Architecture Domain: ${formData.domain}\n- Projected Scope: ${formData.budget}\n- Technical Intent: ${formData.description}`;
     openChat(summary);
   };

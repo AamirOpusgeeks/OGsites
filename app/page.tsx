@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { ArrowUpRight, Sparkles, ChevronLeft, ChevronRight, Layers, Cpu, Terminal, Rocket, Trophy, Users, CheckCircle2, ShieldCheck, Zap, Globe, Monitor, Smartphone, Palette, Gamepad2, Code2 } from 'lucide-react';
+import { ArrowUpRight, Sparkles, ChevronLeft, ChevronRight, Layers, Cpu, Terminal, Rocket, Trophy, Users, CheckCircle2, ShieldCheck, Zap, Globe, Monitor, Smartphone, Palette, Gamepad2, Code2, Menu, X, ChevronDown } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
 import ServicesDropdown from '@/components/ServicesDropdown';
 import GlobalFooter from '@/components/GlobalFooter';
@@ -182,6 +182,19 @@ export default function Page() {
   const servicesSectionRef = useRef<HTMLDivElement>(null);
   const [activeMetricPillar, setActiveMetricPillar] = useState<number>(0);
   const [activeServiceIdx, setActiveServiceIdx] = useState<number>(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(true);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   const handleSelectSector = (targetIdx: number) => {
     const total = OPUS_SECTIONS.length;
@@ -1961,8 +1974,16 @@ export default function Page() {
     const letterG = new THREE.Mesh(mergedGGeo, glassMat);
     letterG.position.set(0.62, 0.06, 0);
     ogInnerGroup.add(letterG);
-    heroOGGroup.position.set(0, 0.22, 0.4);
-    heroOGGroup.scale.set(1.65, 1.65, 1.65);
+    const getOGResponsive = () => {
+      const w = window.innerWidth;
+      if (w < 480) return { scale: 1.05, y: 0.16 };
+      if (w < 768) return { scale: 1.25, y: 0.18 };
+      if (w < 1024) return { scale: 1.45, y: 0.20 };
+      return { scale: 1.65, y: 0.22 };
+    };
+    const initOG = getOGResponsive();
+    heroOGGroup.position.set(0, initOG.y, 0.4);
+    heroOGGroup.scale.set(initOG.scale, initOG.scale, initOG.scale);
 
     const createDropShadowTexture = () => {
       const c = document.createElement('canvas');
@@ -2211,7 +2232,7 @@ export default function Page() {
       mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
     };
-    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mousemove', onPointerMove, { passive: true });
 
     // Responsive phone sizing helper — keeps phone from overlapping top buttons on mobile
     const getPhoneResponsive = () => {
@@ -2223,27 +2244,51 @@ export default function Page() {
       return { scale: 0.82, y: -0.09 };                     // desktop
     };
 
+    let resizeDebounceTimer: ReturnType<typeof setTimeout>;
+
     const onResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+      // Auto-close mobile drawer menu on desktop
+      if (w >= 1024) {
+        setMobileMenuOpen(false);
+      }
+
+      // Dynamically adapt Hero 3D Monogram if at initial hero section
+      if (window.scrollY < 80) {
+        const ogResp = getOGResponsive();
+        gsap.to(heroOGGroup.scale, { x: ogResp.scale, y: ogResp.scale, z: ogResp.scale, duration: 0.35, ease: 'power2.out' });
+        gsap.to(heroOGGroup.position, { y: ogResp.y, duration: 0.35, ease: 'power2.out' });
+      }
 
       // Dynamically adjust phone scale & position on resize so it never overlaps buttons
-      if (stage1Group && stage1Group.visible) {
+      if (stage1Group) {
         const resp = getPhoneResponsive();
-        gsap.to(stage1Group.scale, { x: resp.scale, y: resp.scale, z: resp.scale, duration: 0.4, ease: 'power2.out' });
-        gsap.to(stage1Group.position, { y: resp.y, duration: 0.4, ease: 'power2.out' });
+        gsap.to(stage1Group.scale, { x: resp.scale, y: resp.scale, z: resp.scale, duration: 0.35, ease: 'power2.out' });
+        gsap.to(stage1Group.position, { y: resp.y, duration: 0.35, ease: 'power2.out' });
       }
+
+      // Debounced ScrollTrigger refresh so manual window dragging smoothly recalculates pins and triggers
+      clearTimeout(resizeDebounceTimer);
+      resizeDebounceTimer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 150);
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onResize, { passive: true });
 
     // Render Animation Loop with Interactive Mouse Tilt & Floating Physics
     let animId: number;
-    const clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const render = () => {
       animId = requestAnimationFrame(render);
-      const elapsedTime = clock.getElapsedTime();
+      if (document.hidden) return; // Save CPU/GPU when user changes tab
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Subtle high-performance camera parallax (Zero conflict with GSAP)
       camera.position.x += (mouseX * 0.25 - camera.position.x) * 0.05;
@@ -2488,6 +2533,7 @@ export default function Page() {
 
     return () => {
       ctx.revert();
+      clearTimeout(resizeDebounceTimer);
       window.removeEventListener('mousemove', onPointerMove);
       window.removeEventListener('resize', onResize);
       cancelAnimationFrame(animId);
@@ -2577,18 +2623,119 @@ export default function Page() {
             </a>
           </nav>
 
-          {/* Right: Book a Strategy Call White Pill Button -> Triggers AI Chat Architect */}
-          <div className="relative flex items-center">
+          {/* Right: Book a Strategy Call White Pill Button & Mobile Hamburger Toggle */}
+          <div className="relative flex items-center space-x-2 sm:space-x-3">
             <button
               onClick={() => openChat('Book a Strategy Call')}
-              className="bg-white text-[#181520] hover:bg-[#181520] hover:text-white px-6 py-2.5 rounded-full font-neue text-[13px] font-medium tracking-[0.02em] shadow-sm hover:shadow-md transition-all duration-300 flex items-center space-x-2 border border-black/5 active:scale-95 cursor-pointer outline-none"
+              className="bg-white text-[#181520] hover:bg-[#181520] hover:text-white px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-full font-neue text-xs sm:text-[13px] font-medium tracking-[0.02em] shadow-sm hover:shadow-md transition-all duration-300 flex items-center space-x-1.5 sm:space-x-2 border border-black/5 active:scale-95 cursor-pointer outline-none whitespace-nowrap"
             >
-              <span>Book a Strategy Call</span>
+              <span className="hidden xs:inline sm:inline">Book a Strategy Call</span>
+              <span className="inline xs:hidden sm:hidden">Book Call</span>
               <Sparkles className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Mobile Hamburger Menu Toggle Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 rounded-full bg-white/70 hover:bg-white border border-black/10 text-[#181520] focus:outline-none transition-all shadow-xs cursor-pointer"
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </header>
+
+      {/* Mobile Drawer Navigation (Matching GlobalHeader Premium Aesthetics) */}
+      <div
+        className={`fixed inset-0 z-50 bg-[#c9d2e7]/98 backdrop-blur-2xl flex flex-col justify-between p-6 sm:p-8 lg:hidden transition-all duration-300 ${
+          mobileMenuOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-black/10 pb-4">
+          <OpusLogo variant="full" size={26} />
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="p-2 rounded-full bg-white/80 border border-black/10 text-[#181520] cursor-pointer"
+            aria-label="Close Menu"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="flex flex-col space-y-4 my-auto overflow-y-auto pr-1">
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              scrollToSection('hero');
+            }}
+            className="font-machina text-2xl font-black uppercase text-[#181520] hover:translate-x-2 transition-transform text-left bg-transparent border-none p-0 cursor-pointer"
+          >
+            Home
+          </button>
+
+          {/* Services Dropdown in Mobile Drawer */}
+          <div className="flex flex-col space-y-2 py-1">
+            <button
+              type="button"
+              onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+              className="font-machina text-2xl font-black uppercase text-[#181520] flex items-center justify-between text-left cursor-pointer bg-transparent border-none p-0"
+            >
+              <span>Services</span>
+              <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {mobileServicesOpen && (
+              <div className="flex flex-col space-y-2 pl-3 border-l-2 border-black/15 my-1">
+                {[
+                  { label: 'Web Development', href: '/services/web-development' },
+                  { label: 'App Development', href: '/services/app-development' },
+                  { label: 'UI/UX Design', href: '/services/ui-ux-design' },
+                ].map((sub) => (
+                  <a
+                    key={sub.label}
+                    href={sub.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="font-machina text-sm font-bold uppercase tracking-wider text-[#181520]/80 hover:text-black py-1 flex items-center justify-between"
+                  >
+                    <span>{sub.label}</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {[
+            { label: 'Portfolio', href: '/portfolio' },
+            { label: 'Blogs', href: '/blogs' },
+            { label: 'About', href: '/about' },
+            { label: 'Contact Us', href: '/contact-us' },
+            { label: 'FAQs', href: '/faqs' },
+          ].map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className="font-machina text-2xl font-black uppercase text-[#181520] hover:translate-x-2 transition-transform"
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+
+        <div className="pt-6 border-t border-black/10 flex flex-col space-y-3">
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              openChat('Book a Strategy Call');
+            }}
+            className="w-full bg-[#181520] text-white py-3.5 rounded-full font-machina text-xs uppercase tracking-widest flex items-center justify-center space-x-2 shadow-lg cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-[#c9d2e7]" />
+            <span>Book a Strategy Call</span>
+          </button>
+        </div>
+      </div>
 
 
       {/* Pinned Stage */}
@@ -2783,7 +2930,7 @@ export default function Page() {
             </div>
 
             {/* 4 Process Step Cards in 2x2 Grid (Interactive 3D Tilt + Luxury Glassmorphism) */}
-            <div className="process-grid grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5 md:gap-4 my-auto">
+            <div className="process-grid grid grid-cols-2 gap-2 sm:gap-3.5 md:gap-4 my-auto">
               {[
                 {
                   num: '01',
@@ -2816,38 +2963,38 @@ export default function Page() {
               ].map((step) => (
                 <InteractiveProcessCard
                   key={step.num}
-                  className="process-card group p-4 sm:p-5 md:p-5.5 rounded-2xl md:rounded-3xl bg-white/70 hover:bg-white/95 backdrop-blur-2xl border border-white/70 hover:border-black/15 shadow-[0_10px_35px_rgba(24,21,32,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] hover:shadow-[0_24px_50px_rgba(24,21,32,0.12),inset_0_1px_0_rgba(255,255,255,1)] transition-all duration-300 overflow-hidden cursor-pointer"
+                  className="process-card group p-2.5 sm:p-4 md:p-5.5 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white/70 hover:bg-white/95 backdrop-blur-2xl border border-white/70 hover:border-black/15 shadow-[0_10px_35px_rgba(24,21,32,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] hover:shadow-[0_24px_50px_rgba(24,21,32,0.12),inset_0_1px_0_rgba(255,255,255,1)] transition-all duration-300 overflow-hidden cursor-pointer"
                 >
                   <div className="relative z-10 flex flex-col justify-between h-full">
                     <div>
                       {/* Step Top Row: Number & Tag */}
-                      <div className="flex items-center justify-between mb-2 sm:mb-2.5">
-                        <div className="flex items-center space-x-2.5">
-                          <div className="w-8 h-8 rounded-full bg-white/90 group-hover:bg-[#181520] border border-black/5 shadow-sm flex items-center justify-center transition-colors duration-300">
-                            <step.icon className="w-4 h-4 text-[#181520] group-hover:text-white transition-colors duration-300" />
+                      <div className="flex items-center justify-between mb-1.5 sm:mb-2.5">
+                        <div className="flex items-center space-x-1.5 sm:space-x-2.5">
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/90 group-hover:bg-[#181520] border border-black/5 shadow-sm flex items-center justify-center transition-colors duration-300">
+                            <step.icon className="w-3 h-3 sm:w-4 sm:h-4 text-[#181520] group-hover:text-white transition-colors duration-300" />
                           </div>
-                          <span className="font-machina text-xl sm:text-2xl font-black text-[#181520]/30 group-hover:text-[#181520] transition-colors duration-300">
+                          <span className="font-machina text-base sm:text-2xl font-black text-[#181520]/30 group-hover:text-[#181520] transition-colors duration-300">
                             {step.num}
                           </span>
                         </div>
-                        <span className="px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-neue font-semibold tracking-wider uppercase bg-white/80 group-hover:bg-[#181520] group-hover:text-white border border-white/80 group-hover:border-[#181520] text-[#181520]/75 shadow-sm transition-all duration-300">
+                        <span className="hidden sm:inline-block px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-neue font-semibold tracking-wider uppercase bg-white/80 group-hover:bg-[#181520] group-hover:text-white border border-white/80 group-hover:border-[#181520] text-[#181520]/75 shadow-sm transition-all duration-300">
                           {step.tag}
                         </span>
                       </div>
 
                       {/* Step Title */}
-                      <h3 className="font-machina text-base sm:text-lg md:text-xl font-bold uppercase tracking-tight text-[#181520] group-hover:text-black group-hover:translate-x-1 transition-all duration-300 mb-1">
+                      <h3 className="font-machina text-xs sm:text-base md:text-xl font-bold uppercase tracking-tight text-[#181520] group-hover:text-black group-hover:translate-x-1 transition-all duration-300 mb-0.5 sm:mb-1">
                         {step.title}
                       </h3>
 
                       {/* Step Description */}
-                      <p className="font-neue text-xs sm:text-[12.5px] leading-relaxed text-[#181520]/70 group-hover:text-[#181520]/90 transition-colors duration-300">
+                      <p className="font-neue text-[10px] sm:text-xs md:text-[12.5px] leading-snug sm:leading-relaxed text-[#181520]/70 group-hover:text-[#181520]/90 transition-colors duration-300 line-clamp-2 sm:line-clamp-3 md:line-clamp-none">
                         {step.desc}
                       </p>
                     </div>
 
                     {/* Subtle Bottom Glow Accent */}
-                    <div className="w-full h-0.5 bg-black/[0.04] group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-[#181520]/30 group-hover:to-transparent mt-3 transition-all duration-300" />
+                    <div className="w-full h-0.5 bg-black/[0.04] group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-[#181520]/30 group-hover:to-transparent mt-1.5 sm:mt-3 transition-all duration-300" />
                   </div>
                 </InteractiveProcessCard>
               ))}
@@ -2915,7 +3062,7 @@ export default function Page() {
             </div>
 
             {/* Interactive Expanding Monolithic Pillars */}
-            <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 md:gap-3.5 w-full my-auto h-[52vh] sm:h-[55vh] md:h-[58vh] max-h-[480px]">
+            <div className="grid grid-cols-2 md:flex md:flex-row gap-2 sm:gap-3 md:gap-3.5 w-full my-auto h-auto md:h-[58vh] max-h-[500px]">
               {[
                 {
                   num: '01',
@@ -2972,24 +3119,24 @@ export default function Page() {
                     key={pillar.num}
                     onMouseEnter={() => setActiveMetricPillar(idx)}
                     onClick={() => setActiveMetricPillar(idx)}
-                    className={`relative rounded-2xl md:rounded-3xl cursor-pointer overflow-hidden flex flex-col justify-between p-4 sm:p-5 md:p-6 select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive
-                      ? 'flex-[2.4] bg-white/95 backdrop-blur-3xl border border-white/95 shadow-[0_20px_60px_rgba(24,21,32,0.12),inset_0_1px_0_rgba(255,255,255,1)] z-10'
-                      : 'flex-1 bg-white/60 hover:bg-white/80 backdrop-blur-2xl border border-white/70 shadow-[0_8px_30px_rgba(24,21,32,0.04),inset_0_1px_0_rgba(255,255,255,0.7)]'
+                    className={`relative rounded-xl sm:rounded-2xl md:rounded-3xl cursor-pointer overflow-hidden flex flex-col justify-between p-3 sm:p-5 md:p-6 select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive
+                      ? 'col-span-1 md:flex-[2.4] bg-white/95 backdrop-blur-3xl border border-white/95 shadow-[0_20px_60px_rgba(24,21,32,0.12),inset_0_1px_0_rgba(255,255,255,1)] z-10'
+                      : 'col-span-1 md:flex-1 bg-white/60 hover:bg-white/80 backdrop-blur-2xl border border-white/70 shadow-[0_8px_30px_rgba(24,21,32,0.04),inset_0_1px_0_rgba(255,255,255,0.7)]'
                       }`}
                   >
                     {/* Top Header Row */}
                     <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center space-x-2.5">
+                      <div className="flex items-center space-x-1.5 sm:space-x-2.5">
                         <div
-                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
+                          className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
                             ? 'bg-[#181520] text-white border border-[#181520]'
                             : 'bg-white/90 text-[#181520] border border-black/5'
                             }`}
                         >
-                          <pillar.icon className="w-4.5 h-4.5" />
+                          <pillar.icon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                         </div>
                         <span
-                          className={`font-machina font-black text-sm sm:text-base transition-colors duration-300 ${isActive ? 'text-[#181520]' : 'text-[#181520]/40'
+                          className={`font-machina font-black text-xs sm:text-base transition-colors duration-300 ${isActive ? 'text-[#181520]' : 'text-[#181520]/40'
                             }`}
                         >
                           {pillar.num}
@@ -2998,30 +3145,30 @@ export default function Page() {
                     </div>
 
                     {/* Center: Monumental Numeric Counter */}
-                    <div className="my-auto py-2">
+                    <div className="my-auto py-1 sm:py-2">
                       <div
                         className={`font-machina font-black tracking-tight leading-none transition-all duration-300 ${isActive
-                          ? 'text-4xl sm:text-5xl md:text-6xl text-[#181520]'
-                          : 'text-3xl sm:text-4xl text-[#181520]/80'
+                          ? 'text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#181520]'
+                          : 'text-xl sm:text-3xl md:text-4xl text-[#181520]/80'
                           }`}
                       >
                         <MetricCounter value={pillar.value} suffix={pillar.suffix} />
                       </div>
-                      <div className="font-machina text-sm sm:text-base md:text-lg font-bold uppercase tracking-tight text-[#181520] mt-1.5 whitespace-nowrap">
+                      <div className="font-machina text-xs sm:text-sm md:text-base lg:text-lg font-bold uppercase tracking-tight text-[#181520] mt-1 sm:mt-1.5 whitespace-nowrap truncate">
                         {pillar.title}
                       </div>
 
                       {/* Active Only Extended Details */}
                       {isActive && (
-                        <div className="mt-3 pt-3 border-t border-black/5 space-y-2.5">
-                          <p className="font-neue text-xs sm:text-[13px] leading-relaxed text-[#181520]/75 line-clamp-3">
+                        <div className="mt-1.5 sm:mt-3 pt-1.5 sm:pt-3 border-t border-black/5 space-y-1.5 sm:space-y-2.5">
+                          <p className="font-neue text-[10px] sm:text-xs md:text-[13px] leading-relaxed text-[#181520]/75 line-clamp-2 md:line-clamp-3">
                             {pillar.desc}
                           </p>
-                          <div className="flex flex-wrap items-center gap-2 pt-1">
-                            <span className="text-[10px] font-neue font-bold uppercase tracking-wider text-[#181520] bg-[#181520]/5 px-2.5 py-1 rounded-full border border-black/5">
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 pt-0.5 sm:pt-1">
+                            <span className="text-[9px] sm:text-[10px] font-neue font-bold uppercase tracking-wider text-[#181520] bg-[#181520]/5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-black/5">
                               {pillar.tag}
                             </span>
-                            <span className="text-[10px] font-neue font-bold uppercase tracking-wider text-emerald-700 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                            <span className="hidden sm:inline-block text-[9px] sm:text-[10px] font-neue font-bold uppercase tracking-wider text-emerald-700 bg-emerald-500/10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-emerald-500/20">
                               ● {pillar.growth}
                             </span>
                           </div>
@@ -3032,9 +3179,9 @@ export default function Page() {
                     {/* Bottom Indicator Bar */}
                     <div className="w-full">
                       <div
-                        className={`h-1 rounded-full transition-all duration-500 ${isActive
+                        className={`h-0.5 sm:h-1 rounded-full transition-all duration-500 ${isActive
                           ? 'bg-[#181520] w-full'
-                          : 'bg-black/10 w-8'
+                          : 'bg-black/10 w-6 sm:w-8'
                           }`}
                       />
                     </div>

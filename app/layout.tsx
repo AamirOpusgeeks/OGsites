@@ -11,8 +11,47 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Digital Storytelling & 3D Website Design Agency | Noomo',
-  description: 'Design that elevates your digital presence.',
+  metadataBase: new URL('https://opusgeeks.com'),
+  title: {
+    default: 'Opus Geeks | Premier 3D & Digital Software Engineering Agency',
+    template: '%s | Opus Geeks',
+  },
+  description:
+    'Opus Geeks engineers high-performance web platforms, resilient cloud architectures, and immersive 3D digital experiences for ambitious global enterprises.',
+  keywords: [
+    'Opus Geeks',
+    'Software Architecture',
+    '3D Web Development',
+    'WebGL Agency',
+    'Next.js 16',
+    'Mobile Systems',
+    'Enterprise Cloud',
+  ],
+  authors: [{ name: 'Opus Geeks Architecture Desk', url: 'https://opusgeeks.com' }],
+  creator: 'Opus Geeks',
+  icons: {
+    icon: '/logos/logo.png',
+    apple: '/logos/logo.png',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://opusgeeks.com',
+    title: 'Opus Geeks | Premier 3D & Digital Software Engineering Agency',
+    description:
+      'We engineer high-performance web platforms and cloud systems combining modern Next.js architectures, edge compute, and sub-second API pipelines.',
+    siteName: 'Opus Geeks',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Opus Geeks | Premier 3D & Digital Software Engineering Agency',
+    description:
+      'Architecting software for the AI-first era with modern 3D graphics, edge compute, and sub-second pipelines.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

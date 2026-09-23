@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 interface OG3DAnimatedProps {
   size?: number;
@@ -66,18 +67,40 @@ export default function OG3DAnimated({ size = 120, className = '' }: OG3DAnimate
     letterO.position.set(-0.5, 0, 0);
     ogGroup.add(letterO);
 
-    // Letter 'G' (Torus Arc)
-    const gGeo = new THREE.TorusGeometry(0.48, 0.14, 32, 64, Math.PI * 1.62);
-    const letterG = new THREE.Mesh(gGeo, glassMat);
-    letterG.position.set(0.5, 0, 0);
-    letterG.rotation.set(0, 0, Math.PI * 0.24);
-    ogGroup.add(letterG);
+    // Letter 'G' (Seamless solid tube with rounded caps matching hero section)
+    const gRadius = 0.48;
+    const gBarY = -0.033;
+    const gStartRad = (50 * Math.PI) / 180;
+    const gPoints = [
+      new THREE.Vector3(gRadius * Math.cos(gStartRad), gRadius * Math.sin(gStartRad), 0),
+      new THREE.Vector3(gRadius * Math.cos((75 * Math.PI) / 180), gRadius * Math.sin((75 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((110 * Math.PI) / 180), gRadius * Math.sin((110 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((150 * Math.PI) / 180), gRadius * Math.sin((150 * Math.PI) / 180), 0),
+      new THREE.Vector3(-gRadius, 0, 0),
+      new THREE.Vector3(gRadius * Math.cos((215 * Math.PI) / 180), gRadius * Math.sin((215 * Math.PI) / 180), 0),
+      new THREE.Vector3(0, -gRadius, 0),
+      new THREE.Vector3(gRadius * Math.cos((305 * Math.PI) / 180), gRadius * Math.sin((305 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos((335 * Math.PI) / 180), gRadius * Math.sin((335 * Math.PI) / 180), 0),
+      new THREE.Vector3(gRadius, gBarY - 0.08, 0),
+      new THREE.Vector3(gRadius - 0.025, gBarY, 0),
+      new THREE.Vector3(0.29, gBarY, 0),
+      new THREE.Vector3(0.1, gBarY, 0),
+    ];
 
-    // 'G' Horizontal Crossbar
-    const gBarGeo = new THREE.BoxGeometry(0.46, 0.14, 0.14);
-    const gBar = new THREE.Mesh(gBarGeo, glassMat);
-    gBar.position.set(0.5, -0.12, 0.12);
-    ogGroup.add(gBar);
+    const gCurve = new THREE.CatmullRomCurve3(gPoints, false, 'centripetal');
+    const gTubeGeo = new THREE.TubeGeometry(gCurve, 128, 0.14, 24, false);
+
+    const cap1 = new THREE.SphereGeometry(0.14, 24, 16);
+    cap1.translate(gPoints[0].x, gPoints[0].y, gPoints[0].z);
+
+    const cap2 = new THREE.SphereGeometry(0.14, 24, 16);
+    const lastPt = gPoints[gPoints.length - 1];
+    cap2.translate(lastPt.x, lastPt.y, lastPt.z);
+
+    const mergedGGeo = mergeGeometries([gTubeGeo, cap1, cap2]);
+    const letterG = new THREE.Mesh(mergedGGeo, glassMat);
+    letterG.position.set(0.5, 0, 0);
+    ogGroup.add(letterG);
 
     // Center Core Spherical Glow
     const coreGeo = new THREE.SphereGeometry(0.16, 32, 32);
@@ -106,15 +129,16 @@ export default function OG3DAnimated({ size = 120, className = '' }: OG3DAnimate
       targetRotX = -y * 1.5;
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     // 6. Animation Loop
     let animId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime();
+      if (document.hidden) return;
+      const elapsed = (performance.now() - startTime) * 0.001;
 
       // Organic Floating & Continuous Rotation
       ogGroup.position.y = Math.sin(elapsed * 1.8) * 0.08;
@@ -143,8 +167,10 @@ export default function OG3DAnimated({ size = 120, className = '' }: OG3DAnimate
       }
       renderer.dispose();
       oGeo.dispose();
-      gGeo.dispose();
-      gBarGeo.dispose();
+      gTubeGeo.dispose();
+      cap1.dispose();
+      cap2.dispose();
+      mergedGGeo.dispose();
       coreGeo.dispose();
       glassMat.dispose();
       coreMat.dispose();
