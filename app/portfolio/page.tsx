@@ -2,11 +2,12 @@
 
 import { useState, useRef, MouseEvent, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ArrowUpRight, ArrowLeft } from 'lucide-react';
-import OpusLogo from "@/components/OpusLogo";
+import { ArrowUpRight, ChevronLeft, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import GlobalHeader from "@/components/GlobalHeader";
 import GlobalFooter from "@/components/GlobalFooter";
 import ProjectMediaScreen from "@/components/ProjectMediaScreen";
+import AgencyMetricsShowcase from '@/components/AgencyMetricsShowcase';
+import TrustMarqueeStrip from '@/components/TrustMarqueeStrip';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLenis } from '@/components/providers/SmoothScroll';
@@ -40,7 +41,6 @@ const CATEGORIES = [
 ];
 
 const PROJECTS: Project[] = [
-  // 1. Mobile Architecture
   {
     id: 'fintech',
     number: '01',
@@ -56,52 +56,8 @@ const PROJECTS: Project[] = [
     screenLabel: 'iOS & Android Native Core',
   },
   {
-    id: 'mind-nourishment',
-    number: '02',
-    title: 'Mind Nourishment Health',
-    client: 'Mind Nourishment Inc',
-    category: 'app',
-    categoryLabel: 'Mobile Architecture',
-    year: '2026',
-    metric: '4.9★ App Store Rating',
-    desc: 'Mental wellness ecosystem featuring continuous HRV biofeedback tracking, spatial soundscapes, and encrypted offline-first journaling.',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=85',
-    tags: ['React Native', 'HealthKit', 'Spatial Audio', 'WatermelonDB'],
-    screenLabel: 'Wellness & Biofeedback App',
-  },
-  {
-    id: 'lecavalier',
-    number: '03',
-    title: 'Le Cavalier Wine Vault',
-    client: 'Le Cavalier Cellars',
-    category: 'app',
-    categoryLabel: 'Mobile Architecture',
-    year: '2026',
-    metric: '+185% Transaction Volume',
-    desc: 'Luxury wine asset verification, private barrel auctioning, and instant biometric checkout tailored for ultra-high-net-worth collectors.',
-    image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=85',
-    tags: ['SwiftUI', 'Kotlin Compose', 'Biometrics', 'Stripe Terminal'],
-    screenLabel: 'Luxury Asset Vault App',
-  },
-  {
-    id: 'wevents',
-    number: '04',
-    title: 'W VIP Event Hospitality',
-    client: 'W Events Group',
-    category: 'app',
-    categoryLabel: 'Mobile Architecture',
-    year: '2025',
-    metric: '100k Peak Concurrent QPS',
-    desc: 'Dynamic interactive 3D venue map, NFC proximity pass entry, and synchronized crowd telemetry for premier global festivals.',
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Flutter', 'WebSocket Sync', 'NFC PassKit', '3D Maps'],
-    screenLabel: 'VIP Hospitality & Ticketing',
-  },
-
-  // 2. Website & Cloud Systems
-  {
     id: 'vstream',
-    number: '05',
+    number: '02',
     title: 'V-Stream Aviation Charter',
     client: 'V-Stream Private Jet',
     category: 'web',
@@ -114,66 +70,8 @@ const PROJECTS: Project[] = [
     screenLabel: 'Private Aviation Platform',
   },
   {
-    id: 'cloud-saas',
-    number: '06',
-    title: 'Nexus Cloud Intelligence',
-    client: 'Nexus Data Corp',
-    category: 'web',
-    categoryLabel: 'Website & Cloud',
-    year: '2026',
-    metric: '45k+ Req/Sec Ingestion',
-    desc: 'Multi-tenant cloud infrastructure and telemetry dashboard delivering real-time metric streams with distributed edge caching and sub-10ms queries.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Next.js 15', 'Distributed WebSockets', 'ClickHouse', 'Tailwind CSS'],
-    screenLabel: 'Cloud Platform Architecture',
-  },
-  {
-    id: 'kelstech',
-    number: '07',
-    title: 'Kelstech Home Services',
-    client: 'Kelstech Group',
-    category: 'web',
-    categoryLabel: 'Website & Cloud',
-    year: '2025',
-    metric: '+92% Lead Conversion',
-    desc: 'Modern on-demand home maintenance portal with instant technician dispatch, transparent quote estimation, and automated scheduling.',
-    image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Headless CMS', 'Next.js ISR', 'Dispatch Engine', 'PostgreSQL'],
-    screenLabel: 'Field Services Portal',
-  },
-  {
-    id: 'restaurant-techs',
-    number: '08',
-    title: 'Restaurant Techs Cloud & POS',
-    client: 'Restaurant Techs Inc',
-    category: 'web',
-    categoryLabel: 'Website & Cloud',
-    year: '2025',
-    metric: '99.999% Offline Uptime',
-    desc: 'Enterprise multi-location restaurant cloud management platform with real-time kitchen mesh ordering and live table telemetry.',
-    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=85',
-    tags: ['React 19', 'GraphQL Subscriptions', 'Microservices', 'Docker'],
-    screenLabel: 'Kitchen Telemetry & POS',
-  },
-  {
-    id: 'us-maxim',
-    number: '09',
-    title: 'US Maxim Luxury Commerce',
-    client: 'US Maxim Brand',
-    category: 'web',
-    categoryLabel: 'Website & Cloud',
-    year: '2025',
-    metric: '+64% Cart Conversion',
-    desc: 'Headless luxury e-commerce platform with dynamic inventory allocation, personalized recommendation algorithms, and sub-second checkout.',
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Shopify Plus', 'Next.js Commerce', 'Stripe API', 'Vercel Edge'],
-    screenLabel: 'Headless Luxury Storefront',
-  },
-
-  // 3. UI/UX Design Systems
-  {
     id: 'crypto',
-    number: '10',
+    number: '03',
     title: 'Zenith Trading Terminal',
     client: 'Zenith Protocol',
     category: 'uiux',
@@ -186,54 +84,33 @@ const PROJECTS: Project[] = [
     screenLabel: 'Web3 Terminal UX',
   },
   {
-    id: 'ecosystem',
-    number: '11',
-    title: 'Aura AI Design System',
-    client: 'Aura Intelligence',
-    category: 'uiux',
-    categoryLabel: 'UI/UX Design',
-    year: '2025',
-    metric: '45% Faster Dev Velocity',
-    desc: 'Spatial interface system and component framework crafted for AI copilot tools, emphasizing tactile micro-interactions and accessible typography.',
-    image: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Token Architecture', 'Micro-Interactions', 'Spatial UI', 'Figma Tokens'],
-    screenLabel: 'Unified Spatial Guidelines',
+    id: 'cloud-saas',
+    number: '04',
+    title: 'Nexus Cloud Intelligence',
+    client: 'Nexus Data Corp',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2026',
+    metric: '45k+ Req/Sec Ingestion',
+    desc: 'Multi-tenant cloud infrastructure and telemetry dashboard delivering real-time metric streams with distributed edge caching and sub-10ms queries.',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=85',
+    tags: ['Next.js 15', 'Distributed WebSockets', 'ClickHouse', 'Tailwind CSS'],
+    screenLabel: 'Cloud Platform Architecture',
   },
   {
-    id: 'smart-living',
-    number: '12',
-    title: 'SmartLiving IoT Interface',
-    client: 'SmartLiving Labs',
-    category: 'uiux',
-    categoryLabel: 'UI/UX Design',
-    year: '2025',
-    metric: 'Zero Latency Controls',
-    desc: 'Minimalist spatial smart-home control dashboard built with high-fidelity tactile toggles, spatial zone layouts, and energy telemetry.',
-    image: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Spatial Dashboard', 'Tactile Toggles', 'IoT Ergonomics', 'Dark Glass'],
-    screenLabel: 'Smart Home Spatial UX',
+    id: 'lecavalier',
+    number: '05',
+    title: 'Le Cavalier Wine Vault',
+    client: 'Le Cavalier Cellars',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2026',
+    metric: '+185% Volume Growth',
+    desc: 'Luxury wine asset verification, private barrel auctioning, and instant biometric checkout tailored for ultra-high-net-worth collectors.',
+    image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=85',
+    tags: ['SwiftUI', 'Kotlin Compose', 'Biometrics', 'Stripe Terminal'],
+    screenLabel: 'Luxury Asset Vault App',
   },
-  {
-    id: 'voyage',
-    number: '13',
-    title: 'Voyage Spatial Travel UX',
-    client: 'Voyage Global',
-    category: 'uiux',
-    categoryLabel: 'UI/UX Design',
-    year: '2025',
-    metric: '+78% Booking Completion',
-    desc: 'Frictionless travel exploration and spatial booking interface designed with immersive destination previews and interactive itinerary flows.',
-    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Interactive Maps', 'Frictionless Checkout', 'Motion Choreography', 'Design System'],
-    screenLabel: 'Spatial Itinerary Experience',
-  },
-];
-
-const STUDIO_METRICS = [
-  { label: 'Production Releases', value: '540+', sub: 'iOS, Android & Cloud' },
-  { label: 'Global Active Endpoints', value: '12M+', sub: 'Sub-second real-time sync' },
-  { label: 'Infrastructure Uptime', value: '99.99%', sub: 'Enterprise tier SLA' },
-  { label: 'Capital Volume Secured', value: '$2.4B+', sub: 'Zero-trust native encryption' },
 ];
 
 function InteractiveCard({ 
@@ -254,13 +131,10 @@ function InteractiveCard({
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
     const rotateX = ((y - centerY) / centerY) * -4;
     const rotateY = ((x - centerX) / centerX) * 4;
-
     setTransform(`perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.012, 1.012, 1.012)`);
     setGlare({ x: (x / rect.width) * 100, y: (y / rect.height) * 100, opacity: 0.14 });
   };
@@ -271,15 +145,11 @@ function InteractiveCard({
     if (onHoverState) onHoverState(false);
   };
 
-  const handleMouseEnter = () => {
-    if (onHoverState) onHoverState(true);
-  };
-
   return (
     <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
+      onMouseEnter={() => onHoverState?.(true)}
       onMouseLeave={handleMouseLeave}
       style={{ transform, transformStyle: 'preserve-3d', transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }}
       className={`relative will-change-transform ${className}`}
@@ -299,12 +169,16 @@ function PortfolioContent() {
   const searchParams = useSearchParams();
   const requestedProject = searchParams.get('project');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
+  const [heroSlide, setHeroSlide] = useState(0);
+  const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
   const [isHoveringCard, setIsHoveringCard] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const containerRef = useRef<HTMLDivElement>(null);
-  const marqueeRef = useRef<HTMLDivElement>(null);
   const { lenis } = useLenis();
   const { openChat } = useChat();
+
+  // Hero slider projects (all 5 curated projects)
+  const heroProjects = PROJECTS;
 
   useEffect(() => {
     const handleGlobalMouseMove = (e: globalThis.MouseEvent) => {
@@ -314,23 +188,23 @@ function PortfolioContent() {
     return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
   }, []);
 
+  // Auto-slide hero
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide(prev => (prev + 1) % heroProjects.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [heroProjects.length]);
+
   // Filter logic
   const filteredProjects = activeFilter === 'all' 
     ? PROJECTS 
     : PROJECTS.filter((p) => p.category === activeFilter);
 
-  const featuredProject = requestedProject 
-    ? PROJECTS.find(p => p.id === requestedProject) || filteredProjects[0] 
-    : filteredProjects[0];
-
-  const gridProjects = filteredProjects.filter(p => p.id !== featuredProject?.id);
-
   // Scroll animations
   useEffect(() => {
     if (!containerRef.current) return;
-    
     const ctx = gsap.context(() => {
-      // Reveal cards smoothly on scroll
       gsap.utils.toArray<HTMLElement>('.scroll-reveal-card').forEach((card) => {
         gsap.from(card, {
           y: 40,
@@ -344,24 +218,11 @@ function PortfolioContent() {
           },
         });
       });
-
-      // Kinetic Marquee velocity
-      if (marqueeRef.current && lenis) {
-        lenis.on('scroll', (e: { velocity: number }) => {
-          const vel = Math.abs(e.velocity || 0);
-          gsap.to(marqueeRef.current, {
-            x: `-=${1.2 + vel * 0.4}`,
-            ease: 'none',
-            modifiers: {
-              x: gsap.utils.unitize((x) => parseFloat(x) % 800),
-            },
-          });
-        });
-      }
     }, containerRef);
-
     return () => ctx.revert();
   }, [lenis, activeFilter]);
+
+  const currentHeroProject = heroProjects[heroSlide];
 
   return (
     <div
@@ -395,34 +256,110 @@ function PortfolioContent() {
         </div>
       </div>
 
-      <div className="relative z-20 max-w-7xl mx-auto flex flex-col">
+      <div className="relative z-20 max-w-7xl mx-auto flex flex-col space-y-16 md:space-y-20">
         
         {/* ================= TOP NAVIGATION ================= */}
         <GlobalHeader />
 
-        {/* ================= 1. MONUMENTAL EDITORIAL HEADER ================= */}
-        <div className="mt-6 md:mt-8 flex flex-col space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-end">
-            <div className="lg:col-span-8">
-              <h1 className="font-machina text-[10vw] md:text-[6.8vw] uppercase leading-[0.88] tracking-tight">
-                <div>CRAFTED FOR</div>
-                <div className="text-black/40">PERFORMANCE.</div>
-              </h1>
+        {/* ================= 1. CINEMATIC HERO SLIDER ================= */}
+        <div className="scroll-reveal-card -mx-6 md:-mx-14">
+          <div className="relative w-full aspect-[16/7] sm:aspect-[16/6] overflow-hidden rounded-none sm:rounded-[32px] sm:mx-6 md:mx-14 bg-[#0c0d14]">
+            {/* Background Image with crossfade */}
+            {heroProjects.map((project, idx) => (
+              <div
+                key={project.id}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  idx === heroSlide ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              </div>
+            ))}
+
+            {/* Content Overlay */}
+            <div className="absolute inset-0 flex flex-col justify-end p-8 sm:p-12 md:p-16 z-10">
+              <div className="max-w-2xl">
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/70">
+                    {currentHeroProject.categoryLabel} • {currentHeroProject.year}
+                  </span>
+                </div>
+                <h2 className="font-machina text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase text-white leading-[0.95] tracking-tight mb-4 transition-all duration-500">
+                  {currentHeroProject.title}
+                </h2>
+                <p className="font-neue text-sm sm:text-base text-white/75 leading-relaxed max-w-lg mb-6 hidden sm:block">
+                  {currentHeroProject.desc}
+                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => openChat(`Architecture Exploration: ${currentHeroProject.title}`)}
+                    className="bg-white text-[#181520] px-7 py-3 rounded-full font-machina text-xs uppercase tracking-widest hover:bg-white/90 transition-all flex items-center space-x-2.5 shadow-lg active:scale-95 cursor-pointer"
+                  >
+                    <span>View Case Study</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="bg-white/15 backdrop-blur-md text-white border border-white/20 px-4 py-2.5 rounded-full text-[11px] font-mono hidden sm:inline-flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    {currentHeroProject.metric}
+                  </span>
+                </div>
+              </div>
+
+              {/* Slide Navigation */}
+              <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 flex items-center gap-3">
+                <button
+                  onClick={() => setHeroSlide(prev => (prev - 1 + heroProjects.length) % heroProjects.length)}
+                  className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-2">
+                  {heroProjects.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setHeroSlide(idx)}
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                        idx === heroSlide ? 'w-8 bg-white' : 'w-1.5 bg-white/40'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setHeroSlide(prev => (prev + 1) % heroProjects.length)}
+                  className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <ChevronRightIcon className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="lg:col-span-4 pb-2">
-              <p className="font-neue text-base md:text-lg leading-relaxed text-[#231b35]/90">
-                A curated selection of high-frequency native mobile architectures, distributed cloud applications, and conversion-first design systems engineered for global scale.
+          </div>
+        </div>
+
+        {/* ================= 2. EDITORIAL FILTER STRIP ================= */}
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h2 className="font-machina text-3xl md:text-4xl font-bold uppercase text-[#181520] tracking-tight">
+                Selected Works
+              </h2>
+              <p className="font-neue text-sm text-black/60 mt-1">
+                {filteredProjects.length} projects across mobile, cloud & design systems
               </p>
             </div>
           </div>
 
-          {/* Clean Editorial Filter Strip */}
           <div className="flex flex-wrap items-center gap-2.5 pt-4 border-t border-black/10">
             {CATEGORIES.map((cat) => {
               const count = cat.id === 'all' 
                 ? PROJECTS.length 
                 : PROJECTS.filter(p => p.category === cat.id).length;
-
               return (
                 <button
                   key={cat.id}
@@ -445,184 +382,150 @@ function PortfolioContent() {
           </div>
         </div>
 
-        {/* ================= 2. MASTER SHOWPIECE CARD ================= */}
-        {featuredProject && (
-          <div className="mt-12 mb-10 scroll-reveal-card">
-            <InteractiveCard
-              onHoverState={setIsHoveringCard}
-              className="bg-[#f2f1ec]/85 backdrop-blur-2xl border border-white/80 rounded-[32px] p-6 md:p-12 shadow-[0_25px_60px_rgba(0,0,0,0.06)] group"
-            >
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
-                
-                {/* Visual Showcase Viewport */}
-                <div className="lg:col-span-7">
-                  <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-[#0c0d14] border border-black/10 shadow-2xl">
-                    <ProjectMediaScreen
-                      id={featuredProject.id}
-                      title={featuredProject.title}
-                      image={featuredProject.image}
-                      videoUrl={featuredProject.videoUrl}
-                      isFeatured={true}
+        {/* ================= 3. SINGLE FEATURED SHOWCASE ================= */}
+        {filteredProjects.length > 0 && (
+          <InteractiveCard
+            onHoverState={setIsHoveringCard}
+            className="scroll-reveal-card bg-[#f2f1ec]/85 hover:bg-white/95 backdrop-blur-2xl border border-black/[0.08] hover:border-black/20 rounded-[32px] p-6 md:p-10 shadow-[0_15px_45px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)] transition-all duration-500 group"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
+              <div className="lg:col-span-7">
+                <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-[#0c0d14] border border-black/10 shadow-2xl">
+                  <ProjectMediaScreen
+                    id={filteredProjects[0].id}
+                    title={filteredProjects[0].title}
+                    image={filteredProjects[0].image}
+                    videoUrl={filteredProjects[0].videoUrl}
+                    isFeatured={true}
+                  />
+                </div>
+              </div>
+              <div className="lg:col-span-5 flex flex-col justify-between space-y-5">
+                <div>
+                  <span className="font-mono text-xs uppercase tracking-wider text-black/50 block mb-2">
+                    Featured • {filteredProjects[0].categoryLabel}
+                  </span>
+                  <h2 className="font-machina text-3xl md:text-4xl font-bold uppercase text-[#181520] tracking-tight mb-4 leading-tight">
+                    {filteredProjects[0].title}
+                  </h2>
+                  <p className="font-neue text-base leading-relaxed text-[#231b35]/85 mb-5">
+                    {filteredProjects[0].desc}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {filteredProjects[0].tags.map((tag) => (
+                      <span key={tag} className="border border-black/15 bg-black/[0.03] text-[#181520] px-3 py-1 rounded-full text-xs font-neue">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="pt-5 border-t border-black/10 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span className="font-mono text-xs font-semibold text-[#181520]">{filteredProjects[0].metric}</span>
+                  </div>
+                  <button
+                    onClick={() => openChat(`Case Study: ${filteredProjects[0].title}`)}
+                    className="bg-[#181520] text-white px-7 py-3 rounded-full flex items-center space-x-3 text-xs uppercase tracking-widest font-machina hover:bg-black transition-all shadow-md cursor-pointer"
+                  >
+                    <span>Explore Architecture</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </InteractiveCard>
+        )}
+
+        {/* ================= 4. INTERACTIVE PROJECT LIST (AWWWARDS-STYLE) ================= */}
+        {filteredProjects.length > 1 && (
+          <div className="scroll-reveal-card">
+            <div className="border-b border-black/10 pb-4 mb-0">
+              <h2 className="font-machina text-2xl md:text-3xl font-bold uppercase text-[#181520]">
+                All Projects
+              </h2>
+            </div>
+
+            {/* Interactive Hover-Reveal List */}
+            <div className="relative">
+              {/* Floating Image Preview (appears on hover, follows cursor Y) */}
+              {hoveredProject && (
+                <div 
+                  className="hidden lg:block fixed z-40 pointer-events-none"
+                  style={{
+                    left: '62%',
+                    top: `${cursorPos.y}px`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <div className="w-[380px] aspect-[16/10] rounded-2xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.25)] border border-black/10 bg-[#0c0d14]">
+                    <img
+                      src={hoveredProject.image}
+                      alt={hoveredProject.title}
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 </div>
+              )}
 
-                {/* Editorial Details */}
-                <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
-                  <div>
-                    <span className="font-mono text-xs uppercase tracking-wider text-black/50 block mb-2">
-                      Featured • {featuredProject.categoryLabel}
-                    </span>
-                    <h2 className="font-machina text-3xl md:text-4xl font-bold uppercase text-[#181520] tracking-tight mb-4 leading-tight">
-                      {featuredProject.title}
-                    </h2>
-                    <p className="font-neue text-base leading-relaxed text-[#231b35]/85 mb-6">
-                      {featuredProject.desc}
-                    </p>
-
-                    {/* Clean Tech Spec Tags */}
-                    <div className="flex flex-wrap gap-2 mb-8">
-                      {featuredProject.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="border border-black/15 bg-black/[0.03] text-[#181520] px-3 py-1 rounded-full text-xs font-neue"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* High-End Action Row */}
-                  <div className="pt-6 border-t border-black/10 flex items-center justify-end">
-                    <button
-                      onClick={() => openChat(`Architecture Exploration: ${featuredProject.title}`)}
-                      className="bg-[#181520] text-white px-7 py-3 rounded-full flex items-center space-x-3 text-xs uppercase tracking-widest font-machina hover:bg-black transition-all shadow-md group-hover:scale-105 cursor-pointer outline-none border-none"
-                    >
-                      <span>Explore Architecture</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                </div>
-
-              </div>
-            </InteractiveCard>
-          </div>
-        )}
-
-        {/* ================= 3. KINETIC VELOCITY SCROLL MARQUEE ================= */}
-        <div className="relative w-screen -ml-6 md:-ml-14 my-10 md:my-14 py-4 overflow-hidden border-y border-black/10 bg-white/20 backdrop-blur-xs select-none">
-          <div 
-            ref={marqueeRef}
-            className="flex whitespace-nowrap text-xs font-mono uppercase tracking-[0.25em] text-[#181520]/75 will-change-transform"
-          >
-            <span className="mx-6">• HIGH-FREQUENCY ARCHITECTURE</span>
-            <span className="mx-6">• SUB-SECOND STATE SYNCHRONIZATION</span>
-            <span className="mx-6">• ZERO-TRUST NATIVE ENCRYPTION</span>
-            <span className="mx-6">• DISTRIBUTED EDGE INGESTION</span>
-            <span className="mx-6">• CONVERSION-ENGINEERED SPATIAL UI</span>
-            <span className="mx-6">• HIGH-FREQUENCY ARCHITECTURE</span>
-            <span className="mx-6">• SUB-SECOND STATE SYNCHRONIZATION</span>
-            <span className="mx-6">• ZERO-TRUST NATIVE ENCRYPTION</span>
-            <span className="mx-6">• DISTRIBUTED EDGE INGESTION</span>
-            <span className="mx-6">• CONVERSION-ENGINEERED SPATIAL UI</span>
-          </div>
-        </div>
-
-        {/* ================= 4. EDITORIAL GRID (WORLD CLASS 3D TILT CARDS) ================= */}
-        {gridProjects.length > 0 && (
-          <div className="mb-20 md:mb-28">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-              {gridProjects.map((project) => (
-                <InteractiveCard
+              {filteredProjects.slice(1).map((project, idx) => (
+                <div
                   key={project.id}
-                  onHoverState={setIsHoveringCard}
-                  className="scroll-reveal-card bg-[#f2f1ec]/80 backdrop-blur-xl border border-white/70 rounded-[28px] p-6 md:p-8 flex flex-col justify-between shadow-[0_15px_35px_rgba(0,0,0,0.05)] group"
+                  onMouseEnter={() => setHoveredProject(project)}
+                  onMouseLeave={() => setHoveredProject(null)}
+                  onClick={() => openChat(`Case Study: ${project.title}`)}
+                  className="border-b border-black/[0.07] py-6 md:py-7 flex items-center justify-between gap-4 cursor-pointer group/row hover:pl-4 transition-all duration-300"
                 >
-                  <div>
-                    {/* Minimalist Top Category Dot */}
-                    <div className="flex items-center space-x-2 pb-4 border-b border-black/10">
-                      <span className="w-2 h-2 rounded-full bg-[#181520]/70" />
-                      <span className="font-mono text-xs uppercase tracking-wider text-black/70">
+                  {/* Left: Number + Title + Category */}
+                  <div className="flex items-center gap-4 md:gap-6 flex-1 min-w-0">
+                    <span className="font-machina text-sm md:text-base text-black/25 font-bold w-8 shrink-0 group-hover/row:text-black/60 transition-colors">
+                      {String(idx + 2).padStart(2, '0')}
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="font-machina text-lg md:text-2xl font-bold uppercase text-[#181520] tracking-tight group-hover/row:text-black transition-colors truncate">
+                        {project.title}
+                      </h3>
+                      <span className="font-neue text-xs text-black/50 md:hidden">
                         {project.categoryLabel}
                       </span>
                     </div>
-
-                    {/* Image Showcase Frame with Parallax Shift */}
-                    <div className="relative mt-5 mb-6 w-full aspect-[16/10] rounded-2xl overflow-hidden bg-[#121118] border border-black/10 shadow-inner">
-                      <div className="parallax-img-target absolute inset-0 w-full h-[115%] -top-[7%]">
-                        <ProjectMediaScreen
-                          id={project.id}
-                          title={project.title}
-                          image={project.image}
-                          videoUrl={project.videoUrl}
-                          isFeatured={false}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Typography & Concise Architectural Narrative */}
-                    <h3 className="font-machina text-2xl font-bold uppercase text-[#181520] mb-2.5 tracking-tight group-hover:text-black transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="font-neue text-sm leading-relaxed text-[#231b35]/80 mb-5">
-                      {project.desc}
-                    </p>
-
-                    {/* Clean Tech Spec Tags */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="border border-black/15 bg-black/[0.03] text-[#181520] px-3 py-0.5 rounded-full text-xs font-neue"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
                   </div>
 
-                  {/* Clean Bottom Action Bar */}
-                  <div className="pt-4 border-t border-black/10 flex items-center justify-end">
-                    <button
-                      onClick={() => openChat(`Case Study: ${project.title}`)}
-                      className="inline-flex items-center space-x-2 text-xs uppercase tracking-widest font-machina text-[#181520] hover:text-black transition-colors group/link cursor-pointer bg-transparent border-none outline-none"
-                    >
-                      <span>Case Study</span>
-                      <div className="w-8 h-8 rounded-full border border-black/20 flex items-center justify-center group-hover/link:bg-[#181520] group-hover/link:text-white transition-all">
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </button>
+                  {/* Center: Category + Year (desktop) */}
+                  <div className="hidden md:flex items-center gap-6 shrink-0">
+                    <span className="font-neue text-xs uppercase tracking-wider text-black/50 w-32">
+                      {project.categoryLabel}
+                    </span>
+                    <span className="font-mono text-xs text-black/40 w-12">
+                      {project.year}
+                    </span>
                   </div>
-                </InteractiveCard>
+
+                  {/* Right: Metric + Arrow */}
+                  <div className="flex items-center gap-4 shrink-0">
+                    <span className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[11px] text-[#181520]/70">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      {project.metric}
+                    </span>
+                    <div className="w-9 h-9 rounded-full border border-black/15 flex items-center justify-center group-hover/row:bg-[#181520] group-hover/row:text-white group-hover/row:border-[#181520] transition-all duration-300">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* ================= 5. STUDIO ENGINEERING BENCHMARK BAR ================= */}
-        <div className="border-y border-black/10 py-10 md:py-14 my-10 scroll-reveal-card">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 divide-y md:divide-y-0 md:divide-x divide-black/10">
-            {STUDIO_METRICS.map((metric, idx) => (
-              <div key={idx} className={`pt-4 md:pt-0 ${idx !== 0 ? 'md:pl-10' : ''}`}>
-                <div className="font-machina text-4xl md:text-5xl font-bold uppercase text-[#181520] tracking-tight">
-                  {metric.value}
-                </div>
-                <div className="font-neue text-sm font-medium uppercase tracking-wider text-[#181520]/80 mt-2">
-                  {metric.label}
-                </div>
-                <div className="font-mono text-xs text-black/40 mt-1">
-                  {metric.sub}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* ================= 4. AGENCY METRICS SHOWCASE ================= */}
+        <AgencyMetricsShowcase type="web" />
+
+        {/* ================= 5. TRUST MARQUEE STRIP ================= */}
+        <TrustMarqueeStrip />
 
         {/* ================= 6. MONOLITH BOTTOM CTA ================= */}
-        <div className="scroll-reveal-card my-10 relative bg-[#181520] text-white rounded-[32px] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="scroll-reveal-card relative bg-[#181520] text-white rounded-[32px] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/[0.04] rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 space-y-4 text-center md:text-left max-w-xl">
             <div className="inline-block border border-white/20 rounded-full px-3.5 py-1 text-[10px] font-mono uppercase tracking-widest text-white/70">
@@ -639,7 +542,7 @@ function PortfolioContent() {
           <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4">
             <button
               onClick={() => openChat('Architecture Review Request')}
-              className="bg-white text-[#181520] hover:bg-[#c9d2e7] px-8 py-4 rounded-full font-machina text-xs uppercase tracking-widest transition-all duration-300 flex items-center space-x-3 shadow-lg active:scale-95 cursor-pointer whitespace-nowrap outline-none border-none"
+              className="bg-white text-[#181520] hover:bg-[#c9d2e7] px-8 py-4 rounded-full font-machina text-xs uppercase tracking-widest transition-all duration-300 flex items-center space-x-3 shadow-lg active:scale-95 cursor-pointer whitespace-nowrap"
             >
               <span>Schedule Architecture Review</span>
               <ArrowUpRight className="w-4 h-4" />

@@ -4,9 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { ArrowUpRight, Sparkles, ChevronLeft, ChevronRight, Layers, Cpu, Terminal, Rocket, Trophy, Users, CheckCircle2, ShieldCheck, Zap, Globe, Monitor, Smartphone, Palette, Gamepad2, Code2 } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
 import ServicesDropdown from '@/components/ServicesDropdown';
+import GlobalFooter from '@/components/GlobalFooter';
 import { useLenis } from '@/components/providers/SmoothScroll';
 import { useChat } from '@/components/providers/ChatProvider';
 
@@ -16,42 +18,266 @@ const OPUS_SECTIONS = [
   {
     id: 'fintech',
     title: 'FINTECH',
-    tag: '',
-    category: '',
-    client: 'Apex Global Financial App',
-    desc: 'Sub-second WebSocket order execution pipelines, biometric zero-trust encryption, and bulletproof native state management engineered for scale.',
+    number: '01',
+    tag: 'LIQUIDITY ENGINE • ZERO-TRUST',
+    category: 'Institutional Core Architecture',
+    client: 'APEX GLOBAL FINANCIAL PLATFORM',
+    desc: 'An enterprise-grade liquidity engine engineered for ultra-low latency execution, real-time asset settlement, and bank-grade data security.',
+    telemetry: { latency: '< 12ms Edge', security: 'Bank-Grade SOC-2' },
   },
 
   {
-    id: 'cloud-saas',
-    title: 'CLOUD SAAS',
-    tag: '',
-    category: '',
-    client: 'Nexus Cloud Intelligence Platform',
-    desc: 'Scalable multi-tenant analytics dashboard and distributed cloud architecture handling 45k+ req/sec with edge caching and zero-downtime rollouts.',
+    id: 'healthcare',
+    title: 'HEALTHCARE',
+    number: '02',
+    tag: 'HEALTHCARE AI • HIPAA COMPLIANT',
+    category: 'Biofeedback & Telemetry Systems',
+    client: 'PULSE BIO-INTELLIGENCE ECOSYSTEM',
+    desc: 'Sub-second patient vital telemetry, continuous encrypted biometric streaming, and offline-first clinical workflow synchronization.',
+    telemetry: { latency: '< 35ms Edge', security: 'HIPAA Encrypted Mesh' },
   },
 
   {
-    id: 'ecosystem',
-    title: 'ECOSYSTEM',
-    tag: '',
-    category: '',
-    client: 'Synapse Enterprise Ecosystem',
-    desc: 'Unified enterprise infrastructure seamlessly synchronized across native iOS, Android, and responsive web platforms with real-time state replication.',
+    id: 'retail',
+    title: 'RETAIL',
+    number: '03',
+    tag: 'SPATIAL COMMERCE • SUB-SECOND',
+    category: 'Global Omnichannel Infrastructure',
+    client: 'AVENUE LUXURY COMMERCE PLATFORM',
+    desc: 'High-conversion spatial retail engine with real-time 3D product interaction, sub-second checkout pipelines, and dynamic multi-currency pricing.',
+    telemetry: { latency: '< 20ms Edge', security: 'PCI-DSS Tier-1' },
+  },
+
+  {
+    id: 'real-estate',
+    title: 'REAL ESTATE',
+    number: '04',
+    tag: 'SPATIAL ASSETS • 3D BIM TWIN',
+    category: 'Digital Twin & Asset Management',
+    client: 'VALOIS LUXURY REAL ESTATE VAULT',
+    desc: 'Interactive architectural digital twin, immersive spatial 3D property tours, and zero-latency smart contract escrow for prime global assets.',
+    telemetry: { latency: '< 28ms Edge', security: 'Zero-Trust Escrow' },
   },
 ];
+
+// Interactive 3D Spatial Tilt Card Component for Process Steps (matching other pages)
+function InteractiveProcessCard({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+  const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -6;
+    const rotateY = ((x - centerX) / centerX) * 6;
+
+    setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+    setGlare({ x: (x / rect.width) * 100, y: (y / rect.height) * 100, opacity: 0.18 });
+  };
+
+  const handleMouseLeave = () => {
+    setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+    setGlare({ x: 50, y: 50, opacity: 0 });
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform,
+        transformStyle: 'preserve-3d',
+        transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
+      className={`relative will-change-transform ${className}`}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 rounded-2xl md:rounded-3xl transition-opacity duration-300 z-30"
+        style={{
+          background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,${glare.opacity}), transparent 65%)`,
+        }}
+      />
+      {children}
+    </div>
+  );
+}
+
+// Animated Numeric Counter for Significant Metrics
+function MetricCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          let start = 0;
+          const duration = 1800;
+          const stepTime = 25;
+          const steps = duration / stepTime;
+          const increment = value / steps;
+
+          const timer = setInterval(() => {
+            start += increment;
+            if (start >= value) {
+              setCount(value);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, stepTime);
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return (
+    <span ref={ref} className="tabular-nums">
+      {count}
+      {suffix}
+    </span>
+  );
+}
 
 export default function Page() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const pinContainerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const sectionsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const showcaseRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const { lenis } = useLenis();
   const { isChatOpen, openChat, toggleChat } = useChat();
+  const [currentSector, setCurrentSector] = useState(0);
+  const currentSectorRef = useRef(0);
+  const stage1PhoneRef = useRef<THREE.Group | null>(null);
+  const stage1ScreenMatRef = useRef<THREE.MeshBasicMaterial | null>(null);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const isChatOpenRef = useRef(isChatOpen);
+  const sectorTexturesRef = useRef<THREE.Texture[]>([]);
+  const processSectionRef = useRef<HTMLDivElement>(null);
+  const metricsSectionRef = useRef<HTMLDivElement>(null);
+  const servicesSectionRef = useRef<HTMLDivElement>(null);
+  const [activeMetricPillar, setActiveMetricPillar] = useState<number>(0);
+  const [activeServiceIdx, setActiveServiceIdx] = useState<number>(0);
 
+  const handleSelectSector = (targetIdx: number) => {
+    const total = OPUS_SECTIONS.length;
+    const direction = currentSectorRef.current === -1 ? 1 : (targetIdx > currentSectorRef.current ? 1 : -1);
+    // If no sector selected yet, jump to the requested index directly
+    const nextIdx = currentSectorRef.current === -1 ? ((targetIdx % total + total) % total) : ((targetIdx % total + total) % total);
+    if (nextIdx === currentSectorRef.current) return;
+
+    currentSectorRef.current = nextIdx;
+    setCurrentSector(nextIdx);
+
+    // Update Three.js Phone Screen Texture
+    if (stage1ScreenMatRef.current && sectorTexturesRef.current[nextIdx]) {
+      stage1ScreenMatRef.current.map = sectorTexturesRef.current[nextIdx];
+      stage1ScreenMatRef.current.needsUpdate = true;
+    }
+
+    // Luxury Multi-Axis Cinematic 3D Transition
+    if (stage1PhoneRef.current) {
+      gsap.killTweensOf(stage1PhoneRef.current.rotation);
+      gsap.killTweensOf(stage1PhoneRef.current.scale);
+      gsap.killTweensOf(stage1PhoneRef.current.position);
+
+      // Spring bounce along Y & Z
+      const curZ = stage1PhoneRef.current.position.z;
+      gsap.fromTo(
+        stage1PhoneRef.current.position,
+        { y: -0.04, z: curZ + direction * 0.05 },
+        {
+          y: 0,
+          z: curZ,
+          duration: 0.85,
+          ease: 'power3.out',
+        }
+      );
+
+      // Micro-compression & elastic expansion
+      gsap.fromTo(
+        stage1PhoneRef.current.scale,
+        { x: 0.94, y: 0.94, z: 0.94 },
+        {
+          x: 1, y: 1, z: 1,
+          duration: 0.9,
+          ease: 'elastic.out(1.05, 0.45)',
+        }
+      );
+
+      // High-precision horology rotation (upright posture, zero crooked roll)
+      gsap.fromTo(
+        stage1PhoneRef.current.rotation,
+        {
+          y: -0.06 + direction * 0.14,
+          x: 0.04,
+          z: 0,
+        },
+        {
+          y: -0.06,
+          x: 0.04,
+          z: 0,
+          duration: 0.85,
+          ease: 'power3.out',
+        }
+      );
+    }
+  };
+
+  // Keyboard navigation for sector slider (ArrowLeft / ArrowRight)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        handleSelectSector(currentSectorRef.current + 1);
+      } else if (e.key === 'ArrowLeft') {
+        handleSelectSector(currentSectorRef.current - 1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Touch swipe support for mobile slider
+  const touchStartXRef = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartXRef.current;
+    if (Math.abs(diff) > 40) {
+      if (diff < 0) {
+        handleSelectSector(currentSectorRef.current + 1);
+      } else {
+        handleSelectSector(currentSectorRef.current - 1);
+      }
+    }
+    touchStartXRef.current = null;
+  };
 
   // Sync isChatOpenRef and keep header visible when chat opens
   useEffect(() => {
@@ -62,22 +288,28 @@ export default function Page() {
   }, [isChatOpen]);
 
   // Programmatic Scroll Function to exact timeline stages
-  const scrollToSection = (target: 'hero' | 'engineering' | 'ecosystem' | 'enterprise' | 'connect') => {
+  const scrollToSection = (target: 'hero' | 'fintech' | 'healthcare' | 'saas' | 'engineering' | 'ecosystem' | 'enterprise' | 'connect') => {
     const st = scrollTriggerRef.current;
     if (!st || !lenis) return;
 
+    if (target === 'hero') {
+      lenis.scrollTo(0, {
+        duration: 1.4,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+      return;
+    }
+
     const start = st.start;
     const distance = st.end - st.start;
+    const targetScroll = start + distance * 0.7;
 
-    let targetScroll = 0;
-    if (target === 'hero') {
-      targetScroll = 0;
-    } else if (target === 'engineering') {
-      targetScroll = start + distance * 0.28;
-    } else if (target === 'ecosystem') {
-      targetScroll = start + distance * 0.62;
-    } else if (target === 'enterprise' || target === 'connect') {
-      targetScroll = start + distance * 0.95;
+    if (target === 'fintech' || target === 'engineering') {
+      handleSelectSector(0);
+    } else if (target === 'healthcare' || target === 'ecosystem') {
+      handleSelectSector(1);
+    } else if (target === 'saas' || target === 'enterprise' || target === 'connect') {
+      handleSelectSector(2);
     }
 
     lenis.scrollTo(targetScroll, {
@@ -373,6 +605,726 @@ export default function Page() {
           ctx.fillStyle = txs[i].pos ? '#16a34a' : '#181520';
           ctx.font = 'bold 32px monospace';
           ctx.fillText(txs[i].amt, 690, ty + 65);
+        }
+      }
+      return new THREE.CanvasTexture(c);
+    };
+
+    const createHealthcareScreenTexture = () => {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 2048;
+      const ctx = c.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // Background: Clean Clinical Luxury with subtle Cyan/Slate tint
+        const bgGrad = ctx.createLinearGradient(0, 0, 1024, 2048);
+        bgGrad.addColorStop(0, '#f0fdfa');
+        bgGrad.addColorStop(1, '#e0f2fe');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1024, 2048);
+
+        // Top Status Bar
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '600 38px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText('9:41', 80, 95);
+
+        // Dynamic Island Capsule
+        ctx.fillStyle = '#0f0f14';
+        ctx.beginPath();
+        ctx.roundRect(362, 50, 300, 68, 34);
+        ctx.fill();
+
+        ctx.fillStyle = '#06b6d4';
+        ctx.beginPath(); ctx.arc(410, 84, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#14b8a6';
+        ctx.beginPath(); ctx.arc(620, 84, 5, 0, Math.PI * 2); ctx.fill();
+
+        // Right Status Icons
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('5G', 840, 95);
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(900, 72, 44, 24);
+        ctx.fillRect(904, 76, 32, 16);
+        ctx.fillRect(946, 79, 4, 10);
+
+        // Header: Pulse Bio-Intelligence & HIPAA Badge
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(105, 210, 45, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ccfbf1'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#0f766e';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('⚡', 87, 222);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 44px sans-serif';
+        ctx.fillText('Pulse Bio-Telemetry', 175, 205);
+        ctx.font = '500 28px sans-serif';
+        ctx.fillStyle = '#0d9488';
+        ctx.fillText('Continuous Vitals Engine • HIPAA', 175, 245);
+
+        // HIPAA Security Chip
+        ctx.fillStyle = '#cffafe';
+        ctx.beginPath(); ctx.roundRect(790, 185, 155, 52, 26); ctx.fill();
+        ctx.fillStyle = '#0891b2';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText('● ENCRYPTED', 808, 218);
+
+        // ── HERO VITALS CARD ──
+        const cardGrad = ctx.createLinearGradient(60, 310, 964, 820);
+        cardGrad.addColorStop(0, '#042f2e');
+        cardGrad.addColorStop(0.5, '#115e59');
+        cardGrad.addColorStop(1, '#021e1d');
+        ctx.fillStyle = cardGrad;
+        ctx.beginPath(); ctx.roundRect(60, 310, 904, 510, 48); ctx.fill();
+
+        ctx.strokeStyle = 'rgba(45, 212, 191, 0.25)'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = 'rgba(204, 251, 241, 0.7)';
+        ctx.font = '600 28px sans-serif';
+        ctx.fillText('REAL-TIME PATIENT VITALS', 110, 385);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 84px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillText('72 BPM', 110, 485);
+
+        // Rhythm Status Pill
+        ctx.fillStyle = 'rgba(20, 184, 166, 0.25)';
+        ctx.beginPath(); ctx.roundRect(460, 420, 240, 56, 28); ctx.fill();
+        ctx.strokeStyle = 'rgba(20, 184, 166, 0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#2dd4bf';
+        ctx.font = 'bold 26px sans-serif';
+        ctx.fillText('● Sinus Rhythm', 485, 457);
+
+        // ECG Wave Graph on Card
+        ctx.beginPath();
+        ctx.moveTo(110, 640);
+        ctx.lineTo(260, 640);
+        ctx.lineTo(290, 600);
+        ctx.lineTo(320, 690);
+        ctx.lineTo(360, 530);
+        ctx.lineTo(400, 710);
+        ctx.lineTo(430, 620);
+        ctx.lineTo(470, 640);
+        ctx.lineTo(600, 640);
+        ctx.lineTo(630, 590);
+        ctx.lineTo(660, 690);
+        ctx.lineTo(700, 530);
+        ctx.lineTo(740, 710);
+        ctx.lineTo(770, 620);
+        ctx.lineTo(910, 640);
+        ctx.strokeStyle = '#2dd4bf';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(204, 251, 241, 0.6)';
+        ctx.font = '28px monospace';
+        ctx.fillText('HRV: 99.4ms', 110, 760);
+        ctx.fillText('SpO2: 99%', 420, 760);
+        ctx.font = 'bold 32px sans-serif';
+        ctx.fillStyle = '#5eead4';
+        ctx.fillText('PULSE AI', 750, 760);
+
+        // 4 Action Buttons
+        const actions = [
+          { label: 'Telemetry', icon: '♥', bg: '#042f2e', text: '#ffffff' },
+          { label: 'Clinical', icon: '✚', bg: '#ffffff', text: '#0f172a' },
+          { label: 'Triage', icon: '⚡', bg: '#ffffff', text: '#0f172a' },
+          { label: 'Records', icon: '📁', bg: '#ffffff', text: '#0f172a' },
+        ];
+        for (let i = 0; i < 4; i++) {
+          const btnX = 60 + i * 235;
+          ctx.fillStyle = actions[i].bg;
+          ctx.beginPath(); ctx.roundRect(btnX, 860, 200, 130, 32); ctx.fill();
+          ctx.strokeStyle = '#ccfbf1'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.fillStyle = actions[i].text;
+          ctx.font = 'bold 44px sans-serif';
+          ctx.fillText(actions[i].icon, btnX + 78, 925);
+          ctx.font = '600 24px sans-serif';
+          ctx.fillText(actions[i].label, btnX + 45, 965);
+        }
+
+        // Live Diagnostic Stream
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.roundRect(60, 1030, 904, 380, 40); ctx.fill();
+        ctx.strokeStyle = '#ccfbf1'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('Continuous Biofeedback Stream', 105, 1095);
+        ctx.fillStyle = '#0d9488';
+        ctx.font = 'bold 28px monospace';
+        ctx.fillText('● 100% In Sync', 720, 1095);
+
+        ctx.beginPath();
+        ctx.moveTo(105, 1280);
+        ctx.bezierCurveTo(280, 1220, 360, 1340, 520, 1240);
+        ctx.bezierCurveTo(640, 1180, 760, 1320, 915, 1260);
+        ctx.strokeStyle = '#0d9488';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        // Recent Telemetry Logs
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('Automated Clinical Logs', 60, 1470);
+
+        const logs = [
+          { name: 'Continuous ECG Ingestion', time: 'Sub-second • Encrypted', stat: 'Normal' },
+          { name: 'Blood Oxygen Sensor Sync', time: '2m ago • HealthKit', stat: '99%' },
+          { name: 'Offline SQLite Storage Pass', time: '15m ago • Encrypted', stat: 'Synced' },
+          { name: 'Clinical Cloud Relaying', time: '1h ago • Zero-Trust', stat: 'Verified' },
+        ];
+        for (let i = 0; i < logs.length; i++) {
+          const ty = 1515 + i * 120;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath(); ctx.roundRect(60, ty, 904, 100, 24); ctx.fill();
+          ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 30px sans-serif';
+          ctx.fillText(logs[i].name, 95, ty + 48);
+          ctx.fillStyle = '#64748b';
+          ctx.font = '24px sans-serif';
+          ctx.fillText(logs[i].time, 95, ty + 82);
+          ctx.fillStyle = '#0d9488';
+          ctx.font = 'bold 28px monospace';
+          ctx.fillText(logs[i].stat, 800, ty + 60);
+        }
+      }
+      return new THREE.CanvasTexture(c);
+    };
+
+    const createSaasScreenTexture = () => {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 2048;
+      const ctx = c.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // Background: Deep Slate Tech Luxury
+        const bgGrad = ctx.createLinearGradient(0, 0, 1024, 2048);
+        bgGrad.addColorStop(0, '#f8fafc');
+        bgGrad.addColorStop(1, '#e2e8f0');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1024, 2048);
+
+        // Top Status Bar
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '600 38px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText('9:41', 80, 95);
+
+        // Dynamic Island Capsule
+        ctx.fillStyle = '#0f0f14';
+        ctx.beginPath();
+        ctx.roundRect(362, 50, 300, 68, 34);
+        ctx.fill();
+
+        ctx.fillStyle = '#6366f1';
+        ctx.beginPath(); ctx.arc(410, 84, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#8b5cf6';
+        ctx.beginPath(); ctx.arc(620, 84, 5, 0, Math.PI * 2); ctx.fill();
+
+        // Right Status Icons
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('5G', 840, 95);
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(900, 72, 44, 24);
+        ctx.fillRect(904, 76, 32, 16);
+        ctx.fillRect(946, 79, 4, 10);
+
+        // Header: Nexus Cloud Terminal
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(105, 210, 45, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#e0e7ff'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#4f46e5';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('NX', 78, 222);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 44px sans-serif';
+        ctx.fillText('Nexus Cloud Engine', 175, 205);
+        ctx.font = '500 28px sans-serif';
+        ctx.fillStyle = '#4f46e5';
+        ctx.fillText('Distributed Multi-Tenant • 99.999%', 175, 245);
+
+        // Status Badge
+        ctx.fillStyle = '#e0e7ff';
+        ctx.beginPath(); ctx.roundRect(790, 185, 155, 52, 26); ctx.fill();
+        ctx.fillStyle = '#4338ca';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText('● CLUSTERS', 808, 218);
+
+        // ── HERO THROUGHPUT CARD ──
+        const cardGrad = ctx.createLinearGradient(60, 310, 964, 820);
+        cardGrad.addColorStop(0, '#1e1b4b');
+        cardGrad.addColorStop(0.5, '#312e81');
+        cardGrad.addColorStop(1, '#0f0d26');
+        ctx.fillStyle = cardGrad;
+        ctx.beginPath(); ctx.roundRect(60, 310, 904, 510, 48); ctx.fill();
+
+        ctx.strokeStyle = 'rgba(129, 140, 248, 0.25)'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = 'rgba(224, 231, 255, 0.7)';
+        ctx.font = '600 28px sans-serif';
+        ctx.fillText('DISTRIBUTED INGESTION RATE', 110, 385);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 84px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillText('45,820 QPS', 110, 485);
+
+        // SLA Pill
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.25)';
+        ctx.beginPath(); ctx.roundRect(640, 420, 240, 56, 28); ctx.fill();
+        ctx.strokeStyle = 'rgba(129, 140, 248, 0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#a5b4fc';
+        ctx.font = 'bold 26px sans-serif';
+        ctx.fillText('● 99.999% SLA', 665, 457);
+
+        // Histogram / Cluster Load Bars
+        const barHeights = [180, 240, 290, 210, 310, 260, 340, 280];
+        for (let b = 0; b < barHeights.length; b++) {
+          const bx = 110 + b * 98;
+          ctx.fillStyle = 'rgba(129, 140, 248, 0.4)';
+          ctx.fillRect(bx, 710 - barHeights[b] * 0.4, 60, barHeights[b] * 0.4);
+        }
+
+        ctx.fillStyle = 'rgba(224, 231, 255, 0.6)';
+        ctx.font = '28px monospace';
+        ctx.fillText('p99: 4.2ms', 110, 760);
+        ctx.fillText('Edge Hit: 99.8%', 420, 760);
+        ctx.font = 'bold 32px sans-serif';
+        ctx.fillStyle = '#c7d2fe';
+        ctx.fillText('GLOBAL MESH', 700, 760);
+
+        // 4 Action Buttons
+        const actions = [
+          { label: 'Clusters', icon: '☵', bg: '#1e1b4b', text: '#ffffff' },
+          { label: 'Telemetry', icon: '📈', bg: '#ffffff', text: '#0f172a' },
+          { label: 'Pipelines', icon: '⚡', bg: '#ffffff', text: '#0f172a' },
+          { label: 'Security', icon: '🛡', bg: '#ffffff', text: '#0f172a' },
+        ];
+        for (let i = 0; i < 4; i++) {
+          const btnX = 60 + i * 235;
+          ctx.fillStyle = actions[i].bg;
+          ctx.beginPath(); ctx.roundRect(btnX, 860, 200, 130, 32); ctx.fill();
+          ctx.strokeStyle = '#e0e7ff'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.fillStyle = actions[i].text;
+          ctx.font = 'bold 44px sans-serif';
+          ctx.fillText(actions[i].icon, btnX + 78, 925);
+          ctx.font = '600 24px sans-serif';
+          ctx.fillText(actions[i].label, btnX + 50, 965);
+        }
+
+        // Live Performance Panel
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.roundRect(60, 1030, 904, 380, 40); ctx.fill();
+        ctx.strokeStyle = '#e0e7ff'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('Multi-Region Ingestion Mesh', 105, 1095);
+        ctx.fillStyle = '#4f46e5';
+        ctx.font = 'bold 28px monospace';
+        ctx.fillText('● 18 Nodes Active', 680, 1095);
+
+        ctx.beginPath();
+        ctx.moveTo(105, 1300);
+        ctx.bezierCurveTo(280, 1200, 420, 1330, 560, 1210);
+        ctx.bezierCurveTo(680, 1150, 800, 1280, 915, 1220);
+        ctx.strokeStyle = '#4f46e5';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        // Cluster status cards
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('Autonomous Pod Metrics', 60, 1470);
+
+        const pods = [
+          { name: 'US-East Cloud Core Ingestion', time: '14,200 QPS • 0 Errors', stat: 'Healthy' },
+          { name: 'EU-Central Edge Accelerator', time: '11,450 QPS • 2.1ms Latency', stat: 'Healthy' },
+          { name: 'AP-Tokyo Gateway Node', time: '10,980 QPS • Zero Packet Loss', stat: 'Healthy' },
+          { name: 'Global Database Shard Relay', time: '9,190 QPS • Synchronized', stat: 'Healthy' },
+        ];
+        for (let i = 0; i < pods.length; i++) {
+          const ty = 1515 + i * 120;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath(); ctx.roundRect(60, ty, 904, 100, 24); ctx.fill();
+          ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 30px sans-serif';
+          ctx.fillText(pods[i].name, 95, ty + 48);
+          ctx.fillStyle = '#64748b';
+          ctx.font = '24px sans-serif';
+          ctx.fillText(pods[i].time, 95, ty + 82);
+          ctx.fillStyle = '#4f46e5';
+          ctx.font = 'bold 28px monospace';
+          ctx.fillText(pods[i].stat, 790, ty + 60);
+        }
+      }
+      return new THREE.CanvasTexture(c);
+    };
+
+    const createRetailScreenTexture = () => {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 2048;
+      const ctx = c.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // Background: Warm Champagne / Atelier Chalk
+        const bgGrad = ctx.createLinearGradient(0, 0, 1024, 2048);
+        bgGrad.addColorStop(0, '#faf8f5');
+        bgGrad.addColorStop(1, '#f1ede4');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1024, 2048);
+
+        // Status Bar
+        ctx.fillStyle = '#1c1917';
+        ctx.font = '600 38px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText('9:41', 80, 95);
+
+        // Dynamic Island
+        ctx.fillStyle = '#0c0a09';
+        ctx.beginPath();
+        ctx.roundRect(362, 50, 300, 68, 34);
+        ctx.fill();
+
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath(); ctx.arc(410, 84, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath(); ctx.arc(620, 84, 5, 0, Math.PI * 2); ctx.fill();
+
+        // Right Status Icons
+        ctx.fillStyle = '#1c1917';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('5G', 840, 95);
+        ctx.strokeStyle = '#1c1917';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(900, 72, 44, 24);
+        ctx.fillRect(904, 76, 32, 16);
+        ctx.fillRect(946, 79, 4, 10);
+
+        // Header: Avenue Luxury Horology
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(105, 210, 45, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#e7e5e4'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#78350f';
+        ctx.font = 'bold 32px sans-serif';
+        ctx.fillText('AV', 82, 222);
+
+        ctx.fillStyle = '#1c1917';
+        ctx.font = 'bold 44px sans-serif';
+        ctx.fillText('Avenue Luxury Atelier', 175, 205);
+        ctx.font = '500 28px sans-serif';
+        ctx.fillStyle = '#a8a29e';
+        ctx.fillText('Spatial Commerce • Sub-Second', 175, 245);
+
+        // Live AR Badge
+        ctx.fillStyle = '#fef3c7';
+        ctx.beginPath(); ctx.roundRect(790, 185, 155, 52, 26); ctx.fill();
+        ctx.fillStyle = '#b45309';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText('● 3D AR LIVE', 808, 218);
+
+        // ── HERO PRODUCT SHOWCASE CARD ──
+        const cardGrad = ctx.createLinearGradient(60, 310, 964, 820);
+        cardGrad.addColorStop(0, '#1c1917');
+        cardGrad.addColorStop(0.5, '#292524');
+        cardGrad.addColorStop(1, '#0c0a09');
+        ctx.fillStyle = cardGrad;
+        ctx.beginPath(); ctx.roundRect(60, 310, 904, 510, 48); ctx.fill();
+
+        ctx.strokeStyle = 'rgba(217, 119, 6, 0.3)'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = 'rgba(254, 243, 199, 0.75)';
+        ctx.font = '600 28px sans-serif';
+        ctx.fillText('LIMITED CHRONO EDITION • 1 OF 50', 110, 385);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 74px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillText('$18,500.00', 110, 485);
+
+        // Free Freight Pill
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
+        ctx.beginPath(); ctx.roundRect(580, 420, 300, 56, 28); ctx.fill();
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 26px sans-serif';
+        ctx.fillText('● Insured Global Air', 605, 457);
+
+        // Watch Visual Ring
+        ctx.beginPath();
+        ctx.arc(512, 650, 95, 0, Math.PI * 2);
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 8;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(512, 650, 70, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = '28px monospace';
+        ctx.fillText('CALIBRE 3920', 110, 760);
+        ctx.fillText('TITANIUM BEZEL', 400, 760);
+        ctx.font = 'bold 32px sans-serif';
+        ctx.fillStyle = '#fde68a';
+        ctx.fillText('SWISS CORE', 720, 760);
+
+        // 4 Action Buttons
+        const actions = [
+          { label: 'Instant Buy', icon: '', bg: '#1c1917', text: '#ffffff' },
+          { label: 'AR Room', icon: '👓', bg: '#ffffff', text: '#1c1917' },
+          { label: 'Reserve', icon: '◈', bg: '#ffffff', text: '#1c1917' },
+          { label: 'Concierge', icon: '★', bg: '#ffffff', text: '#1c1917' },
+        ];
+        for (let i = 0; i < 4; i++) {
+          const btnX = 60 + i * 235;
+          ctx.fillStyle = actions[i].bg;
+          ctx.beginPath(); ctx.roundRect(btnX, 860, 200, 130, 32); ctx.fill();
+          ctx.strokeStyle = '#e7e5e4'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.fillStyle = actions[i].text;
+          ctx.font = 'bold 44px sans-serif';
+          ctx.fillText(actions[i].icon, btnX + 78, 925);
+          ctx.font = '600 24px sans-serif';
+          ctx.fillText(actions[i].label, btnX + 45, 965);
+        }
+
+        // Live Commerce Stream
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.roundRect(60, 1030, 904, 380, 40); ctx.fill();
+        ctx.strokeStyle = '#e7e5e4'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = '#1c1917';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('Spatial Commerce Telemetry', 105, 1095);
+        ctx.fillStyle = '#d97706';
+        ctx.font = 'bold 28px monospace';
+        ctx.fillText('● 0.18s Paint', 740, 1095);
+
+        ctx.beginPath();
+        ctx.moveTo(105, 1280);
+        ctx.bezierCurveTo(280, 1190, 420, 1340, 580, 1220);
+        ctx.bezierCurveTo(700, 1140, 820, 1290, 915, 1200);
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        // Recent Purchases
+        ctx.fillStyle = '#1c1917';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('Real-Time Flagship Orders', 60, 1470);
+
+        const orders = [
+          { name: 'London Flagship Boutique', time: 'Just now • Verified Apple Pay', amt: '$18,500.00' },
+          { name: 'Tokyo Ginza Spatial Kiosk', time: '14m ago • AR Biometric Sign', amt: '$37,000.00' },
+          { name: 'Zurich Vault Allocation', time: '42m ago • Multi-Currency Escrow', amt: '$55,500.00' },
+          { name: 'New York Madison Ave Salon', time: '1h ago • Seamless NFC Relay', amt: '$18,500.00' },
+        ];
+        for (let i = 0; i < orders.length; i++) {
+          const ty = 1515 + i * 120;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath(); ctx.roundRect(60, ty, 904, 100, 24); ctx.fill();
+          ctx.strokeStyle = '#e7e5e4'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.fillStyle = '#1c1917';
+          ctx.font = 'bold 30px sans-serif';
+          ctx.fillText(orders[i].name, 95, ty + 48);
+          ctx.fillStyle = '#78716c';
+          ctx.font = '24px sans-serif';
+          ctx.fillText(orders[i].time, 95, ty + 82);
+          ctx.fillStyle = '#16a34a';
+          ctx.font = 'bold 28px monospace';
+          ctx.fillText(orders[i].amt, 720, ty + 60);
+        }
+      }
+      return new THREE.CanvasTexture(c);
+    };
+
+    const createRealEstateScreenTexture = () => {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 2048;
+      const ctx = c.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // Background: Clean Architectural Slate
+        const bgGrad = ctx.createLinearGradient(0, 0, 1024, 2048);
+        bgGrad.addColorStop(0, '#f8fafc');
+        bgGrad.addColorStop(1, '#e2e8f0');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1024, 2048);
+
+        // Status Bar
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '600 38px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText('9:41', 80, 95);
+
+        // Dynamic Island
+        ctx.fillStyle = '#020617';
+        ctx.beginPath();
+        ctx.roundRect(362, 50, 300, 68, 34);
+        ctx.fill();
+
+        ctx.fillStyle = '#3b82f6';
+        ctx.beginPath(); ctx.arc(410, 84, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#60a5fa';
+        ctx.beginPath(); ctx.arc(620, 84, 5, 0, Math.PI * 2); ctx.fill();
+
+        // Right Status Icons
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('5G', 840, 95);
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(900, 72, 44, 24);
+        ctx.fillRect(904, 76, 32, 16);
+        ctx.fillRect(946, 79, 4, 10);
+
+        // Header: Valois Real Estate Vault
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(105, 210, 45, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#1e3a8a';
+        ctx.font = 'bold 32px sans-serif';
+        ctx.fillText('VR', 82, 222);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 44px sans-serif';
+        ctx.fillText('Valois Property Vault', 175, 205);
+        ctx.font = '500 28px sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('Spatial 3D Digital Twin • BIM Core', 175, 245);
+
+        // Badge
+        ctx.fillStyle = '#dbeafe';
+        ctx.beginPath(); ctx.roundRect(790, 185, 155, 52, 26); ctx.fill();
+        ctx.fillStyle = '#1d4ed8';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText('● 3D BIM TWIN', 802, 218);
+
+        // ── HERO PROPERTY CARD ──
+        const cardGrad = ctx.createLinearGradient(60, 310, 964, 820);
+        cardGrad.addColorStop(0, '#0f172a');
+        cardGrad.addColorStop(0.5, '#1e293b');
+        cardGrad.addColorStop(1, '#020617');
+        ctx.fillStyle = cardGrad;
+        ctx.beginPath(); ctx.roundRect(60, 310, 904, 510, 48); ctx.fill();
+
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = 'rgba(219, 234, 254, 0.75)';
+        ctx.font = '600 28px sans-serif';
+        ctx.fillText('THE PENTHOUSE AT SKYLINE TOWER', 110, 385);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 74px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillText('$19,500,000', 110, 485);
+
+        // Verified Escrow Pill
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
+        ctx.beginPath(); ctx.roundRect(580, 420, 300, 56, 28); ctx.fill();
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#93c5fd';
+        ctx.font = 'bold 26px sans-serif';
+        ctx.fillText('● Verified Smart Escrow', 595, 457);
+
+        // Floorplan Blueprint Wireframe
+        ctx.beginPath();
+        ctx.strokeRect(110, 540, 804, 160);
+        ctx.moveTo(350, 540); ctx.lineTo(350, 700);
+        ctx.moveTo(600, 540); ctx.lineTo(600, 700);
+        ctx.moveTo(110, 620); ctx.lineTo(350, 620);
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = '28px monospace';
+        ctx.fillText('8,450 SQ FT', 110, 760);
+        ctx.fillText('5 BEDS • 6 BATHS', 380, 760);
+        ctx.font = 'bold 32px sans-serif';
+        ctx.fillStyle = '#bfdbfe';
+        ctx.fillText('MANHATTAN', 720, 760);
+
+        // 4 Action Buttons
+        const actions = [
+          { label: '3D Tour', icon: '🏛', bg: '#0f172a', text: '#ffffff' },
+          { label: 'BIM Specs', icon: '📐', bg: '#ffffff', text: '#0f172a' },
+          { label: 'Escrow', icon: '⚖', bg: '#ffffff', text: '#0f172a' },
+          { label: 'Private Jet', icon: '✈', bg: '#ffffff', text: '#0f172a' },
+        ];
+        for (let i = 0; i < 4; i++) {
+          const btnX = 60 + i * 235;
+          ctx.fillStyle = actions[i].bg;
+          ctx.beginPath(); ctx.roundRect(btnX, 860, 200, 130, 32); ctx.fill();
+          ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.fillStyle = actions[i].text;
+          ctx.font = 'bold 44px sans-serif';
+          ctx.fillText(actions[i].icon, btnX + 78, 925);
+          ctx.font = '600 24px sans-serif';
+          ctx.fillText(actions[i].label, btnX + 45, 965);
+        }
+
+        // Live Spatial Inspection Stream
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.roundRect(60, 1030, 904, 380, 40); ctx.fill();
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('60fps WebGL Spatial Walkthrough', 105, 1095);
+        ctx.fillStyle = '#2563eb';
+        ctx.font = 'bold 28px monospace';
+        ctx.fillText('● Digital Twin Active', 660, 1095);
+
+        ctx.beginPath();
+        ctx.moveTo(105, 1290);
+        ctx.bezierCurveTo(280, 1210, 420, 1350, 580, 1230);
+        ctx.bezierCurveTo(700, 1160, 820, 1290, 915, 1210);
+        ctx.strokeStyle = '#2563eb';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        // Recent Inquiries
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('Verified Institutional Escrow Log', 60, 1470);
+
+        const logs = [
+          { name: 'New York Central Park South Penthouse', time: 'Today • Proof of Funds Verified', stat: 'Under Escrow' },
+          { name: 'Miami Star Island Waterfront Villa', time: 'Yesterday • 3D BIM Spatial Inspection', stat: 'Appraised' },
+          { name: 'Geneva Lakefront Private Estate', time: '3d ago • Smart Contract Escrow Lock', stat: 'Secured' },
+          { name: 'London Mayfair Heritage Residence', time: '5d ago • Biometric Notarization', stat: 'Completed' },
+        ];
+        for (let i = 0; i < logs.length; i++) {
+          const ty = 1515 + i * 120;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath(); ctx.roundRect(60, ty, 904, 100, 24); ctx.fill();
+          ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 30px sans-serif';
+          ctx.fillText(logs[i].name, 95, ty + 48);
+          ctx.fillStyle = '#64748b';
+          ctx.font = '24px sans-serif';
+          ctx.fillText(logs[i].time, 95, ty + 82);
+          ctx.fillStyle = '#2563eb';
+          ctx.font = 'bold 28px monospace';
+          ctx.fillText(logs[i].stat, 740, ty + 60);
         }
       }
       return new THREE.CanvasTexture(c);
@@ -677,7 +1629,7 @@ export default function Page() {
       return new THREE.CanvasTexture(c);
     };
 
-    const buildIphone = () => {
+    const buildIphone = (initialTexture?: THREE.Texture) => {
       const group = new THREE.Group();
 
       const width = 1.2;
@@ -749,9 +1701,10 @@ export default function Page() {
       screenGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
 
       const screenMat = new THREE.MeshBasicMaterial({
-        map: createMobileScreenTexture(),
+        map: initialTexture || createMobileScreenTexture(),
         toneMapped: false,
       });
+      group.userData.screenMat = screenMat;
       const screen = new THREE.Mesh(screenGeo, screenMat);
       screen.position.z = depth / 2 + 0.022;
       group.add(screen);
@@ -973,14 +1926,41 @@ export default function Page() {
     letterO.position.set(-0.62, 0.06, 0);
     ogInnerGroup.add(letterO);
 
-    const gGeo = new THREE.TorusGeometry(0.58, 0.16, 32, 64, Math.PI * 1.6);
-    const letterG = new THREE.Mesh(gGeo, glassMat);
+    // "G" letter: seamless solid glass tube with rounded caps matching "O" in proportion and thickness
+    const gRadius = 0.58;
+    const gBarY = -0.04;
+    const gStartRad = 50 * Math.PI / 180;
+    const gPoints = [
+      new THREE.Vector3(gRadius * Math.cos(gStartRad), gRadius * Math.sin(gStartRad), 0),
+      new THREE.Vector3(gRadius * Math.cos(75 * Math.PI / 180), gRadius * Math.sin(75 * Math.PI / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos(110 * Math.PI / 180), gRadius * Math.sin(110 * Math.PI / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos(150 * Math.PI / 180), gRadius * Math.sin(150 * Math.PI / 180), 0),
+      new THREE.Vector3(-gRadius, 0, 0),
+      new THREE.Vector3(gRadius * Math.cos(215 * Math.PI / 180), gRadius * Math.sin(215 * Math.PI / 180), 0),
+      new THREE.Vector3(0, -gRadius, 0),
+      new THREE.Vector3(gRadius * Math.cos(305 * Math.PI / 180), gRadius * Math.sin(305 * Math.PI / 180), 0),
+      new THREE.Vector3(gRadius * Math.cos(335 * Math.PI / 180), gRadius * Math.sin(335 * Math.PI / 180), 0),
+      new THREE.Vector3(gRadius, gBarY - 0.10, 0),
+      new THREE.Vector3(gRadius - 0.03, gBarY, 0),
+      new THREE.Vector3(0.35, gBarY, 0),
+      new THREE.Vector3(0.12, gBarY, 0),
+    ];
+
+    const gCurve = new THREE.CatmullRomCurve3(gPoints, false, 'centripetal');
+    const gTubeGeo = new THREE.TubeGeometry(gCurve, 128, 0.16, 24, false);
+
+    // Polished hemispherical caps at the two terminals for a luxury jewelry-grade finish
+    const cap1 = new THREE.SphereGeometry(0.16, 24, 16);
+    cap1.translate(gPoints[0].x, gPoints[0].y, gPoints[0].z);
+
+    const cap2 = new THREE.SphereGeometry(0.16, 24, 16);
+    const lastPt = gPoints[gPoints.length - 1];
+    cap2.translate(lastPt.x, lastPt.y, lastPt.z);
+
+    const mergedGGeo = mergeGeometries([gTubeGeo, cap1, cap2]);
+    const letterG = new THREE.Mesh(mergedGGeo, glassMat);
     letterG.position.set(0.62, 0.06, 0);
-    letterG.rotation.set(0, 0, Math.PI * 0.25);
     ogInnerGroup.add(letterG);
-    const gBar = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.16, 0.16), glassMat);
-    gBar.position.set(0.62, -0.1, 0.16);
-    ogInnerGroup.add(gBar);
     heroOGGroup.position.set(0, 0.22, 0.4);
     heroOGGroup.scale.set(1.65, 1.65, 1.65);
 
@@ -1002,9 +1982,147 @@ export default function Page() {
     };
 
     // Section 1: Floating iPhone App (Compact & Perfectly Placed)
+    const fintechTexture = createMobileScreenTexture();
+    const healthcareTexture = createHealthcareScreenTexture();
+    const retailTexture = createRetailScreenTexture();
+    const realEstateTexture = createRealEstateScreenTexture();
+    sectorTexturesRef.current = [fintechTexture, healthcareTexture, retailTexture, realEstateTexture];
+
+    // Default Insights Screen Texture (shown before any sector is selected)
+    const createDefaultInsightsTexture = () => {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 2048;
+      const ctx = c.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // Background: Clean gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, 1024, 2048);
+        bgGrad.addColorStop(0, '#f8fafc');
+        bgGrad.addColorStop(1, '#edf2f7');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1024, 2048);
+
+        // Top Status Bar
+        ctx.fillStyle = '#181520';
+        ctx.font = '600 38px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillText('9:41', 80, 95);
+
+        // Dynamic Island
+        ctx.fillStyle = '#0f0f14';
+        ctx.beginPath();
+        ctx.roundRect(362, 50, 300, 68, 34);
+        ctx.fill();
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath(); ctx.arc(410, 84, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#0a0a10';
+        ctx.beginPath(); ctx.arc(410, 84, 5, 0, Math.PI * 2); ctx.fill();
+
+        // Battery icons
+        ctx.fillStyle = '#181520';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('5G', 840, 95);
+        ctx.strokeStyle = '#181520';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(900, 72, 44, 24);
+        ctx.fillRect(904, 76, 32, 16);
+
+        // App Header
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(105, 210, 45, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#181520';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.fillText('OG', 82, 222);
+        ctx.font = 'bold 44px sans-serif';
+        ctx.fillText('Industry Insights', 175, 205);
+        ctx.font = '500 28px sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('Select an industry to explore', 175, 245);
+
+        // Hero Card with gradient
+        const cardGrad = ctx.createLinearGradient(60, 310, 964, 820);
+        cardGrad.addColorStop(0, '#181520');
+        cardGrad.addColorStop(0.5, '#1e293b');
+        cardGrad.addColorStop(1, '#0f172a');
+        ctx.shadowColor = 'rgba(24, 21, 32, 0.25)';
+        ctx.shadowBlur = 40;
+        ctx.shadowOffsetY = 20;
+        ctx.fillStyle = cardGrad;
+        ctx.beginPath();
+        ctx.roundRect(60, 310, 904, 510, 48);
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
+
+        // Card title
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.font = '500 28px sans-serif';
+        ctx.fillText('OPUS GEEKS', 110, 380);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 52px sans-serif';
+        ctx.fillText('In-Depth Industry', 110, 450);
+        ctx.fillText('Insights Hub', 110, 510);
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = '400 30px sans-serif';
+        ctx.fillText('Fintech • Healthcare • Retail • Real Estate', 110, 570);
+
+        // Decorative accent line
+        const accentGrad = ctx.createLinearGradient(110, 620, 500, 620);
+        accentGrad.addColorStop(0, '#3b82f6');
+        accentGrad.addColorStop(1, '#06b6d4');
+        ctx.fillStyle = accentGrad;
+        ctx.beginPath();
+        ctx.roundRect(110, 620, 250, 5, 3);
+        ctx.fill();
+
+        // Explore text
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '500 26px sans-serif';
+        ctx.fillText('Tap a sector to explore →', 110, 720);
+
+        // Category cards below
+        const cats = ['Fintech', 'Healthcare', 'Retail', 'Real Estate'];
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+        cats.forEach((cat, i) => {
+          const y = 900 + i * 200;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.roundRect(60, y, 904, 160, 28);
+          ctx.fill();
+
+          // Color accent dot
+          ctx.fillStyle = colors[i];
+          ctx.beginPath();
+          ctx.arc(110, y + 80, 18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Category label
+          ctx.fillStyle = '#181520';
+          ctx.font = 'bold 38px sans-serif';
+          ctx.fillText(cat, 150, y + 70);
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '400 26px sans-serif';
+          ctx.fillText('Tap to explore insights', 150, y + 110);
+
+          // Arrow
+          ctx.fillStyle = '#cbd5e1';
+          ctx.font = 'bold 42px sans-serif';
+          ctx.fillText('→', 890, y + 85);
+        });
+      }
+      return new THREE.CanvasTexture(c);
+    };
+    const defaultInsightsTexture = createDefaultInsightsTexture();
+
     const stage1Group = new THREE.Group();
     stage1Group.scale.set(0, 0, 0);
-    stage1Group.position.set(0, -0.18, 0.5);
+    stage1Group.position.set(0, -0.72, 0.5);
     stage1Group.visible = false;
     scene.add(stage1Group);
 
@@ -1021,9 +2139,12 @@ export default function Page() {
     phoneShadow.position.set(0, -1.35, -0.1);
     stage1Group.add(phoneShadow);
 
-    const stage1Phone = buildIphone();
-    stage1Phone.rotation.set(0.15, -0.28, 0.05);
+    const stage1Phone = buildIphone(fintechTexture);
+    stage1Phone.rotation.set(0.04, -0.06, 0);
     stage1Group.add(stage1Phone);
+    const stage1ScreenMat = stage1Phone.userData.screenMat as THREE.MeshBasicMaterial;
+    stage1PhoneRef.current = stage1Phone;
+    stage1ScreenMatRef.current = stage1ScreenMat;
 
     // Section 2: Floating MacBook Web Platform (Compact & Perfectly Placed)
     const stage2Group = new THREE.Group();
@@ -1092,10 +2213,27 @@ export default function Page() {
     };
     window.addEventListener('mousemove', onPointerMove);
 
+    // Responsive phone sizing helper — keeps phone from overlapping top buttons on mobile
+    const getPhoneResponsive = () => {
+      const w = window.innerWidth;
+      if (w < 480) return { scale: 0.52, y: -0.3 };        // small phones
+      if (w < 640) return { scale: 0.58, y: -0.22 };       // large phones
+      if (w < 768) return { scale: 0.65, y: -0.15 };       // small tablets
+      if (w < 1024) return { scale: 0.72, y: -0.12 };      // tablets
+      return { scale: 0.82, y: -0.09 };                     // desktop
+    };
+
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // Dynamically adjust phone scale & position on resize so it never overlaps buttons
+      if (stage1Group && stage1Group.visible) {
+        const resp = getPhoneResponsive();
+        gsap.to(stage1Group.scale, { x: resp.scale, y: resp.scale, z: resp.scale, duration: 0.4, ease: 'power2.out' });
+        gsap.to(stage1Group.position, { y: resp.y, duration: 0.4, ease: 'power2.out' });
+      }
     };
     window.addEventListener('resize', onResize);
 
@@ -1128,14 +2266,15 @@ export default function Page() {
 
         // Subtle dynamic letter breathing
         letterO.rotation.z = Math.sin(elapsedTime * 0.9) * 0.04;
-        letterG.rotation.z = Math.PI * 0.25 + Math.cos(elapsedTime * 0.9) * 0.04;
+        letterG.rotation.z = Math.cos(elapsedTime * 0.9) * 0.04;
       }
 
       // Interactive 3D Mobile Hover Rotation Physics & Dynamic Shadow (Fintech Section)
       if (stage1Group) {
-        // Organic floating wave
+        // Organic floating wave — add offset rather than override so GSAP elevation is preserved
         const floatY = Math.sin(elapsedTime * 1.7) * 0.04;
-        stage1Phone.position.y = floatY;
+        stage1Phone.position.y += (floatY - (stage1Phone.userData._prevFloat ?? 0));
+        stage1Phone.userData._prevFloat = floatY;
 
         // Dynamic Ground Contact Shadow reacts to phone hover & tilt
         phoneShadow.position.x = mouseX * 0.12;
@@ -1144,14 +2283,14 @@ export default function Page() {
         phoneShadow.scale.set(shadowScale, shadowScale, 1);
         phoneShadowMat.opacity = Math.max(0.25, 0.72 - floatY * 2.5);
 
-        // Interactive mouse hover pitch/yaw dynamic rotation
-        const phoneTargetRotX = 0.15 + mouseY * 0.38;
-        const phoneTargetRotY = -0.28 + mouseX * 0.52;
-        const phoneTargetRotZ = 0.05 + (mouseX * -mouseY) * 0.18;
+        // Interactive mouse hover pitch/yaw dynamic rotation (refined, upright posture)
+        const phoneTargetRotX = 0.04 + mouseY * 0.06;
+        const phoneTargetRotY = -0.06 + mouseX * 0.08;
+        const phoneTargetRotZ = 0; // ZERO roll tilt — stays upright and never looks like it's falling!
 
-        stage1Phone.rotation.x += (phoneTargetRotX - stage1Phone.rotation.x) * 0.08;
-        stage1Phone.rotation.y += (phoneTargetRotY - stage1Phone.rotation.y) * 0.08;
-        stage1Phone.rotation.z += (phoneTargetRotZ - stage1Phone.rotation.z) * 0.08;
+        stage1Phone.rotation.x += (phoneTargetRotX - stage1Phone.rotation.x) * 0.06;
+        stage1Phone.rotation.y += (phoneTargetRotY - stage1Phone.rotation.y) * 0.06;
+        stage1Phone.rotation.z += (phoneTargetRotZ - stage1Phone.rotation.z) * 0.06;
       }
 
       // Interactive 3D Laptop Hover Tilt & Dynamic Shadow (Cloud Infrastructure Section)
@@ -1232,7 +2371,7 @@ export default function Page() {
           start: 'top top',
           end: '+=600%',
           pin: true,
-          scrub: 0.5, // Fluid, instantaneous synchronization with Lenis — zero hitch
+          scrub: 0.6,
           anticipatePin: 1,
         },
       });
@@ -1240,109 +2379,111 @@ export default function Page() {
       // Save reference to trigger for scrollToSection calculations
       scrollTriggerRef.current = tl.scrollTrigger ?? null;
 
-      // ── Hero Exits (Pure Hardware-Accelerated Transforms — Zero Blur Thrashing) ──
+      // ── Stage 1 (Hero) Exits ──
       tl.to(heroRef.current, {
-        y: 120,
+        y: -90,
         opacity: 0,
-        duration: 2,
+        duration: 1.2,
         ease: 'power2.inOut',
       }, 0)
-        .to(heroOGGroup.position, { x: 0, y: -1.8, z: -0.8, duration: 2, ease: 'power2.inOut' }, 0)
-        .to(heroOGGroup.rotation, { x: -0.4, y: 0.3, z: 0, duration: 2, ease: 'power2.inOut' }, 0)
-        .to(heroOGGroup.scale, { x: 0, y: 0, z: 0, duration: 1.5, ease: 'power3.in' }, 0.5)
+        .to(heroOGGroup.position, { x: 0, y: -1.8, z: -0.8, duration: 1.2, ease: 'power2.inOut' }, 0)
+        .to(heroOGGroup.rotation, { x: -0.4, y: 0.3, z: 0, duration: 1.2, ease: 'power2.inOut' }, 0)
+        .to(heroOGGroup.scale, { x: 0, y: 0, z: 0, duration: 1.0, ease: 'power3.in' }, 0.2)
 
-        // ── S1 Phone Enters (From Top-Center down into center) ──
-        .set(stage1Group, { visible: true }, 0.75)
-        .fromTo(sectionsRef.current[0],
-          { y: -50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 2, ease: 'power2.out' },
-          0.8
+        // ── Stage 2 (Showcase + 3D Phone) Enters ──
+        .set(heroRef.current, { pointerEvents: 'none' }, 0.4)
+        .set(showcaseRef.current, { pointerEvents: 'auto' }, 0.4)
+        .set(stage1Group, { visible: true }, 0.4)
+        .fromTo(showcaseRef.current,
+          { y: 80, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.4, ease: 'power3.out' },
+          0.4
         )
         .fromTo(stage1Group.scale,
-          { x: 0.2, y: 0.2, z: 0.2 },
-          { x: 1, y: 1, z: 1, duration: 2, ease: 'power2.out', immediateRender: false },
-          0.8
+          { x: 0.08, y: 0.08, z: 0.08 },
+          { x: getPhoneResponsive().scale, y: getPhoneResponsive().scale, z: getPhoneResponsive().scale, duration: 1.4, ease: 'expo.out', immediateRender: false },
+          0.4
         )
         .fromTo(stage1Group.rotation,
-          { x: 0.35, y: 0, z: 0 },
-          { x: 0, y: 0, z: 0, duration: 2, ease: 'power2.out', immediateRender: false },
-          0.8
+          { x: 0.5, y: -0.2, z: 0.08 },
+          { x: 0.04, y: -0.06, z: 0, duration: 1.4, ease: 'expo.out', immediateRender: false },
+          0.4
         )
         .fromTo(stage1Group.position,
-          { x: 0, y: 2.2, z: 0.2 },
-          { x: 0, y: -0.16, z: 0.5, duration: 2, ease: 'power2.out', immediateRender: false },
-          0.8
+          { x: 0, y: 3.0, z: -0.5 },
+          { x: 0, y: getPhoneResponsive().y, z: 0.45, duration: 1.4, ease: 'expo.out', immediateRender: false },
+          0.4
         )
 
-        // ── S1 Hold & Exit (Glides downward) ──
-        .to(sectionsRef.current[0], {
-          y: 80,
+        // Hold Stage 2
+        .to({}, { duration: 1.2 }, 1.8)
+
+        // ── Stage 2 Exits & Stage 3 (Process Plan) Enters ──
+        .to(showcaseRef.current, {
+          y: -90,
           opacity: 0,
-          duration: 2,
+          duration: 1.2,
           ease: 'power2.inOut',
-        }, '+=1.2')
-        .to(stage1Group.position, { x: 0, y: -1.8, z: -0.8, duration: 2, ease: 'power2.inOut' }, '<')
-        .to(stage1Group.rotation, { x: -0.3, y: 0.2, z: 0, duration: 2, ease: 'power2.inOut' }, '<')
-        .to(stage1Group.scale, { x: 0, y: 0, z: 0, duration: 1.5, ease: 'power3.in' }, '<+=0.5')
-        .set(stage1Group, { visible: false })
-
-        // ── S2 Laptop Enters (From Top-Center down into center) ──
-        .set(stage2Group, { visible: true }, '<-=0.2')
-        .fromTo(sectionsRef.current[1],
-          { y: -50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 2, ease: 'power2.out' },
-          '<+=0.8'
-        )
-        .fromTo(stage2Group.scale,
-          { x: 0.2, y: 0.2, z: 0.2 },
-          { x: 1, y: 1, z: 1, duration: 2, ease: 'power2.out', immediateRender: false },
-          '<'
-        )
-        .fromTo(stage2Group.rotation,
-          { x: 0.35, y: 0, z: 0 },
-          { x: 0, y: 0, z: 0, duration: 2, ease: 'power2.out', immediateRender: false },
-          '<'
-        )
-        .fromTo(stage2Group.position,
-          { x: 0, y: 2.2, z: 0.2 },
-          { x: 0, y: -0.22, z: 0.4, duration: 2, ease: 'power2.out', immediateRender: false },
-          '<'
+        }, 3.0)
+        .set(showcaseRef.current, { pointerEvents: 'none' }, 3.6)
+        .to(stage1Group.position, {
+          y: -2.5,
+          z: -0.8,
+          duration: 1.2,
+          ease: 'power2.inOut',
+        }, 3.0)
+        .to(stage1Group.scale, {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 1.0,
+          ease: 'power3.in',
+        }, 3.2)
+        .set(processSectionRef.current, { pointerEvents: 'auto' }, 3.4)
+        .fromTo(processSectionRef.current,
+          { y: 80, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.4, ease: 'power3.out' },
+          3.4
         )
 
-        // ── S2 Laptop Hold & Exit (Glides downward) ──
-        .to(sectionsRef.current[1], {
-          y: 80,
+        // Hold Stage 3
+        .to({}, { duration: 1.2 }, 4.8)
+
+        // ── Stage 3 Exits & Stage 4 (Significant Metrics) Enters ──
+        .to(processSectionRef.current, {
+          y: -90,
           opacity: 0,
-          duration: 2,
+          duration: 1.2,
           ease: 'power2.inOut',
-        }, '+=1.2')
-        .to(stage2Group.position, { x: 0, y: -1.8, z: -0.8, duration: 2, ease: 'power2.inOut' }, '<')
-        .to(stage2Group.rotation, { x: -0.3, y: -0.2, z: 0, duration: 2, ease: 'power2.inOut' }, '<')
-        .to(stage2Group.scale, { x: 0, y: 0, z: 0, duration: 1.5, ease: 'power3.in' }, '<+=0.5')
-        .set(stage2Group, { visible: false })
+        }, 6.0)
+        .set(processSectionRef.current, { pointerEvents: 'none' }, 6.6)
+        .set(metricsSectionRef.current, { pointerEvents: 'auto' }, 6.4)
+        .fromTo(metricsSectionRef.current,
+          { y: 80, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.4, ease: 'power3.out' },
+          6.4
+        )
 
-        // ── S3 Dual Devices Enter (From Top-Center down into center) ──
-        .set(stage3Group, { visible: true }, '<-=0.2')
-        .fromTo(sectionsRef.current[2],
-          { y: -50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 2, ease: 'power2.out' },
-          '<+=0.8'
+        // Hold Stage 4
+        .to({}, { duration: 1.2 }, 7.8)
+
+        // ── Stage 4 Exits & Stage 5 (Advanced Service Offerings) Enters ──
+        .to(metricsSectionRef.current, {
+          y: -90,
+          opacity: 0,
+          duration: 1.2,
+          ease: 'power2.inOut',
+        }, 9.0)
+        .set(metricsSectionRef.current, { pointerEvents: 'none' }, 9.6)
+        .set(servicesSectionRef.current, { pointerEvents: 'auto' }, 9.4)
+        .fromTo(servicesSectionRef.current,
+          { y: 80, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.4, ease: 'power3.out' },
+          9.4
         )
-        .fromTo(stage3Group.scale,
-          { x: 0.2, y: 0.2, z: 0.2 },
-          { x: 1, y: 1, z: 1, duration: 2, ease: 'power2.out', immediateRender: false },
-          '<'
-        )
-        .fromTo(stage3Group.rotation,
-          { x: 0.3, y: 0, z: 0 },
-          { x: 0, y: 0, z: 0, duration: 2, ease: 'power2.out', immediateRender: false },
-          '<'
-        )
-        .fromTo(stage3Group.position,
-          { x: 0, y: 2.0, z: 0.1 },
-          { x: 0, y: -0.18, z: 0, duration: 2, ease: 'power2.out', immediateRender: false },
-          '<'
-        );
+
+        // Hold Stage 5
+        .to({}, { duration: 1.4 }, 10.8);
     });
 
     return () => {
@@ -1356,6 +2497,7 @@ export default function Page() {
     };
   }, []);
 
+  const activeSector = (currentSector >= 0 && currentSector < OPUS_SECTIONS.length) ? OPUS_SECTIONS[currentSector] : OPUS_SECTIONS[0];
 
   return (
     <main className="relative w-full bg-[#c9d2e7] text-[#181520] font-sans overflow-hidden antialiased">
@@ -1435,13 +2577,13 @@ export default function Page() {
             </a>
           </nav>
 
-          {/* Right: Get Started White Pill Button -> Triggers AI Chat Architect */}
+          {/* Right: Book a Strategy Call White Pill Button -> Triggers AI Chat Architect */}
           <div className="relative flex items-center">
             <button
-              onClick={toggleChat}
+              onClick={() => openChat('Book a Strategy Call')}
               className="bg-white text-[#181520] hover:bg-[#181520] hover:text-white px-6 py-2.5 rounded-full font-neue text-[13px] font-medium tracking-[0.02em] shadow-sm hover:shadow-md transition-all duration-300 flex items-center space-x-2 border border-black/5 active:scale-95 cursor-pointer outline-none"
             >
-              <span>Get Started</span>
+              <span>Book a Strategy Call</span>
               <Sparkles className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -1450,7 +2592,12 @@ export default function Page() {
 
 
       {/* Pinned Stage */}
-      <div ref={pinContainerRef} className="relative w-full h-screen overflow-hidden">
+      <div
+        ref={pinContainerRef}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="relative w-full h-screen overflow-hidden"
+      >
         {/* Hero Section */}
         <div
           ref={heroRef}
@@ -1460,14 +2607,11 @@ export default function Page() {
           <div className="pt-2 pointer-events-none" />
 
           {/* Center: Monumental Headline (Signature Agency Spread) */}
-          <div className="my-auto py-2 uppercase font-machina text-[#181520] flex flex-col leading-[0.88] tracking-[-0.035em] select-none text-left">
-            <div className="text-[8.2vw] whitespace-nowrap">CODE THAT</div>
-            <div className="text-[8.2vw] flex justify-between items-baseline w-full whitespace-nowrap">
-              <span>SCALES</span>
-              <span className="pr-4 md:pr-10">YOUR</span>
-            </div>
-            <div className="text-[8.2vw] whitespace-nowrap">DIGITAL FUTURE</div>
-          </div>
+          <h1 className="my-auto py-2 uppercase font-machina text-[#181520] flex flex-col gap-2 md:gap-4 leading-[0.98] tracking-[-0.035em] select-none text-left">
+            <span className="text-[7.2vw] sm:text-[7.8vw] md:text-[8vw] whitespace-nowrap">ARCHITECTING</span>
+            <span className="text-[7.2vw] sm:text-[7.8vw] md:text-[8vw] whitespace-nowrap">SOFTWARE FOR THE</span>
+            <span className="text-[7.2vw] sm:text-[7.8vw] md:text-[8vw] whitespace-nowrap">AI-FIRST ERA.</span>
+          </h1>
 
           {/* Bottom Row: Clean Scroll Indicator + High-Converting US Enterprise Sales Narrative */}
           <div className="flex items-end justify-between pb-2 pointer-events-auto">
@@ -1483,60 +2627,798 @@ export default function Page() {
             </div>
 
             {/* Right: High-Converting Enterprise Value Proposition */}
-            <p className="font-neue max-w-[340px] text-[13px] md:text-[14px] leading-[145%] text-[#181520]/85 text-right font-normal">
-              We architect mission-critical mobile platforms and scalable cloud ecosystems for high-growth enterprises that demand flawless performance, rapid time-to-market, and relentless scale.
+            <p className="font-neue max-w-[400px] text-[13px] md:text-[14px] leading-[150%] text-[#181520]/85 text-right font-normal">
+              We help fast-moving US enterprises and ambitious startups design, build, and deploy high-performance software with speed and precision.
             </p>
           </div>
         </div>
 
-        {/* Dynamic Device Sections */}
-        {OPUS_SECTIONS.map((item, index) => (
-          <div
-            key={item.id}
-            ref={(el) => { sectionsRef.current[index] = el; }}
-            className="absolute inset-0 w-full h-full px-6 md:px-14 flex flex-col justify-between py-12 z-20 pointer-events-none will-change-transform origin-center opacity-0"
-          >
-            <div className="absolute top-[8%] left-0 w-full text-center select-none z-0 pointer-events-none">
-              <h2 className="font-machina text-[11vw] leading-none uppercase tracking-tight text-[#181520]/80">
-                {item.title}
-              </h2>
-            </div>
+        {/* Dynamic 4-Sector Interactive Showcase Section — Master Architectural Luxury */}
+        <div
+          ref={showcaseRef}
+          className="absolute inset-0 w-full h-full px-4 sm:px-8 md:px-12 flex flex-col justify-between pt-20 sm:pt-24 pb-2.5 sm:pb-3 z-20 pointer-events-auto will-change-transform origin-center opacity-0 select-none overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Architectural Background Typographic Watermark (Heroic Scale) */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
+            <span
+              key={activeSector.id + '-watermark'}
+              className="font-machina font-black text-[16vw] leading-none uppercase tracking-[-0.04em] text-[#181520]/[0.038] select-none text-center whitespace-nowrap will-change-transform"
+              style={{
+                animation: 'luxuryWatermarkIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              }}
+            >
+              {activeSector.title}
+            </span>
+          </div>
 
-            <div className="mt-auto w-full flex items-end justify-between pb-6 pointer-events-auto z-30">
-              <div className="flex flex-col space-y-2">
-                {item.tag && (
-                  <span className="inline-block border border-black/40 rounded-full px-4 py-1 text-xs uppercase font-neue w-max">
-                    {item.tag}
-                  </span>
-                )}
-                {item.category && (
-                  <span className="text-sm font-neue text-[#181520]">
-                    {item.category}
-                  </span>
-                )}
-              </div>
+          {/* Minimalist Top HUD Header & Precision Swiss Segmented Console */}
+          <div className="relative w-full flex flex-col items-center z-30 pointer-events-none select-none">
+            {/* Architectural Section Title */}
+            <h2 className="font-machina font-black text-2xl sm:text-3xl md:text-4xl lg:text-[2.6vw] uppercase tracking-[-0.03em] text-[#181520] leading-none text-center">
+              Our In-Depth Industry Insights
+            </h2>
 
+            {/* Single Razor-Sharp Subtitle */}
+            <p className="font-neue text-[11px] sm:text-[12px] text-[#181520]/60 text-center max-w-md mx-auto mt-1 tracking-tight">
+              Bespoke digital architecture engineered for capital-grade global enterprises.
+            </p>
 
-              <a
-                href={`/portfolio?project=${item.id}`}
-                className="bg-[#181520] text-white px-8 py-3.5 rounded-full flex items-center space-x-3 text-xs uppercase tracking-widest font-machina hover:scale-105 transition-transform shadow-lg cursor-pointer"
-              >
-                <span>View Project</span>
-                <ArrowUpRight className="w-4 h-4" />
-              </a>
-
-              <div className="max-w-[320px] text-left">
-                <h3 className="font-machina text-xl font-bold uppercase mb-2">
-                  {item.client}
-                </h3>
-                <p className="font-neue text-sm leading-relaxed text-[#181520]">
-                  {item.desc}
-                </p>
+            {/* Precision Horology Console */}
+            <div className="mt-2 sm:mt-2.5 pointer-events-auto">
+              <div className="inline-flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full bg-white/70 backdrop-blur-2xl border border-white/90 shadow-[0_16px_40px_rgba(24,21,32,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]">
+                {OPUS_SECTIONS.map((sec, idx) => {
+                  const isActive = idx === currentSector;
+                  return (
+                    <button
+                      key={sec.id}
+                      onClick={() => handleSelectSector(idx)}
+                      className={`relative px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full font-machina text-[10px] sm:text-[11px] tracking-[0.14em] uppercase cursor-pointer flex items-center transition-all duration-300 outline-none ${
+                        isActive
+                          ? 'bg-[#181520] text-white shadow-[0_4px_20px_rgba(24,21,32,0.3)] font-bold'
+                          : 'text-[#181520]/60 hover:text-[#181520] hover:bg-[#181520]/[0.05] font-semibold'
+                      }`}
+                    >
+                      <span className={`font-mono text-[9px] mr-1.5 transition-opacity ${isActive ? 'text-white/60' : 'text-[#181520]/40'}`}>
+                        {sec.number}
+                      </span>
+                      <span className="relative z-10">{sec.title}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
-        ))}
+
+          {/* Bottom: Luxury Dossier HUD Console (Slim Architectural Dock) */}
+          <div className="relative mt-auto w-full max-w-6xl mx-auto pb-1 pointer-events-auto z-30">
+            <div
+              key={activeSector.id}
+              className="w-full rounded-2xl sm:rounded-3xl bg-white/70 hover:bg-white/80 backdrop-blur-2xl border border-white/90 px-4 sm:px-6 py-2.5 sm:py-3 shadow-[0_20px_50px_rgba(24,21,32,0.08),inset_0_1px_0_rgba(255,255,255,0.95)] flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4 transition-all duration-400"
+              style={{
+                animation: 'luxuryFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              }}
+            >
+              {/* Left: Sector Meta & Client */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#181520] text-white tracking-widest">
+                    {activeSector.number}
+                  </span>
+                  <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.18em] text-[#181520]/60 font-semibold truncate">
+                    {activeSector.tag}
+                  </span>
+                </div>
+                <h3 className="font-machina text-sm sm:text-base md:text-lg font-bold uppercase tracking-tight text-[#181520]">
+                  {activeSector.client}
+                </h3>
+                <p className="font-neue text-[11px] sm:text-xs leading-[150%] text-[#181520]/75 line-clamp-1 mt-0.5">
+                  {activeSector.desc}
+                </p>
+              </div>
+
+              {/* Center: Live Architecture & Telemetry Specs */}
+              <div className="hidden lg:flex items-center gap-6 px-6 border-x border-black/10 shrink-0">
+                <div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest text-[#181520]/45">Latency</div>
+                  <div className="font-machina text-xs font-bold text-[#181520]">{activeSector.telemetry.latency}</div>
+                </div>
+                <div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest text-[#181520]/45">Security</div>
+                  <div className="font-machina text-xs font-bold text-[#181520]">{activeSector.telemetry.security}</div>
+                </div>
+              </div>
+
+              {/* Right: Integrated Next/Prev Switcher + Master CTA */}
+              <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 justify-between md:justify-end pt-2 md:pt-0 border-t md:border-t-0 border-black/5">
+                {/* Minimalist Prev/Next Switcher */}
+                <div className="flex items-center gap-1 p-1 rounded-full bg-black/[0.04] border border-black/[0.05]">
+                  <button
+                    onClick={() => handleSelectSector(currentSector <= 0 ? OPUS_SECTIONS.length - 1 : currentSector - 1)}
+                    aria-label="Previous Sector"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white hover:bg-[#181520] text-[#181520] hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleSelectSector((currentSector + 1) % OPUS_SECTIONS.length)}
+                    aria-label="Next Sector"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white hover:bg-[#181520] text-[#181520] hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Primary CTA Button */}
+                <a
+                  href={`/portfolio?project=${activeSector.id}`}
+                  className="group relative overflow-hidden bg-[#181520] hover:bg-black text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full flex items-center space-x-2 text-[10px] sm:text-[11px] uppercase tracking-[0.16em] font-machina shadow-[0_6px_24px_rgba(24,21,32,0.25)] cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+                >
+                  <span className="relative z-10 font-bold">Explore Architecture</span>
+                  <ArrowUpRight className="relative z-10 w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            Stage 3: Our Comprehensive Process Plan Section (Award-Winning Luxury)
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          ref={processSectionRef}
+          className="absolute inset-0 w-full h-full px-6 md:px-14 flex flex-col justify-between pt-20 sm:pt-22 md:pt-24 pb-6 sm:pb-8 z-20 pointer-events-none will-change-transform origin-center opacity-0 select-none overflow-hidden"
+        >
+          <div className="relative max-w-7xl mx-auto w-full flex flex-col justify-between h-full z-10">
+            {/* Header: Positioned comfortably below navbar */}
+            <div className="process-header max-w-3xl mb-2 sm:mb-3">
+              <h2 className="font-machina font-black text-2xl sm:text-3xl md:text-4xl lg:text-[2.6vw] uppercase tracking-[-0.02em] text-[#181520] leading-[1.05] mb-1.5">
+                Our Comprehensive <br className="hidden sm:block" />
+                <span>Process</span> Plan
+              </h2>
+              <p className="font-neue text-xs sm:text-[13px] md:text-[14px] text-[#181520]/70 leading-relaxed max-w-2xl font-normal">
+                Embark on a seamless journey with Opus Geeks, where innovation meets a meticulously crafted process plan. From concept to shipping, we ensure a holistic approach to software development.
+              </p>
+            </div>
+
+            {/* 4 Process Step Cards in 2x2 Grid (Interactive 3D Tilt + Luxury Glassmorphism) */}
+            <div className="process-grid grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5 md:gap-4 my-auto">
+              {[
+                {
+                  num: '01',
+                  icon: Layers,
+                  title: 'Branding & Identity',
+                  desc: 'Establishing an iconic identity for your product with cohesive design systems, multi-platform tokens, and authoritative brand voice.',
+                  tag: 'Discovery & Identity',
+                },
+                {
+                  num: '02',
+                  icon: Cpu,
+                  title: 'Interactive Prototyping',
+                  desc: 'Validating user journeys and interactive paradigms through high-fidelity spatial prototypes and frictionless UX engineering.',
+                  tag: 'Design & Validation',
+                },
+                {
+                  num: '03',
+                  icon: Terminal,
+                  title: 'Full-Stack Development',
+                  desc: 'Transforming designs into zero-latency production-grade code with distributed cloud microservices and automated QA pipelines.',
+                  tag: 'Engineering & QA',
+                },
+                {
+                  num: '04',
+                  icon: Rocket,
+                  title: 'Global Launch & Scale',
+                  desc: 'Precision multi-region deployment, sub-second edge CDN distribution, continuous telemetry, and 24/7 autonomous scaling.',
+                  tag: 'Go-To-Market & Scale',
+                },
+              ].map((step) => (
+                <InteractiveProcessCard
+                  key={step.num}
+                  className="process-card group p-4 sm:p-5 md:p-5.5 rounded-2xl md:rounded-3xl bg-white/70 hover:bg-white/95 backdrop-blur-2xl border border-white/70 hover:border-black/15 shadow-[0_10px_35px_rgba(24,21,32,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] hover:shadow-[0_24px_50px_rgba(24,21,32,0.12),inset_0_1px_0_rgba(255,255,255,1)] transition-all duration-300 overflow-hidden cursor-pointer"
+                >
+                  <div className="relative z-10 flex flex-col justify-between h-full">
+                    <div>
+                      {/* Step Top Row: Number & Tag */}
+                      <div className="flex items-center justify-between mb-2 sm:mb-2.5">
+                        <div className="flex items-center space-x-2.5">
+                          <div className="w-8 h-8 rounded-full bg-white/90 group-hover:bg-[#181520] border border-black/5 shadow-sm flex items-center justify-center transition-colors duration-300">
+                            <step.icon className="w-4 h-4 text-[#181520] group-hover:text-white transition-colors duration-300" />
+                          </div>
+                          <span className="font-machina text-xl sm:text-2xl font-black text-[#181520]/30 group-hover:text-[#181520] transition-colors duration-300">
+                            {step.num}
+                          </span>
+                        </div>
+                        <span className="px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-neue font-semibold tracking-wider uppercase bg-white/80 group-hover:bg-[#181520] group-hover:text-white border border-white/80 group-hover:border-[#181520] text-[#181520]/75 shadow-sm transition-all duration-300">
+                          {step.tag}
+                        </span>
+                      </div>
+
+                      {/* Step Title */}
+                      <h3 className="font-machina text-base sm:text-lg md:text-xl font-bold uppercase tracking-tight text-[#181520] group-hover:text-black group-hover:translate-x-1 transition-all duration-300 mb-1">
+                        {step.title}
+                      </h3>
+
+                      {/* Step Description */}
+                      <p className="font-neue text-xs sm:text-[12.5px] leading-relaxed text-[#181520]/70 group-hover:text-[#181520]/90 transition-colors duration-300">
+                        {step.desc}
+                      </p>
+                    </div>
+
+                    {/* Subtle Bottom Glow Accent */}
+                    <div className="w-full h-0.5 bg-black/[0.04] group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-[#181520]/30 group-hover:to-transparent mt-3 transition-all duration-300" />
+                  </div>
+                </InteractiveProcessCard>
+              ))}
+            </div>
+
+            {/* Bottom Action / CTA Banner */}
+            <div className="pt-2.5 pb-1 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-3 mt-auto">
+              <div>
+                <h4 className="font-machina text-sm sm:text-base font-black uppercase tracking-tight text-[#181520]">
+                  Ready To Build Something Extraordinary?
+                </h4>
+                <p className="font-neue text-xs text-[#181520]/65 font-normal">
+                  Let&apos;s turn your vision into market-leading software.
+                </p>
+              </div>
+              <button
+                onClick={() => openChat('Get A Quote')}
+                className="group relative inline-flex items-center gap-3 px-8 py-3 rounded-full bg-[#181520] text-white font-machina text-xs font-bold uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(24,21,32,0.28),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_16px_45px_rgba(24,21,32,0.4),0_0_30px_rgba(201,210,231,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] border border-white/15 hover:border-white/35 transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] cursor-pointer outline-none shrink-0 overflow-hidden"
+              >
+                {/* Iridescent shimmer sweep */}
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+                  style={{
+                    backgroundImage: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.18) 55%, transparent 80%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 2.2s ease-in-out infinite',
+                  }}
+                />
+                <span className="relative z-10 flex items-center gap-2">
+                  <span>Get A Quote</span>
+                  <Sparkles className="w-3.5 h-3.5 text-white/80 group-hover:text-white group-hover:rotate-12 transition-transform duration-300" />
+                </span>
+                <div className="relative z-10 w-6 h-6 rounded-full bg-white/10 group-hover:bg-white group-hover:text-[#181520] flex items-center justify-center transition-all duration-300 -mr-1">
+                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            Stage 4: Significant Metrics That Hold Weight Section (Interactive Expanding Monoliths)
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          ref={metricsSectionRef}
+          className="absolute inset-0 w-full h-full px-6 md:px-14 flex flex-col justify-between pt-20 sm:pt-24 md:pt-26 pb-8 sm:pb-10 z-20 pointer-events-none will-change-transform origin-center opacity-0 select-none overflow-hidden"
+        >
+          <div className="relative max-w-7xl mx-auto w-full flex flex-col justify-between h-full z-10">
+            {/* Header Area */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8 items-start mb-3 sm:mb-4">
+              {/* Left: Monumental Title */}
+              <div className="lg:col-span-5">
+                <h2 className="font-machina font-black text-2xl sm:text-3xl md:text-4xl lg:text-[2.6vw] leading-[1.05] uppercase tracking-[-0.02em] text-[#181520] text-left">
+                  Significant Metrics <br className="hidden sm:block" />
+                  That Hold Weight
+                </h2>
+              </div>
+
+              {/* Right: Narrative Description */}
+              <div className="lg:col-span-7 pt-1 sm:pt-2">
+                <p className="font-neue text-xs sm:text-[13px] md:text-[14px] leading-relaxed text-[#181520]/70 font-normal">
+                  Unlocking success hinges on key metrics that carry substantial impact. At Opus Geeks, we prioritize metrics such as user engagement, ensuring a rich user experience, while closely monitoring performance efficiency to guarantee seamless interactions. Our focus extends to conversion rates, fortifying your digital goals, and maintaining strict security and compliance metrics.
+                </p>
+              </div>
+            </div>
+
+            {/* Interactive Expanding Monolithic Pillars */}
+            <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 md:gap-3.5 w-full my-auto h-[52vh] sm:h-[55vh] md:h-[58vh] max-h-[480px]">
+              {[
+                {
+                  num: '01',
+                  value: 40,
+                  suffix: '+',
+                  title: 'Happy Clients',
+                  subtitle: 'Institutional & Global Partners',
+                  desc: 'Trusted by Tier-1 institutions, multi-currency fintech platforms, and venture-backed Silicon Valley innovators.',
+                  tag: '100% Client Retention',
+                  kpi: 'Tier-1 Institutional Core',
+                  growth: '+42% Volume Growth',
+                  icon: Users,
+                },
+                {
+                  num: '02',
+                  value: 340,
+                  suffix: '+',
+                  title: 'Projects Completed',
+                  subtitle: 'Production-Grade Architectures',
+                  desc: 'Shipped high-frequency fintech engines, spatial 3D retail apps, HIPAA-compliant telemetry, and distributed cloud meshes.',
+                  tag: 'Zero Critical Downtime',
+                  kpi: '99.999% Service SLA',
+                  growth: '0.04ms Edge Execution',
+                  icon: CheckCircle2,
+                },
+                {
+                  num: '03',
+                  value: 300,
+                  suffix: '',
+                  title: 'Dedicated Members',
+                  subtitle: 'Elite Engineering Squad',
+                  desc: 'A dedicated team of senior systems architects, spatial 3D mathematicians, AI practitioners, and security analysts.',
+                  tag: 'Top 1% Global Engineering',
+                  kpi: '24/7 Follow-The-Sun Ops',
+                  growth: 'Multi-Region Squads',
+                  icon: Cpu,
+                },
+                {
+                  num: '04',
+                  value: 25,
+                  suffix: '+',
+                  title: 'Awards Won',
+                  subtitle: 'International Design Prestige',
+                  desc: 'Celebrated worldwide with honors including Awwwards Site of the Day, FWA of the Day, and international UX excellence awards.',
+                  tag: 'Awwwards & FWA Winner',
+                  kpi: 'Global Industry Benchmark',
+                  growth: '5x Design Honors',
+                  icon: Trophy,
+                },
+              ].map((pillar, idx) => {
+                const isActive = idx === activeMetricPillar;
+                return (
+                  <div
+                    key={pillar.num}
+                    onMouseEnter={() => setActiveMetricPillar(idx)}
+                    onClick={() => setActiveMetricPillar(idx)}
+                    className={`relative rounded-2xl md:rounded-3xl cursor-pointer overflow-hidden flex flex-col justify-between p-4 sm:p-5 md:p-6 select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive
+                      ? 'flex-[2.4] bg-white/95 backdrop-blur-3xl border border-white/95 shadow-[0_20px_60px_rgba(24,21,32,0.12),inset_0_1px_0_rgba(255,255,255,1)] z-10'
+                      : 'flex-1 bg-white/60 hover:bg-white/80 backdrop-blur-2xl border border-white/70 shadow-[0_8px_30px_rgba(24,21,32,0.04),inset_0_1px_0_rgba(255,255,255,0.7)]'
+                      }`}
+                  >
+                    {/* Top Header Row */}
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center space-x-2.5">
+                        <div
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm ${isActive
+                            ? 'bg-[#181520] text-white border border-[#181520]'
+                            : 'bg-white/90 text-[#181520] border border-black/5'
+                            }`}
+                        >
+                          <pillar.icon className="w-4.5 h-4.5" />
+                        </div>
+                        <span
+                          className={`font-machina font-black text-sm sm:text-base transition-colors duration-300 ${isActive ? 'text-[#181520]' : 'text-[#181520]/40'
+                            }`}
+                        >
+                          {pillar.num}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Center: Monumental Numeric Counter */}
+                    <div className="my-auto py-2">
+                      <div
+                        className={`font-machina font-black tracking-tight leading-none transition-all duration-300 ${isActive
+                          ? 'text-4xl sm:text-5xl md:text-6xl text-[#181520]'
+                          : 'text-3xl sm:text-4xl text-[#181520]/80'
+                          }`}
+                      >
+                        <MetricCounter value={pillar.value} suffix={pillar.suffix} />
+                      </div>
+                      <div className="font-machina text-sm sm:text-base md:text-lg font-bold uppercase tracking-tight text-[#181520] mt-1.5 whitespace-nowrap">
+                        {pillar.title}
+                      </div>
+
+                      {/* Active Only Extended Details */}
+                      {isActive && (
+                        <div className="mt-3 pt-3 border-t border-black/5 space-y-2.5">
+                          <p className="font-neue text-xs sm:text-[13px] leading-relaxed text-[#181520]/75 line-clamp-3">
+                            {pillar.desc}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2 pt-1">
+                            <span className="text-[10px] font-neue font-bold uppercase tracking-wider text-[#181520] bg-[#181520]/5 px-2.5 py-1 rounded-full border border-black/5">
+                              {pillar.tag}
+                            </span>
+                            <span className="text-[10px] font-neue font-bold uppercase tracking-wider text-emerald-700 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                              ● {pillar.growth}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Indicator Bar */}
+                    <div className="w-full">
+                      <div
+                        className={`h-1 rounded-full transition-all duration-500 ${isActive
+                          ? 'bg-[#181520] w-full'
+                          : 'bg-black/10 w-8'
+                          }`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            Stage 5: Our Advanced Service Offerings and Solutions (Interactive Spatial Split Showcase)
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          ref={servicesSectionRef}
+          className="absolute inset-0 w-full h-full px-6 md:px-14 flex flex-col justify-between pt-20 sm:pt-22 md:pt-24 pb-6 sm:pb-8 z-20 pointer-events-none will-change-transform origin-center opacity-0 select-none overflow-hidden"
+        >
+          <div className="relative max-w-7xl mx-auto w-full flex flex-col justify-between h-full z-10">
+            {/* Header Area */}
+            <div className="process-header max-w-4xl mb-2 sm:mb-3">
+              <h2 className="font-machina font-black text-2xl sm:text-3xl md:text-4xl lg:text-[2.6vw] uppercase tracking-[-0.02em] text-[#181520] leading-[1.05] mb-1.5">
+                Our Advanced Service <br className="hidden sm:block" />
+                <span>Offerings</span> and Solutions.
+              </h2>
+              <p className="font-neue text-xs sm:text-[13px] md:text-[14px] text-[#181520]/60 max-w-2xl font-normal">
+                Bespoke digital engineering and spatial product solutions engineered for high-velocity enterprises.
+              </p>
+            </div>
+
+            {/* Split Showcase: Left Interactive Command Deck + Right Floating 3D Device Preview */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 my-auto items-center h-[52vh] sm:h-[54vh] md:h-[56vh] max-h-[480px]">
+              {/* Left Column: Interactive Service Selector Accordion */}
+              <div className="lg:col-span-6 flex flex-col justify-center gap-2 sm:gap-2.5 h-full overflow-y-auto pr-1">
+                {[
+                  {
+                    num: '01',
+                    icon: Monitor,
+                    title: 'Website Development',
+                    tag: 'Next.js & WebGL 3D',
+                    desc: 'High-performance web applications and 3D WebGL architectures engineered for maximum conversion and speed.',
+                    specs: ['Next.js 15', 'WebGL 60FPS', 'Edge P99'],
+                  },
+                  {
+                    num: '02',
+                    icon: Smartphone,
+                    title: 'Mobile App Development',
+                    tag: 'iOS & Android Native',
+                    desc: 'Native iOS & Android mobile applications built for sub-second fluidity, offline sync, and enterprise reliability.',
+                    specs: ['SwiftUI & React Native', 'Offline Sync', 'Biometrics'],
+                  },
+                  {
+                    num: '03',
+                    icon: Palette,
+                    title: 'UI/UX Design',
+                    tag: 'Spatial Systems & UI',
+                    desc: 'Spatial design systems, micro-interactions, and accessible interfaces tailored for digital products.',
+                    specs: ['Design Tokens', 'WCAG AAA', 'Micro-Physics'],
+                  },
+                  {
+                    num: '04',
+                    icon: Gamepad2,
+                    title: 'Game Development',
+                    tag: 'Unreal 5 & Unity',
+                    desc: 'Immersive 3D games and spatial simulations built with cutting-edge realtime graphics engines.',
+                    specs: ['Unreal Engine 5', 'Ray Tracing', 'Multiplayer Sync'],
+                  },
+                ].map((service, idx) => {
+                  const isActive = idx === activeServiceIdx;
+                  return (
+                    <div
+                      key={service.num}
+                      onMouseEnter={() => setActiveServiceIdx(idx)}
+                      onClick={() => setActiveServiceIdx(idx)}
+                      className={`relative p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all duration-400 select-none ${isActive
+                        ? 'bg-white/95 backdrop-blur-2xl border border-white/95 shadow-[0_12px_36px_rgba(24,21,32,0.08),inset_0_1px_0_rgba(255,255,255,1)]'
+                        : 'bg-white/50 hover:bg-white/75 backdrop-blur-xl border border-white/60 shadow-[0_4px_16px_rgba(24,21,32,0.03)]'
+                        }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 shadow-sm ${isActive
+                              ? 'bg-[#181520] text-white'
+                              : 'bg-white/90 text-[#181520] border border-black/5'
+                              }`}
+                          >
+                            <service.icon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="font-machina text-sm sm:text-base font-bold uppercase tracking-tight text-[#181520]">
+                              {service.title}
+                            </h3>
+                            <span className="font-neue text-[10px] sm:text-[11px] font-semibold text-[#181520]/50 uppercase tracking-wider">
+                              {service.tag}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="font-machina text-sm sm:text-base font-black text-[#181520]/30">
+                          {service.num}
+                        </span>
+                      </div>
+
+                      {/* Expanded Narrative (When Active) */}
+                      {isActive && (
+                        <div className="mt-2.5 pt-2.5 border-t border-black/5 animate-fade-in">
+                          <p className="font-neue text-xs sm:text-[12.5px] leading-relaxed text-[#181520]/75">
+                            {service.desc}
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 mt-2.5">
+                            {service.specs.map((spec, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className="text-[10px] font-neue font-medium px-2 py-0.5 rounded-full bg-[#181520]/5 text-[#181520]/80 border border-black/5"
+                              >
+                                {spec}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Right Column: Dynamic Realistic Device Stage in Elegant Light Mode */}
+              <div className="lg:col-span-6 hidden lg:flex items-center justify-center relative h-full w-full">
+                <div className="relative w-full h-full max-h-[450px] rounded-3xl bg-white/70 backdrop-blur-2xl border border-white/90 shadow-[0_16px_50px_rgba(24,21,32,0.06),inset_0_1px_0_rgba(255,255,255,1)] flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+
+                  {/* ─────────────────────────────────────────────────────────
+                      01: WEBSITE DEVELOPMENT ➔ Real Luxury Tech Website in Full MacBook Pro
+                  ───────────────────────────────────────────────────────── */}
+                  {activeServiceIdx === 0 && (
+                    <div className="relative w-full max-w-[490px] flex flex-col items-center justify-center animate-fade-in transition-all duration-500 hover:scale-[1.02]">
+                      {/* Laptop Screen Bezel (Silver Anodized Aluminum Lid) */}
+                      <div className="w-full bg-[#0f172a] rounded-t-2xl p-2 pb-1.5 shadow-[0_25px_60px_rgba(24,21,32,0.2)] border-2 border-slate-300 relative">
+                        {/* Camera Notch */}
+                        <div className="w-14 h-2 bg-black rounded-b-md mx-auto mb-1 flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        </div>
+
+                        {/* Laptop Screen Display (Edge-to-Edge Browser Screen) */}
+                        <div className="w-full bg-white text-[#181520] rounded-lg overflow-hidden border border-slate-700la/50 shadow-inner flex flex-col h-[255px] relative">
+                          {/* Browser Toolbar */}
+                          <div className="bg-[#f1f5f9] px-3 py-1 border-b border-slate-200 flex items-center justify-between shrink-0">
+                            <div className="flex items-center space-x-1.5">
+                              <div className="w-2 h-2 rounded-full bg-[#ff5f56]" />
+                              <div className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
+                              <div className="w-2 h-2 rounded-full bg-[#27c93f]" />
+                            </div>
+                            <div className="bg-white px-3 py-0.5 rounded-md border border-slate-200 text-[8.5px] font-mono text-slate-700 flex items-center gap-1.5 w-52 justify-center shadow-xs">
+                              <span className="text-emerald-600 text-[8px]">🔒</span>
+                              <span className="text-slate-900 truncate font-semibold">https://aethera-spatial.io</span>
+                            </div>
+                            <div className="text-[7.5px] font-bold text-indigo-600 font-mono bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">
+                              LIVE 4K
+                            </div>
+                          </div>
+
+                          {/* Full Real Website Screenshot */}
+                          <div className="relative flex-1 w-full h-full overflow-hidden bg-slate-100">
+                            <img
+                              src="/services/website-preview.jpg"
+                              alt="Real Website Development Preview"
+                              className="w-full h-full object-cover object-top"
+                            />
+                            {/* Live Badge Overlay */}
+                            <div className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-full border border-slate-200/80 shadow-md text-[7.5px] font-mono font-bold text-emerald-700 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              99.9% Uptime • Next.js 15
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Laptop Bottom Base / Keyboard Lip (Silver Aluminum) */}
+                      <div className="w-[108%] h-3.5 bg-gradient-to-b from-[#cbd5e1] to-[#94a3b8] rounded-b-xl shadow-[0_15px_30px_rgba(24,21,32,0.18)] border-t border-white relative flex items-center justify-center">
+                        <div className="w-14 h-1 bg-slate-400 rounded-full" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ─────────────────────────────────────────────────────────
+                      02: MOBILE APP DEVELOPMENT ➔ Real Full Edge-to-Edge iPhone
+                  ───────────────────────────────────────────────────────── */}
+                  {activeServiceIdx === 1 && (
+                    <div className="relative w-full max-w-[340px] flex items-center justify-center animate-fade-in transition-all duration-500 hover:scale-[1.02]">
+                      {/* iPhone Body Frame (Silver Titanium) */}
+                      <div className="w-[200px] h-[380px] rounded-[42px] bg-gradient-to-b from-[#e2e8f0] via-[#cbd5e1] to-[#94a3b8] p-[7px] shadow-[0_30px_70px_rgba(24,21,32,0.22)] border-2 border-slate-300 relative flex flex-col justify-between">
+
+                        {/* Edge-to-Edge Screen Display */}
+                        <div className="w-full h-full bg-white rounded-[35px] overflow-hidden relative shadow-inner border border-slate-200">
+                          {/* Dynamic Island */}
+                          <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-[72px] h-[18px] bg-black rounded-full z-30 flex items-center justify-between px-2 shadow-sm">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/80" />
+                          </div>
+
+                          {/* Real Full Screen App Image */}
+                          <img
+                            src="/services/mobile-preview.jpg"
+                            alt="Real iOS Mobile App Preview"
+                            className="w-full h-full object-cover object-top"
+                          />
+
+                          {/* Bottom Home Indicator Bar */}
+                          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-16 h-1 bg-black/60 rounded-full z-20 backdrop-blur-xs" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ─────────────────────────────────────────────────────────
+                      03: UI/UX DESIGN ➔ Real Figma Workspace inside MacBook Pro Laptop
+                  ───────────────────────────────────────────────────────── */}
+                  {activeServiceIdx === 2 && (
+                    <div className="relative w-full max-w-[490px] flex flex-col items-center justify-center animate-fade-in transition-all duration-500 hover:scale-[1.02]">
+                      {/* Laptop Screen Bezel (Silver Anodized Aluminum Lid) */}
+                      <div className="w-full bg-[#0f172a] rounded-t-2xl p-2 pb-1.5 shadow-[0_25px_60px_rgba(24,21,32,0.2)] border-2 border-slate-300 relative">
+                        {/* Camera Notch */}
+                        <div className="w-14 h-2 bg-black rounded-b-md mx-auto mb-1 flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        </div>
+
+                        {/* Laptop Screen Display (Figma Workspace) */}
+                        <div className="w-full bg-[#2c2c2c] text-white rounded-lg overflow-hidden border border-slate-700/50 shadow-inner flex flex-col h-[255px] relative">
+                          {/* Figma Window Toolbar */}
+                          <div className="bg-[#222222] px-3 py-1 border-b border-[#333333] flex items-center justify-between shrink-0 text-[8px]">
+                            <div className="flex items-center space-x-2">
+                              <div className="flex space-x-1">
+                                <span className="w-2 h-2 rounded-full bg-[#ff5f56]" />
+                                <span className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
+                                <span className="w-2 h-2 rounded-full bg-[#27c93f]" />
+                              </div>
+                              <span className="font-machina font-bold text-slate-200 tracking-wide ml-1">
+                                FinTrack UI/UX System.fig
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1.5 font-mono">
+                              <span className="bg-white/10 px-1.5 py-0.5 rounded text-slate-300 font-bold border border-white/10">100%</span>
+                              <span className="bg-blue-600 text-white font-bold px-2 py-0.5 rounded shadow-sm">Share</span>
+                            </div>
+                          </div>
+
+                          {/* Real Full Figma Screenshot */}
+                          <div className="relative flex-1 w-full h-full overflow-hidden bg-[#1e1e1e]">
+                            <img
+                              src="/services/uiux-preview.jpg"
+                              alt="Real Figma UI/UX Design System Preview"
+                              className="w-full h-full object-cover object-center"
+                            />
+
+                            {/* Live Designer Cursor (Aamir) */}
+                            <div className="absolute top-3 right-4 z-20 flex items-center space-x-1 animate-bounce">
+                              <div className="w-3 h-3 text-pink-500 font-bold">▲</div>
+                              <div className="bg-pink-600 text-white text-[7.5px] font-neue px-1.5 py-0.5 rounded-full font-bold shadow-lg">
+                                Aamir (Lead UI/UX)
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Laptop Bottom Base / Keyboard Lip (Silver Aluminum) */}
+                      <div className="w-[108%] h-3.5 bg-gradient-to-b from-[#cbd5e1] to-[#94a3b8] rounded-b-xl shadow-[0_15px_30px_rgba(24,21,32,0.18)] border-t border-white relative flex items-center justify-center">
+                        <div className="w-14 h-1 bg-slate-400 rounded-full" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ─────────────────────────────────────────────────────────
+                      04: GAME DEVELOPMENT ➔ Real EA SPORTS FC Match on Full Handheld Console
+                  ───────────────────────────────────────────────────────── */}
+                  {activeServiceIdx === 3 && (
+                    <div className="relative w-full max-w-[490px] flex items-center justify-center animate-fade-in transition-all duration-500 hover:scale-[1.02]">
+                      {/* Horizontal Handheld Console Body (Matte White OLED Console) */}
+                      <div className="w-full h-[255px] bg-[#f8fafc] rounded-[36px] p-2.5 shadow-[0_30px_70px_rgba(24,21,32,0.2)] border-2 border-slate-300 flex items-center justify-between relative overflow-hidden">
+
+                        {/* Left Controls (D-Pad & Analog Stick) */}
+                        <div className="w-13 flex flex-col items-center justify-center space-y-3 z-10 shrink-0">
+                          {/* Analog Thumbstick */}
+                          <div className="w-9 h-9 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center shadow-sm">
+                            <div className="w-5 h-5 rounded-full bg-slate-200 border border-slate-400" />
+                          </div>
+                          {/* D-Pad */}
+                          <div className="w-8 h-8 relative flex items-center justify-center">
+                            <div className="absolute w-8 h-2.5 bg-slate-400 rounded-sm" />
+                            <div className="absolute w-2.5 h-8 bg-slate-400 rounded-sm" />
+                          </div>
+                        </div>
+
+                        {/* Center EA SPORTS FC Soccer Match Screenshot Screen */}
+                        <div className="flex-1 h-full rounded-2xl border-2 border-white overflow-hidden relative mx-2 shadow-inner bg-black">
+                          <img
+                            src="/services/game-preview.jpg"
+                            alt="Real EA SPORTS FC Gameplay Preview"
+                            className="w-full h-full object-cover object-center"
+                          />
+
+                          {/* Bottom FPS Overlay */}
+                          <div className="absolute bottom-1.5 left-2 bg-black/70 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[7px] font-mono font-bold border border-white/20">
+                            EA FC 25 • 4K 60FPS
+                          </div>
+                        </div>
+
+                        {/* Right Controls (ABXY Action Buttons with Soft Pastel Colors) */}
+                        <div className="w-13 flex flex-col items-center justify-center space-y-3 z-10 shrink-0">
+                          {/* ABXY Diamond Buttons */}
+                          <div className="w-8 h-8 relative flex items-center justify-center">
+                            <div className="absolute top-0 w-2.5 h-2.5 rounded-full bg-amber-400 flex items-center justify-center text-[6px] font-bold text-black shadow-xs">Y</div>
+                            <div className="absolute bottom-0 w-2.5 h-2.5 rounded-full bg-emerald-500 flex items-center justify-center text-[6px] font-bold text-white shadow-xs">A</div>
+                            <div className="absolute left-0 w-2.5 h-2.5 rounded-full bg-sky-500 flex items-center justify-center text-[6px] font-bold text-white shadow-xs">X</div>
+                            <div className="absolute right-0 w-2.5 h-2.5 rounded-full bg-rose-500 flex items-center justify-center text-[6px] font-bold text-white shadow-xs">B</div>
+                          </div>
+                          {/* Right Analog Stick */}
+                          <div className="w-9 h-9 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center shadow-sm">
+                            <div className="w-5 h-5 rounded-full bg-slate-200 border border-slate-400" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Action / CTA Banner */}
+            <div className="pt-2.5 pb-1 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-3 mt-auto">
+              <div>
+                <h4 className="font-machina text-sm sm:text-base font-black uppercase tracking-tight text-[#181520]">
+                  Ready to accelerate your product roadmap?
+                </h4>
+                <p className="font-neue text-xs text-[#181520]/60 font-normal">
+                  Bespoke digital engineering and creative services tailored for high-growth enterprises.
+                </p>
+              </div>
+              <button
+                onClick={() => openChat('Get A Quote')}
+                className="group relative inline-flex items-center gap-3 px-8 py-3 rounded-full bg-[#181520] text-white font-machina text-xs font-bold uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(24,21,32,0.28),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_16px_45px_rgba(24,21,32,0.4),0_0_30px_rgba(201,210,231,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] border border-white/15 hover:border-white/35 transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] cursor-pointer outline-none shrink-0 overflow-hidden"
+              >
+                <span
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+                  style={{
+                    backgroundImage: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.18) 55%, transparent 80%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 2.2s ease-in-out infinite',
+                  }}
+                />
+                <span className="relative z-10 flex items-center gap-2">
+                  <span>Get A Quote</span>
+                  <Sparkles className="w-3.5 h-3.5 text-white/80 group-hover:text-white group-hover:rotate-12 transition-transform duration-300" />
+                </span>
+                <div className="relative z-10 w-6 h-6 rounded-full bg-white/10 group-hover:bg-white group-hover:text-[#181520] flex items-center justify-center transition-all duration-300 -mr-1">
+                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* ================= GLOBAL LUXURY FOOTER ================= */}
+      <GlobalFooter className="bg-[#c9d2e7] border-t border-black/15" />
+
+      {/* CSS Keyframes for Ribbon Motion */}
+      <style jsx global>{`
+        @keyframes marqueeLeft {
+          0% {
+            transform: translateX(0%);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        @keyframes marqueeRight {
+          0% {
+            transform: translateX(-50%);
+          }
+          100% {
+            transform: translateX(0%);
+          }
+        }
+      `}</style>
     </main>
   );
 }

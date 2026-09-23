@@ -104,11 +104,11 @@ export default function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             </a>
 
             <button
-              onClick={toggleChat}
+              onClick={() => openChat('Book a Strategy Call')}
               className="bg-[#181520] text-white hover:bg-black px-5 py-2.5 rounded-full font-machina text-xs uppercase tracking-wider transition-all shadow-md flex items-center space-x-2 cursor-pointer active:scale-95"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#c9d2e7]" />
-              <span>Get Started</span>
+              <span>Book a Strategy Call</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
 
