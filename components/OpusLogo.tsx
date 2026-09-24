@@ -4,20 +4,24 @@ import React from 'react';
 
 interface OpusLogoProps {
   className?: string;
+  textClassName?: string;
   size?: number;
   variant?: 'mark' | 'full' | 'badge';
   dark?: boolean;
   showIcon?: boolean;
   showText?: boolean;
+  layout?: 'row' | 'col';
 }
 
 export default function OpusLogo({
   className = '',
+  textClassName = '',
   size = 28,
   variant = 'full',
   dark = false,
   showIcon = true,
   showText = true,
+  layout = 'row',
 }: OpusLogoProps) {
   const isOnlyMark = variant === 'mark';
   const shouldShowIcon = showIcon;
@@ -26,9 +30,16 @@ export default function OpusLogo({
   // Aspect ratio of the official emblem is 57 / 69 ≈ 0.826
   const iconHeight = size;
   const iconWidth = Math.round(iconHeight * (57 / 69));
+  const isCol = layout === 'col';
 
   return (
-    <span className="inline-flex items-center gap-2.5 select-none transition-opacity duration-200 group-hover:opacity-85">
+    <span
+      className={`select-none transition-opacity duration-200 group-hover:opacity-85 ${
+        isCol
+          ? 'inline-flex flex-col items-center justify-center text-center gap-1.5'
+          : 'inline-flex items-center gap-2.5'
+      } ${isCol ? className : ''}`}
+    >
       {shouldShowIcon && (
         <img
           src="/logos/opusgeeks-mark.png"
@@ -42,9 +53,11 @@ export default function OpusLogo({
       )}
       {shouldShowText && (
         <span
-          className={`font-machina text-[22px] md:text-[25px] font-extrabold tracking-[-0.03em] uppercase leading-none ${
-            dark ? 'text-white' : 'text-[#181520]'
-          } ${className}`}
+          className={`font-machina uppercase leading-none ${
+            isCol
+              ? 'text-[11px] lg:text-[12px] font-black tracking-[0.2em]'
+              : 'text-[22px] md:text-[25px] font-extrabold tracking-[-0.03em]'
+          } ${dark ? 'text-white' : 'text-[#181520]'} ${isCol ? textClassName : className}`}
         >
           Opusgeeks
         </span>

@@ -625,7 +625,7 @@ export default function AboutPage() {
               >
                 <div 
                   onClick={() => openChat('Enterprise Multi-Sector Architecture Consultation')}
-                  className="w-36 h-36 lg:w-42 lg:h-42 rounded-full bg-[#181520] text-white shadow-[0_15px_50px_rgba(24,21,32,0.4)] border-2 border-white/30 flex items-center justify-center relative cursor-pointer group hover:scale-105 transition-all duration-300 hover:shadow-[0_0_70px_rgba(24,21,32,0.65)] p-2.5 select-none backdrop-blur-2xl ring-4 ring-[#181520]/10"
+                  className="w-[140px] h-[140px] lg:w-[164px] lg:h-[164px] rounded-full bg-[#181520] text-white shadow-[0_15px_50px_rgba(24,21,32,0.4)] border-2 border-white/30 flex items-center justify-center relative cursor-pointer group hover:scale-105 transition-all duration-300 hover:shadow-[0_0_70px_rgba(24,21,32,0.65)] p-2.5 select-none backdrop-blur-2xl ring-4 ring-[#181520]/10"
                 >
                   <div className="absolute inset-1.5 rounded-full border border-dashed border-white/20 animate-[spin_100s_linear_infinite_reverse] pointer-events-none" />
 
@@ -639,7 +639,12 @@ export default function AboutPage() {
                   
                   {/* Prominent Opusgeeks Branding */}
                   <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none">
-                    <OpusLogo dark={true} className="text-xl lg:text-2xl font-extrabold uppercase tracking-widest text-white drop-shadow-2xl" />
+                    <OpusLogo 
+                      layout="col"
+                      size={32}
+                      dark={true}
+                      textClassName="text-[11px] lg:text-[12px] font-machina font-black uppercase tracking-[0.2em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
+                    />
                   </div>
                 </div>
               </div>
@@ -695,10 +700,16 @@ export default function AboutPage() {
               <div className="flex justify-center mb-4">
                 <div 
                   onClick={() => openChat('Enterprise Multi-Sector Architecture Consultation')}
-                  className="w-28 h-28 rounded-full bg-[#181520] text-white shadow-xl border-2 border-white/30 flex items-center justify-center p-2 relative cursor-pointer active:scale-95 transition-transform"
+                  className="w-28 h-28 rounded-full bg-[#181520] text-white shadow-xl border-2 border-white/30 flex items-center justify-center p-3 relative cursor-pointer active:scale-95 transition-transform overflow-hidden ring-4 ring-[#181520]/10"
                 >
-                  <div className="relative z-10">
-                    <OpusLogo dark={true} className="text-lg font-extrabold uppercase tracking-widest text-white" />
+                  <div className="absolute inset-1.5 rounded-full border border-dashed border-white/20 animate-[spin_100s_linear_infinite_reverse] pointer-events-none" />
+                  <div className="relative z-10 flex flex-col items-center justify-center text-center pointer-events-none">
+                    <OpusLogo 
+                      layout="col"
+                      size={24}
+                      dark={true}
+                      textClassName="text-[9px] font-machina font-extrabold uppercase tracking-[0.18em] text-white drop-shadow-md"
+                    />
                   </div>
                 </div>
               </div>
