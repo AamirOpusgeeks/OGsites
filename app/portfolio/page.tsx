@@ -35,81 +35,178 @@ interface Project {
 
 const CATEGORIES = [
   { id: 'all', label: 'All Works' },
-  { id: 'app', label: 'Mobile Architecture' },
   { id: 'web', label: 'Website & Cloud' },
-  { id: 'uiux', label: 'UI/UX Design' },
+  { id: 'app', label: 'Mobile Architecture' },
 ];
 
 const PROJECTS: Project[] = [
   {
-    id: 'fintech',
-    number: '01',
-    title: 'FinEdge Banking Platform',
-    client: 'FinEdge Global',
-    category: 'app',
-    categoryLabel: 'Mobile Architecture',
-    year: '2026',
-    metric: '< 8ms Sync Latency',
-    desc: 'High-frequency mobile banking engine engineered with native biometrics, sub-second ledger updates, and bulletproof offline-first synchronization.',
-    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1600&q=85',
-    tags: ['React Native CLI', 'Biometric Encryption', 'Zero-Trust', 'Redux Toolkit'],
-    screenLabel: 'iOS & Android Native Core',
-  },
-  {
     id: 'vstream',
-    number: '02',
+    number: '01',
     title: 'V-Stream Aviation Charter',
-    client: 'V-Stream Private Jet',
+    client: 'V-Stream Aviation Sales & Management',
     category: 'web',
     categoryLabel: 'Website & Cloud',
-    year: '2026',
+    year: '2025',
     metric: '< 0.3s First Paint',
-    desc: 'Next-generation private jet charter platform offering real-time fleet availability, empty-leg flight matching, and custom bespoke itineraries.',
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Next.js 15', 'Tailwind CSS', 'Flight API', 'Edge Cache'],
+    desc: 'Bespoke private jet sales, aircraft management, and real-time charter booking engine with dynamic itinerary matching and fleet availability.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008327.png',
+    tags: ['Next.js', 'Tailwind CSS', 'Charter Engine', 'Edge Caching'],
     screenLabel: 'Private Aviation Platform',
   },
   {
-    id: 'crypto',
-    number: '03',
-    title: 'Zenith Trading Terminal',
-    client: 'Zenith Protocol',
-    category: 'uiux',
-    categoryLabel: 'UI/UX Design',
-    year: '2026',
-    metric: '68% Conversion Boost',
-    desc: 'Next-generation institutional trading interface prioritizing high-contrast order books, transaction state clarity, and ultra-dark glass ergonomics.',
-    image: 'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Dark Mode Ergonomics', 'Order Book UX', 'Tactile States', 'Component Library'],
-    screenLabel: 'Web3 Terminal UX',
-  },
-  {
-    id: 'cloud-saas',
-    number: '04',
-    title: 'Nexus Cloud Intelligence',
-    client: 'Nexus Data Corp',
-    category: 'web',
-    categoryLabel: 'Website & Cloud',
-    year: '2026',
-    metric: '45k+ Req/Sec Ingestion',
-    desc: 'Multi-tenant cloud infrastructure and telemetry dashboard delivering real-time metric streams with distributed edge caching and sub-10ms queries.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=85',
-    tags: ['Next.js 15', 'Distributed WebSockets', 'ClickHouse', 'Tailwind CSS'],
-    screenLabel: 'Cloud Platform Architecture',
-  },
-  {
-    id: 'lecavalier',
-    number: '05',
-    title: 'Le Cavalier Wine Vault',
-    client: 'Le Cavalier Cellars',
+    id: 'wedstimate',
+    number: '02',
+    title: 'Wedstimate Wedding Platform',
+    client: 'Wedstimate Inc',
     category: 'app',
     categoryLabel: 'Mobile Architecture',
     year: '2026',
-    metric: '+185% Volume Growth',
-    desc: 'Luxury wine asset verification, private barrel auctioning, and instant biometric checkout tailored for ultra-high-net-worth collectors.',
-    image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=85',
-    tags: ['SwiftUI', 'Kotlin Compose', 'Biometrics', 'Stripe Terminal'],
-    screenLabel: 'Luxury Asset Vault App',
+    metric: '4.9★ App Store Rating',
+    desc: 'Interactive wedding cost estimator and vendor matching application featuring real-time budget forecasting, vendor booking streams, and milestone tracking.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008355.png',
+    tags: ['React Native', 'Redux Toolkit', 'Vendor Marketplace', 'Budget Engine'],
+    screenLabel: 'Native Mobile App',
+  },
+  {
+    id: 'kelstech',
+    number: '03',
+    title: 'Kelstech Home Service',
+    client: 'Kelstech Home Service',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2025',
+    metric: '+140% Booking Lead Rate',
+    desc: 'On-demand assembly, maintenance, and technical installation portal built for rapid customer scheduling, smart dispatching, and instant quote estimations.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008328.png',
+    tags: ['React.js', 'Tailwind CSS', 'Quote Calculator', 'Service CRM'],
+    screenLabel: 'Home Services Portal',
+  },
+  {
+    id: 'mind-nourishment',
+    number: '04',
+    title: 'Mind Nourishment App',
+    client: 'Mind Nourishment Wellness',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2025',
+    metric: '120k+ Active Users',
+    desc: 'Holistic wellness and mindfulness application delivering guided meditation journeys, adaptive sleepscapes, mood journals, and personalized progress telemetry.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008352.png',
+    tags: ['React Native', 'Audio Streaming', 'Mood Analytics', 'HealthKit API'],
+    screenLabel: 'Meditation & Soul Wellness',
+  },
+  {
+    id: 'restaurant-techs',
+    number: '05',
+    title: 'Restaurant Techs Platform',
+    client: 'Restaurant Techs LLC',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2025',
+    metric: '99.9% Uptime SLA',
+    desc: 'Enterprise commercial kitchen repair and emergency service platform with real-time technician dispatch, inventory telemetry, and SLA tracking.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008331.png',
+    tags: ['Next.js', 'Cloud Architecture', 'Live Dispatch', 'PostgreSQL'],
+    screenLabel: 'Kitchen Tech Management',
+  },
+  {
+    id: 'lecavalier',
+    number: '06',
+    title: 'Le Cavalier Cellars',
+    client: 'Le Cavalier Cellars',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2025',
+    metric: '+185% Private Reserve Sales',
+    desc: 'Luxury sommelier concierge and cellar inventory management application, integrating climate sensor telemetry, vintage valuation tracking, and private vintage reserve auctions.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008353.png',
+    tags: ['React Native', 'Bluetooth Mesh', 'Offline SQLite', 'Sommelier Concierge'],
+    screenLabel: 'Luxury Cellar Concierge',
+  },
+  {
+    id: 'us-maxim',
+    number: '07',
+    title: 'US Maxim Beauty Supply',
+    client: 'US Maxim Beauty & Supply Co.',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2025',
+    metric: '+210% Online Revenue',
+    desc: 'Premium e-commerce storefront with AR-powered virtual try-on, intelligent product recommendation engine, and seamless subscription-based replenishment flows.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008334.png',
+    tags: ['Next.js', 'Shopify Hydrogen', 'AR Try-On', 'Stripe Subscriptions'],
+    screenLabel: 'E-Commerce Platform',
+  },
+  {
+    id: 'greenscape',
+    number: '08',
+    title: 'GreenScape Landscaping',
+    client: 'GreenScape Design Studios',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2025',
+    metric: '+165% Lead Conversion',
+    desc: 'Interactive landscape design portal featuring 3D yard visualization, seasonal maintenance scheduling, and automated client proposal generation with cost estimators.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008336.png',
+    tags: ['React.js', 'Three.js', 'CMS Integration', 'Proposal Engine'],
+    screenLabel: 'Design & Scheduling Portal',
+  },
+  {
+    id: 'nova-health',
+    number: '09',
+    title: 'Nova Health Telemedicine',
+    client: 'Nova Health Systems',
+    category: 'web',
+    categoryLabel: 'Website & Cloud',
+    year: '2026',
+    metric: '50k+ Virtual Consultations',
+    desc: 'HIPAA-compliant telemedicine platform delivering real-time video consultations, electronic prescription workflows, patient portal dashboards, and integrated lab result tracking.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008350.png',
+    tags: ['Next.js', 'WebRTC', 'HIPAA Compliance', 'FHIR API'],
+    screenLabel: 'Telemedicine Platform',
+  },
+  {
+    id: 'restaurant-techs-app',
+    number: '10',
+    title: 'Restaurant Techs Mobile',
+    client: 'Restaurant Techs LLC',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2025',
+    metric: '98% First-Call Resolution',
+    desc: 'Field technician companion app with real-time job dispatching, equipment diagnostic workflows, inventory barcode scanning, and offline-first service report generation.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/Group-1000008354.png',
+    tags: ['React Native', 'Offline-First', 'Barcode Scanner', 'Push Notifications'],
+    screenLabel: 'Field Service App',
+  },
+  {
+    id: 'fitpulse',
+    number: '11',
+    title: 'FitPulse Workout Tracker',
+    client: 'FitPulse Health Inc.',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2026',
+    metric: '250k+ Downloads',
+    desc: 'AI-powered fitness companion delivering personalized workout routines, real-time form analysis via device camera, nutrition macro tracking, and social challenge leaderboards.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/RT-mockup-2.png',
+    tags: ['Flutter', 'TensorFlow Lite', 'HealthKit', 'Social Challenges'],
+    screenLabel: 'AI Fitness Companion',
+  },
+  {
+    id: 'parkwise',
+    number: '12',
+    title: 'ParkWise Smart Parking',
+    client: 'ParkWise Technologies',
+    category: 'app',
+    categoryLabel: 'Mobile Architecture',
+    year: '2026',
+    metric: '-40% Urban Congestion',
+    desc: 'IoT-integrated smart parking application featuring real-time spot availability, automated payment via NFC, predictive occupancy heatmaps, and EV charging station reservations.',
+    image: 'https://opusgeeks.com/wp-content/uploads/2024/03/RT-mockup-5.png',
+    tags: ['React Native', 'IoT Sensors', 'NFC Payments', 'Predictive Analytics'],
+    screenLabel: 'Smart Parking Solution',
   },
 ];
 
@@ -174,8 +271,23 @@ function PortfolioContent() {
   const [isHoveringCard, setIsHoveringCard] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const [previewY, setPreviewY] = useState<number | null>(null);
   const { lenis } = useLenis();
   const { openChat } = useChat();
+
+  const updatePreviewY = (clientY: number) => {
+    if (!listContainerRef.current) return;
+    const rect = listContainerRef.current.getBoundingClientRect();
+    const mouseY = clientY - rect.top;
+    const cardHeight = 220;
+    const halfCard = cardHeight / 2;
+    const margin = 12;
+    const minY = halfCard + margin;
+    const maxY = Math.max(minY, rect.height - halfCard - margin);
+    const clampedY = Math.min(Math.max(mouseY, minY), maxY);
+    setPreviewY(clampedY);
+  };
 
   // Hero slider projects (all 5 curated projects)
   const heroProjects = PROJECTS;
@@ -229,14 +341,6 @@ function PortfolioContent() {
       ref={containerRef}
       className="relative min-h-screen text-[#181520] pt-6 md:pt-8 pb-24 px-6 md:px-14 overflow-hidden font-sans select-none"
     >
-      {/* Baked Studio Backdrop */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <img
-          src="/backgrounds/background_min.png"
-          alt="Studio Background"
-          className="w-full h-full object-cover"
-        />
-      </div>
 
       {/* Floating Magnetic Luxury Cursor Badge */}
       <div
@@ -447,18 +551,27 @@ function PortfolioContent() {
             </div>
 
             {/* Interactive Hover-Reveal List */}
-            <div className="relative">
-              {/* Floating Image Preview (appears on hover, follows cursor Y) */}
-              {hoveredProject && (
+            <div 
+              ref={listContainerRef}
+              onMouseMove={(e) => updatePreviewY(e.clientY)}
+              onMouseLeave={() => {
+                setHoveredProject(null);
+                setPreviewY(null);
+              }}
+              className="relative"
+            >
+              {/* Floating Image Preview (appears on hover, follows cursor Y clamped inside section) */}
+              {hoveredProject && previewY !== null && (
                 <div 
-                  className="hidden lg:block fixed z-40 pointer-events-none"
+                  className="hidden lg:block absolute z-40 pointer-events-none"
                   style={{
-                    left: '62%',
-                    top: `${cursorPos.y}px`,
+                    left: '58%',
+                    top: `${previewY}px`,
                     transform: 'translate(-50%, -50%)',
+                    transition: 'top 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, transform 0.2s ease',
                   }}
                 >
-                  <div className="w-[380px] aspect-[16/10] rounded-2xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.25)] border border-black/10 bg-[#0c0d14]">
+                  <div className="w-[350px] aspect-[16/10] rounded-2xl overflow-hidden shadow-[0_30px_70px_rgba(0,0,0,0.28)] border border-black/10 bg-[#0c0d14]">
                     <img
                       src={hoveredProject.image}
                       alt={hoveredProject.title}
@@ -471,8 +584,10 @@ function PortfolioContent() {
               {filteredProjects.slice(1).map((project, idx) => (
                 <div
                   key={project.id}
-                  onMouseEnter={() => setHoveredProject(project)}
-                  onMouseLeave={() => setHoveredProject(null)}
+                  onMouseEnter={(e) => {
+                    setHoveredProject(project);
+                    updatePreviewY(e.clientY);
+                  }}
                   onClick={() => openChat(`Case Study: ${project.title}`)}
                   className="border-b border-black/[0.07] py-6 md:py-7 flex items-center justify-between gap-4 cursor-pointer group/row hover:pl-4 transition-all duration-300"
                 >

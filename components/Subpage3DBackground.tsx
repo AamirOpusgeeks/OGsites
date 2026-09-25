@@ -211,16 +211,21 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
     let mouseX = 0;
     let mouseY = 0;
 
+    // Reset scroll immediately on subpage route entry to prevent any stale scroll offset
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+
     // Synchronously compute initial scroll state to prevent initial frame glitch / jumping
     const initScrollY = typeof window !== 'undefined' ? (window.scrollY || document.documentElement.scrollTop || 0) : 0;
     const initMaxScroll = typeof window !== 'undefined' ? Math.max(1, document.documentElement.scrollHeight - window.innerHeight) : 1;
-    let currentScrollProgress = Math.min(1, Math.max(0, initScrollY / initMaxScroll));
+    let currentScrollProgress = initScrollY === 0 ? 0 : Math.min(1, Math.max(0, initScrollY / initMaxScroll));
     let currentScrollVelocity = 0;
 
     let currentY = startY - (currentScrollProgress * scrollDeltaY);
     let currentRotY = currentScrollProgress * Math.PI * 2.0;
 
-    // Place at exact hero coordinates (Centered at x:0, y:0.22, z:0.4)
+    // Place at exact hero coordinates (Centered at x:0, y:startY, z:0.4) instantly from frame 0
     rootOGGroup.position.set(basePosX, currentY, 0.4);
     ogInnerGroup.rotation.y = currentRotY;
 
@@ -267,6 +272,7 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
 
     // 7. Render & Scroll-Reactive Physics Loop (Exact Hero Physics)
     let animId: number;
+    let frameCount = 0;
     const startTime = performance.now();
 
     const animate = () => {
@@ -274,6 +280,7 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
 
       if (document.hidden) return;
 
+      frameCount++;
       const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Real-time scroll sampling guarantee
@@ -281,17 +288,16 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const instantProgress = Math.min(1, Math.max(0, scrollY / maxScroll));
 
-      // Blend instant progress with event progress
-      currentScrollProgress += (instantProgress - currentScrollProgress) * 0.12;
+      // Lock to startY for initial frames or if at scroll 0, completely eliminating initial load jump/drop
+      if (frameCount < 20 && scrollY === 0) {
+        currentScrollProgress = 0;
+        currentY = startY;
+      } else {
+        currentScrollProgress += (instantProgress - currentScrollProgress) * 0.15;
+        const targetY = startY - (currentScrollProgress * scrollDeltaY);
+        currentY += (targetY - currentY) * 0.15;
+      }
 
-      // Camera parallax matching hero section
-      camera.position.x += (mouseX * 0.2 - camera.position.x) * 0.05;
-      camera.position.y += (-mouseY * 0.15 - camera.position.y) * 0.05;
-      camera.lookAt(0, 0, 0);
-
-      // Scroll-Reactive Dynamic Position
-      const targetY = startY - (currentScrollProgress * scrollDeltaY);
-      currentY += (targetY - currentY) * 0.08;
       rootOGGroup.position.y = currentY;
       rootOGGroup.position.x = basePosX;
 
@@ -339,13 +345,25 @@ export default function Subpage3DBackground({ isAppReady = true }: Subpage3DBack
   if (isLandingPage) return null;
 
   return (
-    <div
-      ref={mountRef}
-      className="fixed inset-0 pointer-events-none z-10 overflow-hidden select-none"
-      style={{
-        pointerEvents: 'none',
-      }}
-      aria-hidden="true"
-    />
+    <>
+      {/* Studio Ambient Backdrop behind 3D canvas */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <img
+          src="/backgrounds/background_min.png"
+          alt="Studio Background"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* High-Performance 3D OG Monogram Layer (z-[5] - in front of background, behind text) */}
+      <div
+        ref={mountRef}
+        className="fixed inset-0 pointer-events-none z-[5] overflow-hidden select-none"
+        style={{
+          pointerEvents: 'none',
+        }}
+        aria-hidden="true"
+      />
+    </>
   );
 }

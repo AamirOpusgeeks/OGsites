@@ -5,10 +5,11 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { ArrowUpRight, Sparkles, ChevronLeft, ChevronRight, Layers, Cpu, Terminal, Rocket, Trophy, Users, CheckCircle2, ShieldCheck, Zap, Globe, Monitor, Smartphone, Palette, Gamepad2, Code2, Menu, X, ChevronDown } from 'lucide-react';
+import { ArrowUpRight, Sparkles, ChevronLeft, ChevronRight, Layers, Cpu, Terminal, Rocket, Trophy, Users, CheckCircle2, ShieldCheck, Zap, Globe, Monitor, Smartphone, Palette, Gamepad2, Code2, Menu, X, ChevronDown, Star } from 'lucide-react';
 import OpusLogo from '@/components/OpusLogo';
 import ServicesDropdown from '@/components/ServicesDropdown';
 import GlobalFooter from '@/components/GlobalFooter';
+import LuxuryTestimonials from '@/components/LuxuryTestimonials';
 import { useLenis } from '@/components/providers/SmoothScroll';
 import { useChat } from '@/components/providers/ChatProvider';
 
@@ -180,6 +181,7 @@ export default function Page() {
   const processSectionRef = useRef<HTMLDivElement>(null);
   const metricsSectionRef = useRef<HTMLDivElement>(null);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
+  const testimonialsSectionRef = useRef<HTMLDivElement>(null);
   const [activeMetricPillar, setActiveMetricPillar] = useState<number>(0);
   const [activeServiceIdx, setActiveServiceIdx] = useState<number>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -301,7 +303,7 @@ export default function Page() {
   }, [isChatOpen]);
 
   // Programmatic Scroll Function to exact timeline stages
-  const scrollToSection = (target: 'hero' | 'fintech' | 'healthcare' | 'saas' | 'engineering' | 'ecosystem' | 'enterprise' | 'connect') => {
+  const scrollToSection = (target: 'hero' | 'fintech' | 'healthcare' | 'saas' | 'engineering' | 'ecosystem' | 'enterprise' | 'connect' | 'reviews') => {
     const st = scrollTriggerRef.current;
     if (!st || !lenis) return;
 
@@ -315,6 +317,15 @@ export default function Page() {
 
     const start = st.start;
     const distance = st.end - st.start;
+
+    if (target === 'reviews') {
+      lenis.scrollTo(start + distance * 0.95, {
+        duration: 1.4,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      });
+      return;
+    }
+
     const targetScroll = start + distance * 0.7;
 
     if (target === 'fintech' || target === 'engineering') {
@@ -2414,7 +2425,7 @@ export default function Page() {
         scrollTrigger: {
           trigger: pinContainerRef.current,
           start: 'top top',
-          end: '+=600%',
+          end: '+=750%',
           pin: true,
           scrub: 0.6,
           anticipatePin: 1,
@@ -2528,7 +2539,25 @@ export default function Page() {
         )
 
         // Hold Stage 5
-        .to({}, { duration: 1.4 }, 10.8);
+        .to({}, { duration: 1.2 }, 10.8)
+
+        // ── Stage 5 Exits & Stage 6 (Verified Client Testimonials) Enters ──
+        .to(servicesSectionRef.current, {
+          y: -90,
+          opacity: 0,
+          duration: 1.2,
+          ease: 'power2.inOut',
+        }, 12.0)
+        .set(servicesSectionRef.current, { pointerEvents: 'none' }, 12.6)
+        .set(testimonialsSectionRef.current, { pointerEvents: 'auto' }, 12.4)
+        .fromTo(testimonialsSectionRef.current,
+          { y: 80, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.4, ease: 'power3.out' },
+          12.4
+        )
+
+        // Hold Stage 6
+        .to({}, { duration: 1.4 }, 13.8);
     });
 
     return () => {
@@ -2589,6 +2618,14 @@ export default function Page() {
             >
               Portfolio
             </a>
+
+            {/* Testimonials & Reviews */}
+            <button
+              onClick={() => scrollToSection('reviews')}
+              className="hover:opacity-60 transition-opacity font-neue text-[13px] font-medium text-[#181520] cursor-pointer bg-transparent border-none outline-none"
+            >
+              Reviews
+            </button>
 
             {/* Blogs */}
             <a
@@ -2707,6 +2744,14 @@ export default function Page() {
 
           {[
             { label: 'Portfolio', href: '/portfolio' },
+            { 
+              label: 'Reviews', 
+              href: '#testimonials',
+              onClick: () => {
+                setMobileMenuOpen(false);
+                scrollToSection('reviews');
+              }
+            },
             { label: 'Blogs', href: '/blogs' },
             { label: 'About', href: '/about' },
             { label: 'Contact Us', href: '/contact-us' },
@@ -2715,7 +2760,14 @@ export default function Page() {
             <a
               key={item.label}
               href={item.href}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => {
+                if (item.onClick) {
+                  e.preventDefault();
+                  item.onClick();
+                } else {
+                  setMobileMenuOpen(false);
+                }
+              }}
               className="font-machina text-2xl font-black uppercase text-[#181520] hover:translate-x-2 transition-transform"
             >
               {item.label}
@@ -3519,28 +3571,48 @@ export default function Page() {
                   Bespoke digital engineering and creative services tailored for high-growth enterprises.
                 </p>
               </div>
-              <button
-                onClick={() => openChat('Get A Quote')}
-                className="group relative inline-flex items-center gap-3 px-8 py-3 rounded-full bg-[#181520] text-white font-machina text-xs font-bold uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(24,21,32,0.28),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_16px_45px_rgba(24,21,32,0.4),0_0_30px_rgba(201,210,231,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] border border-white/15 hover:border-white/35 transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] cursor-pointer outline-none shrink-0 overflow-hidden"
-              >
-                <span
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
-                  style={{
-                    backgroundImage: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.18) 55%, transparent 80%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer 2.2s ease-in-out infinite',
-                  }}
-                />
-                <span className="relative z-10 flex items-center gap-2">
-                  <span>Get A Quote</span>
-                  <Sparkles className="w-3.5 h-3.5 text-white/80 group-hover:text-white group-hover:rotate-12 transition-transform duration-300" />
-                </span>
-                <div className="relative z-10 w-6 h-6 rounded-full bg-white/10 group-hover:bg-white group-hover:text-[#181520] flex items-center justify-center transition-all duration-300 -mr-1">
-                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </div>
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => scrollToSection('reviews')}
+                  className="hidden sm:inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/70 hover:bg-white text-[#181520] font-machina text-xs font-bold uppercase tracking-wider border border-black/10 transition-all duration-200 cursor-pointer shadow-xs active:scale-95"
+                >
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 drop-shadow-[0_1px_3px_rgba(251,191,36,0.3)]" />
+                  <span>Verified Reviews ↓</span>
+                </button>
+                <button
+                  onClick={() => openChat('Get A Quote')}
+                  className="group relative inline-flex items-center gap-3 px-8 py-3 rounded-full bg-[#181520] text-white font-machina text-xs font-bold uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(24,21,32,0.28),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_16px_45px_rgba(24,21,32,0.4),0_0_30px_rgba(201,210,231,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] border border-white/15 hover:border-white/35 transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] cursor-pointer outline-none shrink-0 overflow-hidden"
+                >
+                  <span
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+                    style={{
+                      backgroundImage: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.18) 55%, transparent 80%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'shimmer 2.2s ease-in-out infinite',
+                    }}
+                  />
+                  <span className="relative z-10 flex items-center gap-2">
+                    <span>Get A Quote</span>
+                    <Sparkles className="w-3.5 h-3.5 text-white/80 group-hover:text-white group-hover:rotate-12 transition-transform duration-300" />
+                  </span>
+                  <div className="relative z-10 w-6 h-6 rounded-full bg-white/10 group-hover:bg-white group-hover:text-[#181520] flex items-center justify-center transition-all duration-300 -mr-1">
+                    <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════
+            Stage 6: Verified Client Dossiers & Testimonials (Pinned Stage)
+        ══════════════════════════════════════════════════════════════ */}
+        <div
+          ref={testimonialsSectionRef}
+          id="testimonials"
+          className="absolute inset-0 w-full h-full px-4 sm:px-8 md:px-14 flex flex-col justify-between pt-20 sm:pt-22 md:pt-24 pb-4 sm:pb-6 z-20 pointer-events-none will-change-transform origin-center opacity-0 select-none overflow-hidden"
+        >
+          <LuxuryTestimonials />
         </div>
       </div>
 

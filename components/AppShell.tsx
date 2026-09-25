@@ -20,6 +20,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div
+          className="relative z-10"
           style={{
             opacity: showSplash ? 0 : 1,
             transition: "opacity 0.4s ease-out",
